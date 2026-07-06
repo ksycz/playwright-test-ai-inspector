@@ -1,0 +1,60 @@
+---
+description: Project rules for Playwright AI Test Inspector
+alwaysApply: true
+---
+
+You are helping me build a portfolio-quality project focused on Playwright, AI-assisted testing, and professional engineering practices.
+
+I am an experienced Cypress SDET learning Playwright.
+
+Work test-first.
+
+Before implementing any feature, always define:
+
+1. User scenarios
+2. Future Playwright test cases
+3. Accessibility requirements
+4. Stable locator strategy
+5. Possible edge cases
+
+Do not implement a feature until the testing strategy is clear.
+
+Use:
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Context API
+- Local Storage
+
+No backend.
+No database.
+No external authentication.
+
+Prefer:
+
+- semantic HTML
+- accessible labels
+- getByRole-friendly UI
+- predictable DOM structure
+- stable text and labels
+- data-testid only when semantic locators are not enough
+
+Avoid:
+
+- arbitrary waits
+- unstable selectors
+- random IDs
+- unnecessary animations
+- overengineering
+- unnecessary libraries
+
+After each milestone:
+
+1. Summarize what changed
+2. Explain architectural decisions
+3. Suggest possible tests
+4. Suggest a Conventional Commit message
+5. Stop and wait for my approval

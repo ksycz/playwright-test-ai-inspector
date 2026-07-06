@@ -41,8 +41,8 @@ async function fillCheckoutForm(
   await page.getByLabel('ZIP Code').fill(details.zipCode);
 }
 
-test.describe('M7 — Checkout Flow', () => {
-  test('M7-01: happy path fills form, submits, and shows confirmation with order number', async ({
+test.describe('P1-M7 — Checkout Flow', () => {
+  test('P1-M7-01: happy path fills form, submits, and shows confirmation with order number', async ({
     page,
   }) => {
     await loginWithProductInCart(page);
@@ -56,7 +56,7 @@ test.describe('M7 — Checkout Flow', () => {
     await expect(page.getByTestId('order-number')).toHaveText(/^ORD-\d+$/);
   });
 
-  test('M7-02: order summary on checkout matches cart contents', async ({ page }) => {
+  test('P1-M7-02: order summary on checkout matches cart contents', async ({ page }) => {
     await loginWithProductInCart(page);
     await page.goto('/checkout');
 
@@ -68,7 +68,7 @@ test.describe('M7 — Checkout Flow', () => {
     );
   });
 
-  test('M7-03: empty cart blocks checkout', async ({ page }) => {
+  test('P1-M7-03: empty cart blocks checkout', async ({ page }) => {
     await login(page);
     await page.goto('/checkout');
 
@@ -76,7 +76,7 @@ test.describe('M7 — Checkout Flow', () => {
     await expect(page.getByRole('heading', { name: 'Your cart is empty' })).toBeVisible();
   });
 
-  test('M7-04: required field validation on empty submit', async ({ page }) => {
+  test('P1-M7-04: required field validation on empty submit', async ({ page }) => {
     await loginWithProductInCart(page);
     await page.goto('/checkout');
 
@@ -90,7 +90,7 @@ test.describe('M7 — Checkout Flow', () => {
     await expect(page).toHaveURL('/checkout');
   });
 
-  test('M7-05: invalid email format shows validation error', async ({ page }) => {
+  test('P1-M7-05: invalid email format shows validation error', async ({ page }) => {
     await loginWithProductInCart(page);
     await page.goto('/checkout');
 
@@ -101,7 +101,7 @@ test.describe('M7 — Checkout Flow', () => {
     await expect(page).toHaveURL('/checkout');
   });
 
-  test('M7-06: cart cleared after successful order', async ({ page }) => {
+  test('P1-M7-06: cart cleared after successful order', async ({ page }) => {
     await loginWithProductInCart(page);
     await page.goto('/checkout');
 
@@ -115,7 +115,7 @@ test.describe('M7 — Checkout Flow', () => {
     await expect(page.getByRole('link', { name: 'Cart, 0 items' })).toBeVisible();
   });
 
-  test('M7-07: full E2E browse, add, login, checkout, confirm', async ({ page }) => {
+  test('P1-M7-07: full E2E browse, add, login, checkout, confirm', async ({ page }) => {
     await page.goto('/products');
     await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
     await expect(page.getByRole('link', { name: 'Cart, 1 item' })).toBeVisible();
@@ -139,7 +139,7 @@ test.describe('M7 — Checkout Flow', () => {
     await expect(page.getByRole('link', { name: 'Continue shopping' })).toBeVisible();
   });
 
-  test('M7-08: direct visit to confirmation without order redirects away', async ({ page }) => {
+  test('P1-M7-08: direct visit to confirmation without order redirects away', async ({ page }) => {
     await login(page);
     await page.goto('/order-confirmation');
 

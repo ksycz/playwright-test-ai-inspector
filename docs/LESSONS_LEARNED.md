@@ -100,15 +100,15 @@ Current smoke spec (`tests/smoke/app-foundation.spec.ts`):
 ```ts
 import { test, expect } from '@playwright/test';
 
-test.describe('M1 — Project Foundation', () => {
-  test('M1-01: app dev server serves the root page', async ({ page }) => {
+test.describe('P1-M1 — Project Foundation', () => {
+  test('P1-M1-01: app dev server serves the root page', async ({ page }) => {
     const response = await page.goto('/');
 
     expect(response?.ok()).toBeTruthy();
     await expect(page.getByRole('heading', { name: 'Demo Shop' })).toBeVisible();
   });
 
-  test('M1-02: page has document title and main landmark', async ({ page }) => {
+  test('P1-M1-02: page has document title and main landmark', async ({ page }) => {
     await page.goto('/');
 
     await expect(page).toHaveTitle('Demo Shop');
@@ -191,7 +191,7 @@ These will feed the future **AI Failure Analyzer** (traces, screenshots, stack t
 npm test -- tests/smoke
 
 # Run one test by name
-npm test -- -g "M1-01"
+npm test -- -g "P1-M1-01"
 
 # Debug mode (step through)
 npx playwright test --debug tests/smoke/app-foundation.spec.ts
@@ -204,4 +204,4 @@ npm run test:ui
 
 ### Not built yet (by design)
 
-Phase 2 will add Page Object Model, auth fixtures, centralized test data, more suites, and CI. M1 keeps tests inline in the spec file to learn Playwright basics first.
+Phase 2 will add Page Object Model, auth fixtures, centralized test data, more suites, and CI. P1-M1 keeps tests inline in the spec file to learn Playwright basics first.

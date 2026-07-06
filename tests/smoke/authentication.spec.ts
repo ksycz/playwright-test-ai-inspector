@@ -11,8 +11,8 @@ async function addProductAndOpenCart(page: import('@playwright/test').Page) {
   await page.goto('/cart');
 }
 
-test.describe('M6 — Fake Authentication', () => {
-  test('M6-01: login with valid credentials succeeds', async ({ page }) => {
+test.describe('P1-M6 — Fake Authentication', () => {
+  test('P1-M6-01: login with valid credentials succeeds', async ({ page }) => {
     await page.goto('/login');
 
     await page.getByLabel('Username').fill(validUsername);
@@ -23,7 +23,7 @@ test.describe('M6 — Fake Authentication', () => {
     await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
   });
 
-  test('M6-02: invalid credentials show error message', async ({ page }) => {
+  test('P1-M6-02: invalid credentials show error message', async ({ page }) => {
     await page.goto('/login');
 
     await page.getByLabel('Username').fill(validUsername);
@@ -34,7 +34,7 @@ test.describe('M6 — Fake Authentication', () => {
     await expect(page).toHaveURL('/login');
   });
 
-  test('M6-03: empty fields show validation errors', async ({ page }) => {
+  test('P1-M6-03: empty fields show validation errors', async ({ page }) => {
     await page.goto('/login');
 
     await page.getByRole('button', { name: 'Log in' }).click();
@@ -43,7 +43,7 @@ test.describe('M6 — Fake Authentication', () => {
     await expect(page.getByText('Password is required')).toBeVisible();
   });
 
-  test('M6-04: logout clears session and shows Login link', async ({ page }) => {
+  test('P1-M6-04: logout clears session and shows Login link', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('Username').fill(validUsername);
     await page.getByLabel('Password').fill(validPassword);
@@ -55,7 +55,7 @@ test.describe('M6 — Fake Authentication', () => {
     await expect(page.getByText(`Welcome, ${validUsername}`)).toHaveCount(0);
   });
 
-  test('M6-05: session persists after page reload', async ({ page }) => {
+  test('P1-M6-05: session persists after page reload', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('Username').fill(validUsername);
     await page.getByLabel('Password').fill(validPassword);
@@ -66,14 +66,14 @@ test.describe('M6 — Fake Authentication', () => {
     await expect(page.getByText(`Welcome, ${validUsername}`)).toBeVisible();
   });
 
-  test('M6-06: guest at /checkout redirects to /login', async ({ page }) => {
+  test('P1-M6-06: guest at /checkout redirects to /login', async ({ page }) => {
     await page.goto('/checkout');
 
     await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
     await expect(page.getByRole('heading', { name: 'Log in', level: 1 })).toBeVisible();
   });
 
-  test('M6-07: login with redirect returns to intended page', async ({ page }) => {
+  test('P1-M6-07: login with redirect returns to intended page', async ({ page }) => {
     await addProductAndOpenCart(page);
     await page.getByRole('button', { name: 'Proceed to checkout' }).click();
 
@@ -87,7 +87,7 @@ test.describe('M6 — Fake Authentication', () => {
     await expect(page.getByRole('heading', { name: 'Checkout', level: 1 })).toBeVisible();
   });
 
-  test('M6-08: logged-in user can proceed to checkout', async ({ page }) => {
+  test('P1-M6-08: logged-in user can proceed to checkout', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('Username').fill(validUsername);
     await page.getByLabel('Password').fill(validPassword);

@@ -86,7 +86,9 @@ scripts/        Utility scripts
 
 ## Current Status
 
-🚧 Phase 1 in progress — M1 (Project Foundation) complete.
+✅ Phase 1 complete — P1-M1 through P1-M10 (59 smoke tests passing).
+
+🚧 Phase 2 in progress — P2-M1 (Framework Foundation) next.
 
 The repository is being developed incrementally, with each milestone focusing on learning, maintainability, and production-quality engineering practices.
 

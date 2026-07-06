@@ -6,8 +6,8 @@ const catalogue = products as Product[];
 const featuredProducts = catalogue.filter((product) => product.featured);
 const sampleFeaturedProduct = featuredProducts[0];
 
-test.describe('M8 — Home Page and Featured Products', () => {
-  test('M8-01: home page shows intro heading and description', async ({ page }) => {
+test.describe('P1-M8 — Home Page and Featured Products', () => {
+  test('P1-M8-01: home page shows intro heading and description', async ({ page }) => {
     await page.goto('/');
 
     await expect(page.getByRole('heading', { name: 'Welcome to Demo Shop', level: 1 })).toBeVisible();
@@ -16,7 +16,7 @@ test.describe('M8 — Home Page and Featured Products', () => {
     ).toBeVisible();
   });
 
-  test('M8-02: featured products section renders product cards', async ({ page }) => {
+  test('P1-M8-02: featured products section renders product cards', async ({ page }) => {
     await page.goto('/');
 
     await expect(page.getByRole('heading', { name: 'Featured products', level: 2 })).toBeVisible();
@@ -26,7 +26,7 @@ test.describe('M8 — Home Page and Featured Products', () => {
     }
   });
 
-  test('M8-03: clicking featured product navigates to detail page', async ({ page }) => {
+  test('P1-M8-03: clicking featured product navigates to detail page', async ({ page }) => {
     await page.goto('/');
 
     await page
@@ -40,7 +40,7 @@ test.describe('M8 — Home Page and Featured Products', () => {
     ).toBeVisible();
   });
 
-  test('M8-04: no featured products shows fallback message', async ({ page }) => {
+  test('P1-M8-04: no featured products shows fallback message', async ({ page }) => {
     await page.goto('/?featured=none');
 
     await expect(page.getByRole('heading', { name: 'Featured products', level: 2 })).toBeVisible();

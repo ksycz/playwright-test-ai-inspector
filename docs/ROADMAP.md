@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 1 — Demo Shop Application only.
+**Current focus:** Phase 2 — Playwright Testing Framework.
 
 ---
 
@@ -43,7 +43,7 @@ After every completed milestone, update:
 | Phase | Name | Status | Focus |
 |---|---|---|---|
 | **1** | Demo Shop Application | ✅ Completed | React demo e-commerce app |
-| **2** | Playwright Testing Framework | ⏳ Planned | POM, fixtures, suites, CI |
+| **2** | Playwright Testing Framework | 🚧 In progress | POM, fixtures, suites, CI |
 | **3** | AI Test Inspector | ⏳ Planned | AI-assisted failure analysis |
 
 ---
@@ -73,7 +73,7 @@ Build a simple, testable demo e-commerce application that provides realistic use
 
 ---
 
-## M1 — Project Foundation
+## P1-M1 — Project Foundation
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
@@ -101,8 +101,8 @@ Establish the React application scaffold, tooling, and repository structure so s
 
 | ID | Scenario |
 |---|---|
-| M1-01 | App dev server starts and serves the root page |
-| M1-02 | Page has a document title and main landmark |
+| P1-M1-01 | App dev server starts and serves the root page |
+| P1-M1-02 | Page has a document title and main landmark |
 
 ### Accessibility considerations
 
@@ -143,15 +143,15 @@ Establish the React application scaffold, tooling, and repository structure so s
 - Data directory created at `app/src/data/` (inside source tree) rather than `app/data/` for co-location with future imports.
 - Removed legacy `e2e/` example spec in favour of `tests/smoke/`.
 
-**Tests implemented:** M1-01, M1-02 in `tests/smoke/app-foundation.spec.ts` (2 passing).
+**Tests implemented:** P1-M1-01, P1-M1-02 in `tests/smoke/app-foundation.spec.ts` (2 passing).
 
 ---
 
-## M2 — Application Layout and Routing
+## P1-M2 — Application Layout and Routing
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M1
+**Dependencies:** P1-M1
 
 ### Goal
 
@@ -178,12 +178,12 @@ Create the shared application shell, navigation, and routing foundation used by 
 
 | ID | Scenario |
 |---|---|
-| M2-01 | App loads at `/` with layout visible |
-| M2-02 | Navigation links (Home, Products, Cart, Login) are present |
-| M2-03 | Clicking Products navigates to `/products` |
-| M2-04 | Active nav link is indicated on the current page |
-| M2-05 | Unknown route shows 404 with link to Home |
-| M2-06 | Cart badge displays `0` initially |
+| P1-M2-01 | App loads at `/` with layout visible |
+| P1-M2-02 | Navigation links (Home, Products, Cart, Login) are present |
+| P1-M2-03 | Clicking Products navigates to `/products` |
+| P1-M2-04 | Active nav link is indicated on the current page |
+| P1-M2-05 | Unknown route shows 404 with link to Home |
+| P1-M2-06 | Cart badge displays `0` initially |
 
 ### Accessibility considerations
 
@@ -234,15 +234,15 @@ Create the shared application shell, navigation, and routing foundation used by 
 
 **Deviations:** None.
 
-**Tests implemented:** M2-01 through M2-06 in `tests/smoke/app-layout.spec.ts` (6 passing). M1 tests still pass (8 total).
+**Tests implemented:** P1-M2-01 through P1-M2-06 in `tests/smoke/app-layout.spec.ts` (6 passing). P1-M1 tests still pass (8 total).
 
 ---
 
-## M3 — Product Catalogue
+## P1-M3 — Product Catalogue
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M2
+**Dependencies:** P1-M2
 
 ### Goal
 
@@ -268,11 +268,11 @@ Display the full product catalogue from local JSON with add-to-cart actions.
 
 | ID | Scenario |
 |---|---|
-| M3-01 | Catalogue displays all products from JSON |
-| M3-02 | Product card shows name, category, price, and description |
-| M3-03 | Add to Cart from catalogue updates badge to `1` |
-| M3-04 | Adding same product twice updates badge to `2` |
-| M3-05 | Product images have alt text matching product name |
+| P1-M3-01 | Catalogue displays all products from JSON |
+| P1-M3-02 | Product card shows name, category, price, and description |
+| P1-M3-03 | Add to Cart from catalogue updates badge to `1` |
+| P1-M3-04 | Adding same product twice updates badge to `2` |
+| P1-M3-05 | Product images have alt text matching product name |
 
 ### Accessibility considerations
 
@@ -310,22 +310,22 @@ Display the full product catalogue from local JSON with add-to-cart actions.
 **Summary:** Added 8 demo products in `products.json`, `ProductCard`/`ProductGrid` components, and `CartContext` with `addItem()` and `totalItems`. Products page renders a responsive grid; Add to Cart updates the header badge with correct singular/plural labels.
 
 **Architectural decisions:**
-- `CartProvider` wraps the app in `main.tsx`; state is in-memory for now (Local Storage in M5).
+- `CartProvider` wraps the app in `main.tsx`; state is in-memory for now (Local Storage in P1-M5).
 - Product `article` elements use `aria-labelledby` pointing to the card heading for stable `getByRole('article', { name })` queries.
 - Add to Cart button text follows the pattern `Add {product name} to cart` for accessible, testable labels.
 - Product images are local SVG placeholders in `public/images/products/`.
 
 **Deviations:** None.
 
-**Tests implemented:** M3-01 through M3-05 in `tests/smoke/product-catalogue.spec.ts` (5 passing). 13 tests total across M1–M3.
+**Tests implemented:** P1-M3-01 through P1-M3-05 in `tests/smoke/product-catalogue.spec.ts` (5 passing). 13 tests total across P1-M1–P1-M3.
 
 ---
 
-## M4 — Product Details
+## P1-M4 — Product Details
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M3
+**Dependencies:** P1-M3
 
 ### Goal
 
@@ -338,7 +338,7 @@ Allow visitors to view a single product's full details and add it to the cart fr
 - Link product cards to detail pages
 - Add "Back to products" navigation link
 - Handle unknown product slugs with a not-found state
-- Reuse `CartContext.addItem()` from M3
+- Reuse `CartContext.addItem()` from P1-M3
 
 ### User scenarios
 
@@ -352,12 +352,12 @@ Allow visitors to view a single product's full details and add it to the cart fr
 
 | ID | Scenario |
 |---|---|
-| M4-01 | Navigating to `/products/{slug}` shows product details |
-| M4-02 | Detail page displays full description, category, and price |
-| M4-03 | Add to Cart from detail page updates cart badge |
-| M4-04 | Clicking product in catalogue navigates to detail page |
-| M4-05 | Unknown slug shows product-not-found state |
-| M4-06 | Back to products link returns to catalogue |
+| P1-M4-01 | Navigating to `/products/{slug}` shows product details |
+| P1-M4-02 | Detail page displays full description, category, and price |
+| P1-M4-03 | Add to Cart from detail page updates cart badge |
+| P1-M4-04 | Clicking product in catalogue navigates to detail page |
+| P1-M4-05 | Unknown slug shows product-not-found state |
+| P1-M4-06 | Back to products link returns to catalogue |
 
 ### Accessibility considerations
 
@@ -399,15 +399,15 @@ Allow visitors to view a single product's full details and add it to the cart fr
 
 **Deviations:** None.
 
-**Tests implemented:** M4-01 through M4-06 in `tests/smoke/product-details.spec.ts` (6 passing). 19 tests total across M1–M4.
+**Tests implemented:** P1-M4-01 through P1-M4-06 in `tests/smoke/product-details.spec.ts` (6 passing). 19 tests total across P1-M1–P1-M4.
 
 ---
 
-## M5 — Shopping Cart
+## P1-M5 — Shopping Cart
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M3
+**Dependencies:** P1-M3
 
 ### Goal
 
@@ -419,7 +419,7 @@ Implement the full shopping cart with quantity management, totals, persistence, 
 - Persist cart in Local Storage (`cart` key)
 - Build `CartPage` with line items, quantity controls, remove, and clear
 - Display empty cart state
-- Add **Proceed to checkout** button (auth guard wired in M6)
+- Add **Proceed to checkout** button (auth guard wired in P1-M6)
 - Keep header badge in sync
 
 ### User scenarios
@@ -434,14 +434,14 @@ Implement the full shopping cart with quantity management, totals, persistence, 
 
 | ID | Scenario |
 |---|---|
-| M5-01 | Cart shows added items with name, quantity, and line subtotal |
-| M5-02 | Increase quantity updates line subtotal and cart total |
-| M5-03 | Decrease quantity to 0 removes the item |
-| M5-04 | Remove item deletes it and recalculates total |
-| M5-05 | Clear cart empties all items |
-| M5-06 | Empty cart shows message and link to Products |
-| M5-07 | Cart persists after page reload |
-| M5-08 | Proceed to checkout button is visible |
+| P1-M5-01 | Cart shows added items with name, quantity, and line subtotal |
+| P1-M5-02 | Increase quantity updates line subtotal and cart total |
+| P1-M5-03 | Decrease quantity to 0 removes the item |
+| P1-M5-04 | Remove item deletes it and recalculates total |
+| P1-M5-05 | Clear cart empties all items |
+| P1-M5-06 | Empty cart shows message and link to Products |
+| P1-M5-07 | Cart persists after page reload |
+| P1-M5-08 | Proceed to checkout button is visible |
 
 ### Accessibility considerations
 
@@ -489,19 +489,19 @@ Implement the full shopping cart with quantity management, totals, persistence, 
 - Cart storage logic isolated in `utils/cartStorage.ts` for testability and corrupt-data fallback.
 - `CartProvider` lazy-loads from Local Storage on mount and syncs on every items change.
 - Cart total equals subtotal (no tax/shipping in MVP).
-- Proceed to checkout navigates to `/checkout`; auth guard deferred to M6.
+- Proceed to checkout navigates to `/checkout`; auth guard deferred to P1-M6.
 
 **Deviations:** None.
 
-**Tests implemented:** M5-01 through M5-08 in `tests/smoke/shopping-cart.spec.ts` (8 passing). 27 tests total across M1–M5.
+**Tests implemented:** P1-M5-01 through P1-M5-08 in `tests/smoke/shopping-cart.spec.ts` (8 passing). 27 tests total across P1-M1–P1-M5.
 
 ---
 
-## M6 — Fake Authentication
+## P1-M6 — Fake Authentication
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M2, M5
+**Dependencies:** P1-M2, P1-M5
 
 ### Goal
 
@@ -515,7 +515,7 @@ Implement fake login/logout with session persistence and protect the checkout ro
 - Add `ProtectedRoute` wrapper for `/checkout` and `/order-confirmation`
 - Support return URL: `/login?redirect=/checkout`
 - Update header: Login vs welcome message + Logout
-- Wire **Proceed to checkout** auth guard from M5
+- Wire **Proceed to checkout** auth guard from P1-M5
 
 ### User scenarios
 
@@ -531,14 +531,14 @@ Implement fake login/logout with session persistence and protect the checkout ro
 
 | ID | Scenario |
 |---|---|
-| M6-01 | Login with `standard_user` / `secret123` succeeds |
-| M6-02 | Invalid credentials show error message |
-| M6-03 | Empty fields show validation errors |
-| M6-04 | Logout clears session and shows Login link |
-| M6-05 | Session persists after page reload |
-| M6-06 | Guest at `/checkout` redirects to `/login` |
-| M6-07 | Login with redirect returns to intended page |
-| M6-08 | Logged-in user can proceed to checkout |
+| P1-M6-01 | Login with `standard_user` / `secret123` succeeds |
+| P1-M6-02 | Invalid credentials show error message |
+| P1-M6-03 | Empty fields show validation errors |
+| P1-M6-04 | Logout clears session and shows Login link |
+| P1-M6-05 | Session persists after page reload |
+| P1-M6-06 | Guest at `/checkout` redirects to `/login` |
+| P1-M6-07 | Login with redirect returns to intended page |
+| P1-M6-08 | Logged-in user can proceed to checkout |
 
 ### Accessibility considerations
 
@@ -584,19 +584,19 @@ Implement fake login/logout with session persistence and protect the checkout ro
 - Auth storage isolated in `utils/authStorage.ts` mirroring cart pattern.
 - `sanitizeRedirectPath()` prevents open redirects; invalid redirect falls back to `/products`.
 - `ProtectedRoute` wraps route elements in `App.tsx` rather than nested route objects for clarity.
-- Logout does not clear cart (documented behaviour for M5).
+- Logout does not clear cart (documented behaviour for P1-M5).
 
 **Deviations:** None.
 
-**Tests implemented:** M6-01 through M6-08 in `tests/smoke/authentication.spec.ts` (8 passing). 35 tests total across M1–M6.
+**Tests implemented:** P1-M6-01 through P1-M6-08 in `tests/smoke/authentication.spec.ts` (8 passing). 35 tests total across P1-M1–P1-M6.
 
 ---
 
-## M7 — Checkout Flow
+## P1-M7 — Checkout Flow
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M5, M6
+**Dependencies:** P1-M5, P1-M6
 
 ### Goal
 
@@ -623,14 +623,14 @@ Implement the checkout form, validation, order confirmation, and cart clearing.
 
 | ID | Scenario |
 |---|---|
-| M7-01 | Happy path: fill form, submit, see confirmation with order number |
-| M7-02 | Order summary on checkout matches cart contents |
-| M7-03 | Empty cart blocks checkout |
-| M7-04 | Required field validation on empty submit |
-| M7-05 | Invalid email format shows validation error |
-| M7-06 | Cart cleared after successful order |
-| M7-07 | Full E2E: browse → add → login → checkout → confirm |
-| M7-08 | Direct visit to confirmation without order redirects away |
+| P1-M7-01 | Happy path: fill form, submit, see confirmation with order number |
+| P1-M7-02 | Order summary on checkout matches cart contents |
+| P1-M7-03 | Empty cart blocks checkout |
+| P1-M7-04 | Required field validation on empty submit |
+| P1-M7-05 | Invalid email format shows validation error |
+| P1-M7-06 | Cart cleared after successful order |
+| P1-M7-07 | Full E2E: browse → add → login → checkout → confirm |
+| P1-M7-08 | Direct visit to confirmation without order redirects away |
 
 ### Accessibility considerations
 
@@ -679,15 +679,15 @@ Implement the checkout form, validation, order confirmation, and cart clearing.
 
 **Deviations:** None.
 
-**Tests implemented:** M7-01 through M7-08 in `tests/smoke/checkout-flow.spec.ts` (8 passing). 43 tests total across M1–M7.
+**Tests implemented:** P1-M7-01 through P1-M7-08 in `tests/smoke/checkout-flow.spec.ts` (8 passing). 43 tests total across P1-M1–P1-M7.
 
 ---
 
-## M8 — Home Page and Featured Products
+## P1-M8 — Home Page and Featured Products
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M3
+**Dependencies:** P1-M3
 
 ### Goal
 
@@ -711,15 +711,15 @@ Build the Home landing page with shop introduction and featured products, per AP
 
 | ID | Scenario |
 |---|---|
-| M8-01 | Home page shows intro heading and description |
-| M8-02 | Featured products section renders product cards |
-| M8-03 | Clicking featured product navigates to detail page |
-| M8-04 | No featured products shows fallback message |
+| P1-M8-01 | Home page shows intro heading and description |
+| P1-M8-02 | Featured products section renders product cards |
+| P1-M8-03 | Clicking featured product navigates to detail page |
+| P1-M8-04 | No featured products shows fallback message |
 
 ### Accessibility considerations
 
 - Proper heading hierarchy: `h1` for intro, `h2` for featured section.
-- Featured products use same card accessibility patterns as M3.
+- Featured products use same card accessibility patterns as P1-M3.
 - Intro text readable and concise.
 
 ### Locator strategy
@@ -754,18 +754,18 @@ Build the Home landing page with shop introduction and featured products, per AP
 - `ProductGrid` reuse keeps card accessibility and add-to-cart behaviour consistent with catalogue.
 
 **Deviations:**
-- Home `h1` changed from "Demo Shop" to "Welcome to Demo Shop" per M8 locator strategy; M1/M2 smoke tests updated accordingly.
-- `?featured=none` query param added as a testability hook for M8-04 empty featured state.
+- Home `h1` changed from "Demo Shop" to "Welcome to Demo Shop" per P1-M8 locator strategy; P1-M1/P1-M2 smoke tests updated accordingly.
+- `?featured=none` query param added as a testability hook for P1-M8-04 empty featured state.
 
-**Tests implemented:** M8-01 through M8-04 in `tests/smoke/home-page.spec.ts` (4 passing). 47 tests total across M1–M8.
+**Tests implemented:** P1-M8-01 through P1-M8-04 in `tests/smoke/home-page.spec.ts` (4 passing). 47 tests total across P1-M1–P1-M8.
 
 ---
 
-## M9 — Error and Empty States
+## P1-M9 — Error and Empty States
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M2, M4, M5, M6, M7
+**Dependencies:** P1-M2, P1-M4, P1-M5, P1-M6, P1-M7
 
 ### Goal
 
@@ -774,10 +774,10 @@ Consolidate and polish all error, empty, and edge-case states across the applica
 ### Implementation scope
 
 - Review and standardize 404 page (app-level and product-level)
-- Standardize empty cart state (verify from M5)
-- Standardize invalid login message (verify from M6)
-- Standardize form validation messages (verify from M7)
-- Standardize empty featured products state (verify from M8)
+- Standardize empty cart state (verify from P1-M5)
+- Standardize invalid login message (verify from P1-M6)
+- Standardize form validation messages (verify from P1-M7)
+- Standardize empty featured products state (verify from P1-M8)
 - Handle corrupt Local Storage gracefully (cart and auth)
 - Handle direct URL access to confirmation without a valid order
 - Ensure consistent error message copy and visual treatment
@@ -795,13 +795,13 @@ Consolidate and polish all error, empty, and edge-case states across the applica
 
 | ID | Scenario |
 |---|---|
-| M9-01 | 404 page for unknown app route |
-| M9-02 | Product not found for invalid slug |
-| M9-03 | Empty cart state with link to Products |
-| M9-04 | Invalid login error message |
-| M9-05 | Checkout validation errors for each required field |
-| M9-06 | Corrupt cart Local Storage falls back to empty cart |
-| M9-07 | Direct confirmation URL without order redirects |
+| P1-M9-01 | 404 page for unknown app route |
+| P1-M9-02 | Product not found for invalid slug |
+| P1-M9-03 | Empty cart state with link to Products |
+| P1-M9-04 | Invalid login error message |
+| P1-M9-05 | Checkout validation errors for each required field |
+| P1-M9-06 | Corrupt cart Local Storage falls back to empty cart |
+| P1-M9-07 | Direct confirmation URL without order redirects |
 
 ### Accessibility considerations
 
@@ -843,19 +843,19 @@ Consolidate and polish all error, empty, and edge-case states across the applica
 **Architectural decisions:**
 - Cart items validated with `isValidCartItem()` before hydration; partial or malformed arrays treated as corrupt and cleared.
 - Auth session requires non-empty `username` string; invalid shapes clear storage and log user out.
-- Existing page copy and visual patterns from M2–M8 retained; M9 focuses on verification and storage resilience rather than UI rewrites.
+- Existing page copy and visual patterns from P1-M2–P1-M8 retained; P1-M9 focuses on verification and storage resilience rather than UI rewrites.
 
 **Deviations:** None.
 
-**Tests implemented:** M9-01 through M9-07 in `tests/smoke/error-empty-states.spec.ts` (7 passing). 54 tests total across M1–M9.
+**Tests implemented:** P1-M9-01 through P1-M9-07 in `tests/smoke/error-empty-states.spec.ts` (7 passing). 54 tests total across P1-M1–P1-M9.
 
 ---
 
-## M10 — Accessibility and Testability Polish
+## P1-M10 — Accessibility and Testability Polish
 
 **Status:** ✅ Completed  
 **Completed:** 2026-07-06  
-**Dependencies:** M1–M9
+**Dependencies:** P1-M1–P1-M9
 
 ### Goal
 
@@ -883,11 +883,11 @@ Final pass on accessibility, responsive layout, and testability to ensure the ap
 
 | ID | Scenario |
 |---|---|
-| M10-01 | Full E2E happy path on desktop (1280px) |
-| M10-02 | Full E2E happy path on mobile (375px / Pixel 5) |
-| M10-03 | All pages have exactly one `h1` |
-| M10-04 | All form fields reachable and submittable via keyboard |
-| M10-05 | No horizontal scroll on mobile viewports |
+| P1-M10-01 | Full E2E happy path on desktop (1280px) |
+| P1-M10-02 | Full E2E happy path on mobile (375px / Pixel 5) |
+| P1-M10-03 | All pages have exactly one `h1` |
+| P1-M10-04 | All form fields reachable and submittable via keyboard |
+| P1-M10-05 | No horizontal scroll on mobile viewports |
 
 ### Accessibility considerations
 
@@ -936,7 +936,7 @@ Final pass on accessibility, responsive layout, and testability to ensure the ap
 
 **Deviations:** None.
 
-**Tests implemented:** M10-01 through M10-05 in `tests/smoke/accessibility-polish.spec.ts` (5 passing). **59 tests total across M1–M10.**
+**Tests implemented:** P1-M10-01 through P1-M10-05 in `tests/smoke/accessibility-polish.spec.ts` (5 passing). **59 tests total across P1-M1–P1-M10.**
 
 ### Phase 1 completion summary
 
@@ -947,16 +947,16 @@ Phase 1 delivered a full demo e-commerce application with product catalogue, car
 ## Phase 1 — Milestone Dependency Graph
 
 ```text
-M1 Project Foundation
- └── M2 Layout & Routing
-      ├── M3 Product Catalogue
-      │    ├── M4 Product Details
-      │    └── M8 Home & Featured Products
-      └── M5 Shopping Cart
-           └── M6 Fake Authentication
-                └── M7 Checkout Flow
-                     └── M9 Error & Empty States
-                          └── M10 Accessibility & Testability Polish
+P1-M1 Project Foundation
+ └── P1-M2 Layout & Routing
+      ├── P1-M3 Product Catalogue
+      │    ├── P1-M4 Product Details
+      │    └── P1-M8 Home & Featured Products
+      └── P1-M5 Shopping Cart
+           └── P1-M6 Fake Authentication
+                └── P1-M7 Checkout Flow
+                     └── P1-M9 Error & Empty States
+                          └── P1-M10 Accessibility & Testability Polish
 ```
 
 ---
@@ -965,40 +965,495 @@ M1 Project Foundation
 
 | Milestone | Status | Completed |
 |---|---|---|
-| M1 — Project Foundation | ✅ Completed | 2026-07-06 |
-| M2 — Application Layout and Routing | ✅ Completed | 2026-07-06 |
-| M3 — Product Catalogue | ✅ Completed | 2026-07-06 |
-| M4 — Product Details | ✅ Completed | 2026-07-06 |
-| M5 — Shopping Cart | ✅ Completed | 2026-07-06 |
-| M6 — Fake Authentication | ✅ Completed | 2026-07-06 |
-| M7 — Checkout Flow | ✅ Completed | 2026-07-06 |
-| M8 — Home Page and Featured Products | ✅ Completed | 2026-07-06 |
-| M9 — Error and Empty States | ✅ Completed | 2026-07-06 |
-| M10 — Accessibility and Testability Polish | ✅ Completed | 2026-07-06 |
+| P1-M1 — Project Foundation | ✅ Completed | 2026-07-06 |
+| P1-M2 — Application Layout and Routing | ✅ Completed | 2026-07-06 |
+| P1-M3 — Product Catalogue | ✅ Completed | 2026-07-06 |
+| P1-M4 — Product Details | ✅ Completed | 2026-07-06 |
+| P1-M5 — Shopping Cart | ✅ Completed | 2026-07-06 |
+| P1-M6 — Fake Authentication | ✅ Completed | 2026-07-06 |
+| P1-M7 — Checkout Flow | ✅ Completed | 2026-07-06 |
+| P1-M8 — Home Page and Featured Products | ✅ Completed | 2026-07-06 |
+| P1-M9 — Error and Empty States | ✅ Completed | 2026-07-06 |
+| P1-M10 — Accessibility and Testability Polish | ✅ Completed | 2026-07-06 |
 
 ---
 
 # Phase 2 — Playwright Testing Framework
 
-**Status:** ⏳ Planned — expand after Phase 1 is complete.
+Build a production-inspired Playwright testing framework against the completed demo shop. Phase 1 delivered **59 passing smoke tests** in `tests/smoke/`; Phase 2 refactors those tests into a maintainable framework and adds E2E suites, reporting, and CI.
+
+**Phase 2 status:** 🚧 In progress  
+**Phase 2 started:** 2026-07-06  
+**Phase 2 completed:** —
+
+---
+
+## Shared Conventions (Phase 2)
+
+| Topic | Decision |
+|---|---|
+| **Test location** | `tests/` at repo root (unchanged) |
+| **Folder layout** | `pages/`, `fixtures/`, `data/`, `smoke/`, `e2e/` |
+| **Page Object Model** | One page class per app route/screen; locators live in page objects |
+| **Locator priority** | Same as app: `getByRole` → `getByLabel` → stable text → `data-testid` |
+| **Fixtures** | `auth` (logged-in session), `cart` (preloaded cart), composable with POM |
+| **Test data** | `tests/data/` mirrors app credentials and sample products (single source for tests) |
+| **Tags** | `@smoke`, `@e2e`, `@auth`, `@cart` via `test.describe` / `grep` |
+| **Artifacts** | Traces on first retry; screenshots and videos on failure |
+| **CI** | GitHub Actions on push/PR; upload HTML report and failure artifacts |
+| **Naming** | Spec files: `kebab-case.spec.ts`; page objects: `PascalCase` + `Page` suffix |
+
+---
+
+## P2-M1 — Framework Foundation and Folder Structure
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** Phase 1 complete
 
 ### Goal
 
-Build a production-inspired Playwright testing framework against the completed demo shop.
+Establish the Playwright framework folder structure, enhanced configuration, and npm scripts so subsequent milestones have a consistent foundation.
 
-### Planned scope (high-level)
+### Implementation scope
 
-- Restructure tests into `tests/` with Page Object Model
-- Auth and cart fixtures
-- Centralized test data module
-- Smoke, E2E, auth, and cart test suites
-- HTML reports, Trace Viewer, screenshots, and videos on failure
-- GitHub Actions CI with artifact upload
-- Test tags (`@smoke`, `@e2e`)
+- Create `tests/pages/`, `tests/fixtures/`, `tests/data/`
+- Enhance `playwright.config.ts` (output dirs, `screenshot`, `video`, reporter list)
+- Add TypeScript config for tests if needed (`tests/tsconfig.json` or extend root)
+- Add npm scripts: `test:smoke`, `test:e2e` (e2e may be empty initially)
+- Document framework conventions in `docs/LESSONS_LEARNED.md` or new `docs/TESTING.md`
 
-### Milestones
+### User scenarios
 
-_To be defined after Phase 1 completion._
+- Developer clones repo and understands where tests, page objects, and fixtures live.
+- Developer runs `npm test` and existing smoke tests still pass unchanged.
+- Developer runs `npm run test:smoke` to execute only smoke-tagged tests (once tags added in P2-M5).
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M1-01 | `npm test` runs all existing smoke specs successfully |
+| P2-M1-02 | Framework folders exist with documented purpose |
+| P2-M1-03 | `playwright.config.ts` captures failure screenshots |
+
+### Acceptance criteria
+
+- [ ] Folder structure `pages/`, `fixtures/`, `data/` created
+- [ ] Playwright config enhanced for artifacts
+- [ ] All 59 Phase 1 smoke tests still pass
+- [ ] Framework conventions documented
+
+### Completion checklist
+
+- [ ] `tests/pages/` directory
+- [ ] `tests/fixtures/` directory
+- [ ] `tests/data/` directory
+- [ ] Enhanced `playwright.config.ts`
+- [ ] npm scripts for suite filtering
+- [ ] Documentation updated
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## P2-M2 — Page Object Model
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P2-M1
+
+### Goal
+
+Introduce Page Object Model classes that encapsulate locators and common actions for each major app screen.
+
+### Implementation scope
+
+- Create `BasePage` with shared navigation helpers (go to Products, Cart, Login, etc.)
+- Create page objects: `HomePage`, `ProductsPage`, `ProductDetailPage`, `CartPage`, `LoginPage`, `CheckoutPage`, `OrderConfirmationPage`, `NotFoundPage`
+- Locators use `getByRole` / `getByLabel` per Phase 1 conventions
+- Refactor 2–3 smoke specs as reference implementations (full migration in P2-M5)
+
+### User scenarios
+
+- Tester updates a locator in one page object instead of across multiple spec files.
+- New specs read as user journeys (`productsPage.addToCart(name)`) rather than raw selectors.
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M2-01 | `ProductsPage` adds item to cart via page object |
+| P2-M2-02 | `LoginPage` performs login via page object |
+| P2-M2-03 | `BasePage` navigation helpers reach all major routes |
+
+### Locator strategy
+
+- All locators defined inside page object classes as getters or private fields
+- No CSS/XPath selectors in spec files
+- Reuse app `data-testid` values only inside page objects when semantic locators are insufficient
+
+### Acceptance criteria
+
+- [ ] `BasePage` and all major page objects implemented
+- [ ] At least 2 smoke specs refactored to use POM
+- [ ] No duplicate locator strings across refactored specs
+- [ ] All tests still pass
+
+### Completion checklist
+
+- [ ] `BasePage` component
+- [ ] Page objects for all major routes
+- [ ] Reference spec refactors
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## P2-M3 — Centralized Test Data
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P2-M1
+
+### Goal
+
+Provide a single test data module for credentials, products, checkout details, and URLs used across all suites.
+
+### Implementation scope
+
+- Create `tests/data/users.ts`, `tests/data/products.ts`, `tests/data/checkout.ts`
+- Export constants aligned with `app/src/data/` (e.g. `standard_user` / `secret123`)
+- Add helper for sample product slug/name used in cart and checkout tests
+- Replace inline test data in smoke specs (during P2-M5 migration)
+
+### User scenarios
+
+- Tester changes demo credentials in one file when app data changes.
+- E2E specs import shared checkout details instead of duplicating objects.
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M3-01 | Test data exports valid user credentials |
+| P2-M3-02 | Test data exports at least one product slug and name |
+| P2-M3-03 | Checkout test data matches form field labels |
+
+### Acceptance criteria
+
+- [ ] Centralized test data modules created
+- [ ] Data aligned with app JSON sources
+- [ ] Documented import pattern for specs
+
+### Completion checklist
+
+- [ ] `tests/data/users.ts`
+- [ ] `tests/data/products.ts`
+- [ ] `tests/data/checkout.ts`
+- [ ] `tests/data/index.ts` barrel export (optional)
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## P2-M4 — Auth and Cart Fixtures
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P2-M2, P2-M3
+
+### Goal
+
+Create Playwright fixtures that provide authenticated sessions and preloaded carts to reduce setup boilerplate in specs.
+
+### Implementation scope
+
+- Create `tests/fixtures/auth.fixture.ts` — logged-in `page` fixture
+- Create `tests/fixtures/cart.fixture.ts` — page with item(s) in cart
+- Compose fixtures with page objects where appropriate
+- Optional: `storageState` for faster auth reuse
+- Add example specs demonstrating fixture usage
+
+### User scenarios
+
+- Tester writes checkout spec with `loggedInPage` fixture instead of manual login steps.
+- Tester writes cart spec with `cartWithItem` fixture instead of manual add-to-cart navigation.
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M4-01 | Auth fixture provides logged-in session |
+| P2-M4-02 | Cart fixture provides cart with one item |
+| P2-M4-03 | Fixtures compose with existing page objects |
+
+### Acceptance criteria
+
+- [ ] Auth fixture logs in via UI or storage state
+- [ ] Cart fixture preloads cart via UI
+- [ ] Example specs use fixtures successfully
+- [ ] Fixtures documented with usage examples
+
+### Completion checklist
+
+- [ ] `auth` fixture implemented
+- [ ] `cart` fixture implemented
+- [ ] Custom `test` export from `tests/fixtures/index.ts`
+- [ ] Example fixture specs
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## P2-M5 — Smoke Suite Refactor and Tags
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P2-M2, P2-M3, P2-M4
+
+### Goal
+
+Migrate all 59 Phase 1 smoke tests to use page objects, shared test data, and fixtures where appropriate; introduce `@smoke` tags.
+
+### Implementation scope
+
+- Refactor all specs in `tests/smoke/` to use POM and `tests/data/`
+- Apply fixtures to auth/cart/checkout specs where they reduce noise
+- Tag smoke suite with `@smoke` (via title or `grep` config)
+- Ensure `npm run test:smoke` runs only smoke tests
+- Remove duplicated helpers across spec files
+
+### User scenarios
+
+- Developer runs `npm run test:smoke` for a fast confidence check before commit.
+- Smoke specs are readable and maintainable with no raw locators in spec bodies.
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M5-01 | All 59 smoke tests pass after POM migration |
+| P2-M5-02 | `npm run test:smoke` executes smoke suite only |
+| P2-M5-03 | No duplicate login/add-to-cart helpers in spec files |
+
+### Acceptance criteria
+
+- [ ] All smoke specs use page objects
+- [ ] Shared test data used consistently
+- [ ] `@smoke` tag/filter works
+- [ ] 59 tests passing
+
+### Completion checklist
+
+- [ ] All `tests/smoke/*.spec.ts` refactored
+- [ ] Fixtures applied where beneficial
+- [ ] `test:smoke` npm script verified
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## P2-M6 — E2E Journey Suites
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P2-M5
+
+### Goal
+
+Add dedicated end-to-end journey specs that exercise full user flows across multiple pages, tagged `@e2e`.
+
+### Implementation scope
+
+- Create `tests/e2e/` directory
+- Implement journeys: guest browse → login → purchase, returning customer checkout, cart management flow
+- Add desktop (1280px) and mobile (375px) viewport coverage for primary journey
+- Tag with `@e2e`; add `npm run test:e2e`
+- Reuse POM, fixtures, and test data throughout
+
+### User scenarios
+
+- Tester runs `npm run test:e2e` before a release for full journey confidence.
+- CI runs smoke on every push and e2e on PR merge (configured in P2-M8).
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M6-01 | Full purchase journey on desktop |
+| P2-M6-02 | Full purchase journey on mobile viewport |
+| P2-M6-03 | Guest redirected to login when accessing checkout |
+| P2-M6-04 | Cart persistence across navigation |
+
+### Acceptance criteria
+
+- [ ] `tests/e2e/` suite with at least 4 journey specs
+- [ ] `@e2e` tag/filter works
+- [ ] Desktop and mobile coverage for primary journey
+- [ ] All e2e tests pass
+
+### Completion checklist
+
+- [ ] `tests/e2e/` directory and specs
+- [ ] `test:e2e` npm script
+- [ ] Mobile viewport project or per-test viewport
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## P2-M7 — Reporting, Traces, and Debug Artifacts
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P2-M1
+
+### Goal
+
+Configure rich failure artifacts and document the debugging workflow to support manual investigation and future AI Failure Analyzer (Phase 3).
+
+### Implementation scope
+
+- Configure `trace`, `screenshot`, `video` policies in `playwright.config.ts`
+- Add `list` reporter for CI logs alongside `html`
+- Document trace viewer workflow (`npx playwright show-trace`)
+- Ensure `test-results/` and `playwright-report/` outputs are predictable
+- Optional: `playwright.config.ts` `outputDir` organization
+
+### User scenarios
+
+- Tester opens HTML report after a failed run and inspects screenshots.
+- Tester opens trace file to step through a failed E2E journey.
+- Phase 3 AI module can rely on consistent artifact paths.
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M7-01 | Failed test produces screenshot in `test-results/` |
+| P2-M7-02 | Retried test produces trace file |
+| P2-M7-03 | `npm run report` opens HTML report |
+
+### Acceptance criteria
+
+- [ ] Screenshot on failure configured
+- [ ] Video on failure configured (or retain-on-failure)
+- [ ] Trace strategy documented
+- [ ] Debugging workflow documented
+
+### Completion checklist
+
+- [ ] Artifact config in `playwright.config.ts`
+- [ ] CI-friendly reporter setup
+- [ ] Debugging docs updated
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## P2-M8 — GitHub Actions CI
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P2-M5, P2-M7
+
+### Goal
+
+Run Playwright tests automatically on GitHub Actions with artifact upload for reports and failure debugging.
+
+### Implementation scope
+
+- Create `.github/workflows/playwright.yml`
+- Run on `push` to `main` and on `pull_request`
+- Use Node 22, `npm run setup`, `npm test` (or `test:smoke` + `test:e2e`)
+- Upload `playwright-report/` and `test-results/` as artifacts on failure
+- Set `CI=true` for Playwright config (fresh webServer, retries)
+- Update README with CI badge and status
+
+### User scenarios
+
+- Contributor opens PR and sees Playwright check pass or fail.
+- Reviewer downloads HTML report artifact from failed CI run.
+
+### Future Playwright test scenarios
+
+| ID | Scenario |
+|---|---|
+| P2-M8-01 | CI workflow runs on pull request |
+| P2-M8-02 | CI uploads report artifact on failure |
+| P2-M8-03 | CI uses Node 22 and project-local browsers |
+
+### Acceptance criteria
+
+- [ ] GitHub Actions workflow runs successfully
+- [ ] Smoke (and e2e) tests pass in CI
+- [ ] Artifacts uploaded on failure
+- [ ] README documents CI behavior
+
+### Completion checklist
+
+- [ ] `.github/workflows/playwright.yml`
+- [ ] Artifact upload configured
+- [ ] README CI section updated
+- [ ] Phase 2 completion summary written in this document
+- [ ] Roadmap updated with completion summary
+
+### Implementation notes
+
+_Summary, architectural decisions, and deviations will be recorded here after completion._
+
+---
+
+## Phase 2 — Milestone Dependency Graph
+
+```text
+Phase 1 Demo Shop (complete)
+ └── P2-M1 Framework Foundation
+      ├── P2-M2 Page Object Model ────────┐
+      ├── P2-M3 Centralized Test Data ──┤
+      │    └── P2-M4 Auth & Cart Fixtures
+      │         └── P2-M5 Smoke Refactor & Tags
+      │              └── P2-M6 E2E Journey Suites
+      └── P2-M7 Reporting & Artifacts
+           └── P2-M8 GitHub Actions CI (also depends P2-M5)
+```
+
+---
+
+## Phase 2 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P2-M1 — Framework Foundation and Folder Structure | ⏳ Not started | — |
+| P2-M2 — Page Object Model | ⏳ Not started | — |
+| P2-M3 — Centralized Test Data | ⏳ Not started | — |
+| P2-M4 — Auth and Cart Fixtures | ⏳ Not started | — |
+| P2-M5 — Smoke Suite Refactor and Tags | ⏳ Not started | — |
+| P2-M6 — E2E Journey Suites | ⏳ Not started | — |
+| P2-M7 — Reporting, Traces, and Debug Artifacts | ⏳ Not started | — |
+| P2-M8 — GitHub Actions CI | ⏳ Not started | — |
 
 ---
 
@@ -1027,11 +1482,13 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
-| 2026-07-06 | Phase 1 completed — M10 accessibility polish, 59 smoke tests, ready for Phase 2 |
-| 2026-07-06 | M10 completed — responsive layout, touch targets, cross-viewport E2E tests |
-| 2026-07-06 | M5 completed — shopping cart page, Local Storage, quantity controls |
-| 2026-07-06 | M4 completed — product detail page, slug routing, card links |
-| 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |
-| 2026-07-06 | M2 completed — React Router, AppLayout, navigation, 404 page |
-| 2026-07-06 | M1 completed — React app scaffold, Tailwind, Playwright foundation tests |
-| 2026-07-06 | Initial roadmap created with Phase 1 milestones M1–M10 |
+| 2026-07-06 | Phase 1 milestones renamed to P1-M1–P1-M10 for consistency with Phase 2 |
+| 2026-07-06 | Phase 2 milestones defined — P2-M1 through P2-M8 (POM, fixtures, CI) |
+| 2026-07-06 | Phase 1 completed — P1-M10 accessibility polish, 59 smoke tests, ready for Phase 2 |
+| 2026-07-06 | P1-M10 completed — responsive layout, touch targets, cross-viewport E2E tests |
+| 2026-07-06 | P1-M5 completed — shopping cart page, Local Storage, quantity controls |
+| 2026-07-06 | P1-M4 completed — product detail page, slug routing, card links |
+| 2026-07-06 | P1-M3 completed — product catalogue, CartContext, add to cart |
+| 2026-07-06 | P1-M2 completed — React Router, AppLayout, navigation, 404 page |
+| 2026-07-06 | P1-M1 completed — React app scaffold, Tailwind, Playwright foundation tests |
+| 2026-07-06 | Initial roadmap created with Phase 1 milestones P1-M1–P1-M10 |

@@ -42,8 +42,8 @@ async function loginWithProductInCart(page: import('@playwright/test').Page) {
   await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
 }
 
-test.describe('M9 — Error and Empty States', () => {
-  test('M9-01: 404 page for unknown app route', async ({ page }) => {
+test.describe('P1-M9 — Error and Empty States', () => {
+  test('P1-M9-01: 404 page for unknown app route', async ({ page }) => {
     await page.goto('/unknown-route');
 
     await expect(page.getByRole('heading', { name: 'Page not found', level: 1 })).toBeVisible();
@@ -51,7 +51,7 @@ test.describe('M9 — Error and Empty States', () => {
     await expect(page.getByRole('link', { name: 'Back to Home' })).toBeVisible();
   });
 
-  test('M9-02: product not found for invalid slug', async ({ page }) => {
+  test('P1-M9-02: product not found for invalid slug', async ({ page }) => {
     await page.goto('/products/does-not-exist');
 
     await expect(page.getByRole('heading', { name: 'Product not found', level: 1 })).toBeVisible();
@@ -59,7 +59,7 @@ test.describe('M9 — Error and Empty States', () => {
     await expect(page.getByRole('link', { name: 'Back to products' })).toBeVisible();
   });
 
-  test('M9-03: empty cart state with link to Products', async ({ page }) => {
+  test('P1-M9-03: empty cart state with link to Products', async ({ page }) => {
     await page.goto('/cart');
 
     await expect(page.getByRole('heading', { name: 'Your cart is empty' })).toBeVisible();
@@ -67,7 +67,7 @@ test.describe('M9 — Error and Empty States', () => {
     await expect(page.getByRole('link', { name: 'Browse products' })).toBeVisible();
   });
 
-  test('M9-04: invalid login error message', async ({ page }) => {
+  test('P1-M9-04: invalid login error message', async ({ page }) => {
     await page.goto('/login');
 
     await page.getByLabel('Username').fill(validUsername);
@@ -78,7 +78,7 @@ test.describe('M9 — Error and Empty States', () => {
     await expect(page).toHaveURL('/login');
   });
 
-  test('M9-05: checkout validation errors for each required field', async ({ page }) => {
+  test('P1-M9-05: checkout validation errors for each required field', async ({ page }) => {
     await loginWithProductInCart(page);
     await page.goto('/checkout');
 
@@ -95,7 +95,7 @@ test.describe('M9 — Error and Empty States', () => {
     }
   });
 
-  test('M9-06: corrupt cart Local Storage falls back to empty cart', async ({ page }) => {
+  test('P1-M9-06: corrupt cart Local Storage falls back to empty cart', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('cart', '{invalid-json');
     });
@@ -106,7 +106,7 @@ test.describe('M9 — Error and Empty States', () => {
     await expect(page.getByRole('link', { name: 'Cart, 0 items' })).toBeVisible();
   });
 
-  test('M9-07: direct confirmation URL without order redirects away', async ({ page }) => {
+  test('P1-M9-07: direct confirmation URL without order redirects away', async ({ page }) => {
     await login(page);
     await page.goto('/order-confirmation');
 

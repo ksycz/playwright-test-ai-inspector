@@ -46,20 +46,20 @@ async function runPurchaseHappyPath(page: Page) {
   await expect(page.getByRole('heading', { name: 'Order confirmed', level: 1 })).toBeVisible();
 }
 
-test.describe('M10 — Accessibility and Testability Polish', () => {
-  test('M10-01: full E2E happy path on desktop', async ({ page }) => {
+test.describe('P1-M10 — Accessibility and Testability Polish', () => {
+  test('P1-M10-01: full E2E happy path on desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await runPurchaseHappyPath(page);
     await expect(page.getByTestId('order-number')).toHaveText(/^ORD-\d+$/);
   });
 
-  test('M10-02: full E2E happy path on mobile', async ({ page }) => {
+  test('P1-M10-02: full E2E happy path on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await runPurchaseHappyPath(page);
     await expect(page.getByRole('link', { name: 'Continue shopping' })).toBeVisible();
   });
 
-  test('M10-03: all pages have exactly one h1', async ({ page }) => {
+  test('P1-M10-03: all pages have exactly one h1', async ({ page }) => {
     const publicPaths = [
       '/',
       '/products',
@@ -96,7 +96,7 @@ test.describe('M10 — Accessibility and Testability Polish', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   });
 
-  test('M10-04: form fields reachable and submittable via keyboard', async ({ page }) => {
+  test('P1-M10-04: form fields reachable and submittable via keyboard', async ({ page }) => {
     await page.goto('/login');
 
     await page.getByLabel('Username').focus();
@@ -128,7 +128,7 @@ test.describe('M10 — Accessibility and Testability Polish', () => {
     await expect(page).toHaveURL('/order-confirmation');
   });
 
-  test('M10-05: no horizontal scroll on mobile viewports', async ({ page }) => {
+  test('P1-M10-05: no horizontal scroll on mobile viewports', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
 
     const mobilePaths = ['/', '/products', '/cart', '/login'];

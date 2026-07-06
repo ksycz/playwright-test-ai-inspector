@@ -3,10 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "description": "Playwright tests with AI-assisted inspection",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed",
+    "setup": "npm install && npm install --prefix app && npm run playwright:install",
+    "playwright:install": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers npx playwright install chromium",
+    "dev": "npm run dev --prefix app",
+    "build": "npm run build --prefix app",
+    "preview": "npm run preview --prefix app",
+    "test": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test",
+    "test:ui": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --ui",
+    "test:headed": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --headed",
     "report": "playwright show-report"
   },
   "devDependencies": {

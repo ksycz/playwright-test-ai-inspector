@@ -6,6 +6,12 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+.playwright-browsers/
+
+# Application
+app/node_modules/
+app/dist/
+app/**/*.tsbuildinfo
 
 # Environment
 .env

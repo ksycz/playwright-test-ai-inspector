@@ -86,9 +86,71 @@ scripts/        Utility scripts
 
 ## Current Status
 
-🚧 Project initialization in progress.
+🚧 Phase 1 in progress — M1 (Project Foundation) complete.
 
 The repository is being developed incrementally, with each milestone focusing on learning, maintainability, and production-quality engineering practices.
+
+---
+
+## Local Development
+
+**Requires Node.js 22.12+** (see `.nvmrc`).
+
+If `nvm` is not found, ensure your shell loads it (add to `~/.zshrc`):
+
+```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+Then in the project directory:
+
+```bash
+nvm install    # installs Node 22 from .nvmrc if needed
+nvm use
+node -v        # should be v22.12.0 or higher
+```
+
+### One-time setup
+
+From the repository root:
+
+```bash
+npm run setup
+```
+
+This installs root dependencies (Playwright), app dependencies, and the Chromium browser into `.playwright-browsers/` inside the project (avoids permission issues with the global cache).
+
+If a previous `playwright install` appears stuck, press **Ctrl+C** and run `npm run setup` again.
+
+### Application
+
+```bash
+npm run dev
+```
+
+Open http://localhost:5173
+
+```bash
+npm run build
+npm run preview
+```
+
+### Playwright
+
+```bash
+nvm use
+npm test
+npm run test:ui
+npm run test:headed
+npm run report
+```
+
+If tests fail with a missing browser error, run:
+
+```bash
+npm run playwright:install
+```
 
 ---
 

@@ -67,16 +67,16 @@ After every completed milestone, update:
 
 Build a simple, testable demo e-commerce application that provides realistic user journeys for Playwright learning. Specification: [`docs/APP_SPEC.md`](./APP_SPEC.md).
 
-**Phase 1 status:** 🚧 Not started  
-**Phase 1 started:** —  
+**Phase 1 status:** 🚧 In progress  
+**Phase 1 started:** 2026-07-06  
 **Phase 1 completed:** —
 
 ---
 
 ## M1 — Project Foundation
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** None
 
 ### Goal
@@ -115,24 +115,35 @@ Establish the React application scaffold, tooling, and repository structure so s
 
 ### Acceptance criteria
 
-- [ ] `app/` exists with Vite + React + TypeScript + Tailwind configured
-- [ ] `npm run dev` starts the application without errors
-- [ ] `npm run build` completes successfully
-- [ ] Repository structure matches planned layout
-- [ ] No feature logic beyond a minimal placeholder
+- [x] `app/` exists with Vite + React + TypeScript + Tailwind configured
+- [x] `npm run dev` starts the application without errors
+- [x] `npm run build` completes successfully
+- [x] Repository structure matches planned layout
+- [x] No feature logic beyond a minimal placeholder
 
 ### Completion checklist
 
-- [ ] Vite + React + TypeScript initialized in `app/`
-- [ ] Tailwind CSS configured
-- [ ] Base folder structure created (`components/`, `pages/`, `context/`, `data/`, `types/`)
-- [ ] npm scripts added (`dev`, `build`, `preview`)
-- [ ] Placeholder root page renders
-- [ ] Roadmap updated with completion summary
+- [x] Vite + React + TypeScript initialized in `app/`
+- [x] Tailwind CSS configured
+- [x] Base folder structure created (`components/`, `pages/`, `context/`, `data/`, `types/`)
+- [x] npm scripts added (`dev`, `build`, `preview`)
+- [x] Placeholder root page renders
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Created `app/` as a self-contained Vite + React + TypeScript project with Tailwind CSS. Added a minimal placeholder page with `<main>` landmark and document title "Demo Shop". Restructured Playwright to `tests/` with `webServer` integration. Root `package.json` delegates `dev`, `build`, and `preview` to `app/`.
+
+**Architectural decisions:**
+- `app/` has its own `package.json` to keep the demo shop separate from root Playwright tooling.
+- `@` path alias maps to `app/src/` for cleaner imports in later milestones.
+- Playwright `baseURL` and `webServer` point at the Vite dev server on port 5173.
+
+**Deviations:**
+- Data directory created at `app/src/data/` (inside source tree) rather than `app/data/` for co-location with future imports.
+- Removed legacy `e2e/` example spec in favour of `tests/smoke/`.
+
+**Tests implemented:** M1-01, M1-02 in `tests/smoke/app-foundation.spec.ts` (2 passing).
 
 ---
 
@@ -862,7 +873,7 @@ M1 Project Foundation
 
 | Milestone | Status | Completed |
 |---|---|---|
-| M1 — Project Foundation | ⏳ Not started | — |
+| M1 — Project Foundation | ✅ Completed | 2026-07-06 |
 | M2 — Application Layout and Routing | ⏳ Not started | — |
 | M3 — Product Catalogue | ⏳ Not started | — |
 | M4 — Product Details | ⏳ Not started | — |
@@ -924,4 +935,5 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-06 | M1 completed — React app scaffold, Tailwind, Playwright foundation tests |
 | 2026-07-06 | Initial roadmap created with Phase 1 milestones M1–M10 |

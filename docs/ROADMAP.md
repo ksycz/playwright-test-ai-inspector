@@ -323,8 +323,8 @@ Display the full product catalogue from local JSON with add-to-cart actions.
 
 ## M4 — Product Details
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M3
 
 ### Goal
@@ -374,23 +374,32 @@ Allow visitors to view a single product's full details and add it to the cart fr
 
 ### Acceptance criteria
 
-- [ ] Product detail page renders all fields per APP_SPEC
-- [ ] Navigation from catalogue to detail works
-- [ ] Add to Cart works from detail page
-- [ ] Unknown slugs handled gracefully
+- [x] Product detail page renders all fields per APP_SPEC
+- [x] Navigation from catalogue to detail works
+- [x] Add to Cart works from detail page
+- [x] Unknown slugs handled gracefully
 
 ### Completion checklist
 
-- [ ] Route `/products/:slug` configured
-- [ ] `ProductDetailPage` component
-- [ ] Product cards link to detail pages
-- [ ] Back to products navigation
-- [ ] Unknown slug / not-found handling
-- [ ] Roadmap updated with completion summary
+- [x] Route `/products/:slug` configured
+- [x] `ProductDetailPage` component
+- [x] Product cards link to detail pages
+- [x] Back to products navigation
+- [x] Unknown slug / not-found handling
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Added `/products/:slug` route with `ProductDetailPage` showing full product details and Add to Cart. Product names on catalogue cards link to detail pages. Unknown slugs render a product-not-found state with Back to products link.
+
+**Architectural decisions:**
+- Shared `getProductBySlug()` and `formatPrice()` in `utils/products.ts` to avoid duplication between card and detail views.
+- Product not-found is handled inside `ProductDetailPage` (distinct from app-level 404).
+- Product name links live inside the card heading to preserve `article` accessible names for tests.
+
+**Deviations:** None.
+
+**Tests implemented:** M4-01 through M4-06 in `tests/smoke/product-details.spec.ts` (6 passing). 19 tests total across M1–M4.
 
 ---
 
@@ -896,7 +905,7 @@ M1 Project Foundation
 | M1 — Project Foundation | ✅ Completed | 2026-07-06 |
 | M2 — Application Layout and Routing | ✅ Completed | 2026-07-06 |
 | M3 — Product Catalogue | ✅ Completed | 2026-07-06 |
-| M4 — Product Details | ⏳ Not started | — |
+| M4 — Product Details | ✅ Completed | 2026-07-06 |
 | M5 — Shopping Cart | ⏳ Not started | — |
 | M6 — Fake Authentication | ⏳ Not started | — |
 | M7 — Checkout Flow | ⏳ Not started | — |
@@ -955,6 +964,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-06 | M4 completed — product detail page, slug routing, card links |
 | 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |
 | 2026-07-06 | M2 completed — React Router, AppLayout, navigation, 404 page |
 | 2026-07-06 | M1 completed — React app scaffold, Tailwind, Playwright foundation tests |

@@ -6,6 +6,7 @@ import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
 import ProductsPage from '@/pages/ProductsPage';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
       <Route element={<AppLayout />}>
         <Route index element={<HomePage />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="products/:slug" element={<ProductDetailPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="checkout" element={<CheckoutPage />} />

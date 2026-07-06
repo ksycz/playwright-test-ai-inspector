@@ -1,4 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-label="Notebook Set">
-  <rect width="400" height="300" fill="#e2e8f0"/>
-  <text x="200" y="150" text-anchor="middle" fill="#475569" font-family="sans-serif" font-size="20">Notebook Set</text>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe4e6"/>
+      <stop offset="100%" stop-color="#fff1f2"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <rect x="145" y="95" width="95" height="125" rx="6" fill="#fda4af" transform="rotate(-8 192 157)"/>
+  <rect x="165" y="88" width="95" height="125" rx="6" fill="#fb7185" transform="rotate(2 212 150)"/>
+  <rect x="185" y="82" width="95" height="125" rx="6" fill="#f43f5e"/>
+  <rect x="205" y="100" width="58" height="4" rx="2" fill="#fff1f2" opacity="0.8"/>
+  <rect x="205" y="115" width="50" height="4" rx="2" fill="#fff1f2" opacity="0.7"/>
+  <rect x="205" y="130" width="54" height="4" rx="2" fill="#fff1f2" opacity="0.7"/>
+  <rect x="205" y="145" width="46" height="4" rx="2" fill="#fff1f2" opacity="0.6"/>
 </svg>

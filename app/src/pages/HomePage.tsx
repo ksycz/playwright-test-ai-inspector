@@ -11,14 +11,16 @@ export default function HomePage() {
 
   return (
     <>
-      <h1 className="text-3xl font-semibold">Welcome to Demo Shop</h1>
-      <p className="mt-4 max-w-2xl text-slate-600">
-        A simple demo e-commerce app for learning Playwright and test automation. Browse featured
-        products below or explore the full catalogue.
-      </p>
+      <section className="hero-panel">
+        <h1 className="page-heading">Welcome to Demo Shop</h1>
+        <p className="page-intro max-w-2xl">
+          A simple demo e-commerce app for learning Playwright and test automation. Browse featured
+          products below or explore the full catalogue.
+        </p>
+      </section>
 
       <section aria-labelledby="featured-products-heading" className="mt-10">
-        <h2 id="featured-products-heading" className="text-2xl font-semibold text-slate-900">
+        <h2 id="featured-products-heading" className="section-heading">
           Featured products
         </h2>
 

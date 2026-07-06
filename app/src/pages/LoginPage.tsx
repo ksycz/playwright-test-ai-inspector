@@ -46,18 +46,26 @@ export default function LoginPage() {
 
   return (
     <>
-      <h1 className="text-3xl font-semibold">Log in</h1>
-      <p className="mt-4 text-slate-600">Sign in to continue to checkout.</p>
+      <h1 className="page-heading">Log in</h1>
+      <p className="page-intro">Sign in to continue to checkout.</p>
 
-      <form onSubmit={handleSubmit} noValidate className="mt-8 max-w-md space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="surface-card mt-8 max-w-md space-y-6 p-6"
+      >
         {formError ? (
-          <p id={formErrorId} role="alert" className="rounded bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p
+            id={formErrorId}
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
             {formError}
           </p>
         ) : null}
 
         <div>
-          <label htmlFor={usernameId} className="block text-sm font-medium text-slate-900">
+          <label htmlFor={usernameId} className="block text-sm font-medium text-brand-900">
             Username
           </label>
           <input
@@ -69,7 +77,7 @@ export default function LoginPage() {
             onChange={(event) => setUsername(event.target.value)}
             aria-invalid={usernameError ? true : undefined}
             aria-describedby={usernameError ? usernameErrorId : undefined}
-            className="mt-2 w-full rounded border border-slate-300 px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            className="input-field"
           />
           {usernameError ? (
             <p id={usernameErrorId} className="mt-2 text-sm text-red-700">
@@ -79,7 +87,7 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <label htmlFor={passwordId} className="block text-sm font-medium text-slate-900">
+          <label htmlFor={passwordId} className="block text-sm font-medium text-brand-900">
             Password
           </label>
           <input
@@ -91,7 +99,7 @@ export default function LoginPage() {
             onChange={(event) => setPassword(event.target.value)}
             aria-invalid={passwordError ? true : undefined}
             aria-describedby={passwordError ? passwordErrorId : undefined}
-            className="mt-2 w-full rounded border border-slate-300 px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            className="input-field"
           />
           {passwordError ? (
             <p id={passwordErrorId} className="mt-2 text-sm text-red-700">
@@ -100,10 +108,7 @@ export default function LoginPage() {
           ) : null}
         </div>
 
-        <button
-          type="submit"
-          className="inline-flex min-h-11 items-center rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-        >
+        <button type="submit" className="btn-primary">
           Log in
         </button>
       </form>

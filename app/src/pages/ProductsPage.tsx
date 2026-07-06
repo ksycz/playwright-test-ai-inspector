@@ -10,8 +10,8 @@ export default function ProductsPage() {
 
   return (
     <>
-      <h1 className="text-3xl font-semibold">Products</h1>
-      <p className="mt-4 text-slate-600">Browse our demo catalogue and add items to your cart.</p>
+      <h1 className="page-heading">Products</h1>
+      <p className="page-intro">Browse our demo catalogue and add items to your cart.</p>
       <div className="mt-8">
         <ProductGrid products={catalogue} onAddToCart={addItem} />
       </div>

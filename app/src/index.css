@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply min-h-screen bg-white text-slate-900 antialiased;
+@layer base {
+  body {
+    @apply min-h-screen bg-gradient-to-b from-brand-50 to-slate-50 text-slate-900 antialiased;
+  }
+}
+
+@layer components {
+  .focus-ring {
+    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+  }
+
+  .page-heading {
+    @apply text-3xl font-semibold tracking-tight text-brand-950;
+  }
+
+  .page-intro {
+    @apply mt-4 text-slate-600;
+  }
+
+  .section-heading {
+    @apply text-2xl font-semibold text-brand-900;
+  }
+
+  .hero-panel {
+    @apply rounded-2xl border border-brand-100 bg-white/80 p-8 shadow-sm backdrop-blur-sm;
+  }
+
+  .surface-card {
+    @apply rounded-xl border border-brand-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md;
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center rounded-lg border border-brand-200 bg-white px-4 py-2 text-sm font-medium text-brand-800 transition-colors hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+  }
+
+  .text-link {
+    @apply rounded font-medium text-brand-700 underline-offset-2 hover:text-brand-800 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+  }
+
+  .input-field {
+    @apply mt-2 w-full rounded-lg border border-brand-200 bg-white px-3 py-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+  }
+
+  .category-badge {
+    @apply inline-block rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-medium text-brand-800;
+  }
+
+  .price-text {
+    @apply text-base font-semibold text-brand-700;
+  }
+
+  .product-image-frame {
+    @apply overflow-hidden rounded-lg border border-brand-200 bg-gradient-to-br from-brand-100 via-white to-brand-50 p-4 shadow-inner;
+  }
 }

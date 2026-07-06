@@ -1,4 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-label="Wireless Mouse">
-  <rect width="400" height="300" fill="#e2e8f0"/>
-  <text x="200" y="150" text-anchor="middle" fill="#475569" font-family="sans-serif" font-size="20">Wireless Mouse</text>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ccfbf1"/>
+      <stop offset="100%" stop-color="#f0fdfa"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <ellipse cx="200" cy="250" rx="120" ry="18" fill="#99f6e4" opacity="0.45"/>
+  <path d="M130 210c0-55 28-95 70-95s70 40 70 95v35c0 18-14 32-32 32h-76c-18 0-32-14-32-32v-35z" fill="url(#body)"/>
+  <path d="M200 115v70" stroke="#134e4a" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="200" cy="115" rx="8" ry="12" fill="#042f2e"/>
+  <circle cx="248" cy="175" r="5" fill="#ecfdf5" opacity="0.9"/>
 </svg>

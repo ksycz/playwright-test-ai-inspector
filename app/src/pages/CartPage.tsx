@@ -38,7 +38,7 @@ export default function CartPage() {
         <button
           type="button"
           onClick={clearCart}
-          className="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+          className="inline-flex min-h-11 items-center rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
         >
           Clear cart
         </button>
@@ -81,7 +81,7 @@ export default function CartPage() {
                         type="button"
                         onClick={() => decreaseQuantity(item.product.slug)}
                         aria-label={`Decrease quantity of ${item.product.name}`}
-                        className="rounded border border-slate-300 px-2 py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
                       >
                         -
                       </button>
@@ -92,7 +92,7 @@ export default function CartPage() {
                         type="button"
                         onClick={() => increaseQuantity(item.product.slug)}
                         aria-label={`Increase quantity of ${item.product.name}`}
-                        className="rounded border border-slate-300 px-2 py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+                        className="inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
                       >
                         +
                       </button>
@@ -104,7 +104,7 @@ export default function CartPage() {
                       type="button"
                       onClick={() => removeItem(item.product.slug)}
                       aria-label={`Remove ${item.product.name} from cart`}
-                      className="text-sm font-medium text-slate-700 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+                      className="inline-flex min-h-11 items-center text-sm font-medium text-slate-700 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
                     >
                       Remove
                     </button>
@@ -123,7 +123,7 @@ export default function CartPage() {
         <button
           type="button"
           onClick={() => navigate('/checkout')}
-          className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+          className="inline-flex min-h-11 items-center rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
         >
           Proceed to checkout
         </button>

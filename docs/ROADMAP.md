@@ -42,7 +42,7 @@ After every completed milestone, update:
 
 | Phase | Name | Status | Focus |
 |---|---|---|---|
-| **1** | Demo Shop Application | 🚧 In progress | React demo e-commerce app |
+| **1** | Demo Shop Application | ✅ Completed | React demo e-commerce app |
 | **2** | Playwright Testing Framework | ⏳ Planned | POM, fixtures, suites, CI |
 | **3** | AI Test Inspector | ⏳ Planned | AI-assisted failure analysis |
 
@@ -67,9 +67,9 @@ After every completed milestone, update:
 
 Build a simple, testable demo e-commerce application that provides realistic user journeys for Playwright learning. Specification: [`docs/APP_SPEC.md`](./APP_SPEC.md).
 
-**Phase 1 status:** 🚧 In progress  
+**Phase 1 status:** ✅ Completed  
 **Phase 1 started:** 2026-07-06  
-**Phase 1 completed:** —
+**Phase 1 completed:** 2026-07-06
 
 ---
 
@@ -853,8 +853,8 @@ Consolidate and polish all error, empty, and edge-case states across the applica
 
 ## M10 — Accessibility and Testability Polish
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M1–M9
 
 ### Goal
@@ -906,28 +906,41 @@ Final pass on accessibility, responsive layout, and testability to ensure the ap
 
 ### Acceptance criteria
 
-- [ ] App is responsive on mobile and desktop
-- [ ] All pages pass heading hierarchy review
-- [ ] All forms fully accessible by label
-- [ ] All interactive elements keyboard-reachable
-- [ ] DOM structure is stable and predictable for Playwright
-- [ ] Phase 1 ready for Phase 2 test implementation
+- [x] App is responsive on mobile and desktop
+- [x] All pages pass heading hierarchy review
+- [x] All forms fully accessible by label
+- [x] All interactive elements keyboard-reachable
+- [x] DOM structure is stable and predictable for Playwright
+- [x] Phase 1 ready for Phase 2 test implementation
 
 ### Completion checklist
 
-- [ ] Responsive layout on all pages
-- [ ] Mobile navigation works
-- [ ] Heading hierarchy verified
-- [ ] Keyboard navigation verified
-- [ ] Focus states visible on all interactive elements
-- [ ] `data-testid` audit completed
-- [ ] Touch targets verified on mobile
-- [ ] Phase 1 completion summary written in this document
-- [ ] Roadmap updated with completion summary
+- [x] Responsive layout on all pages
+- [x] Mobile navigation works
+- [x] Heading hierarchy verified
+- [x] Keyboard navigation verified
+- [x] Focus states visible on all interactive elements
+- [x] `data-testid` audit completed
+- [x] Touch targets verified on mobile
+- [x] Phase 1 completion summary written in this document
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Final Phase 1 pass on responsive layout, touch targets (min 44px), and mobile-friendly header (stacked layout with wrapping nav). Added cross-viewport E2E, heading hierarchy, keyboard form submission, and horizontal scroll regression tests.
+
+**Architectural decisions:**
+- Mobile nav uses stacked header + `flex-wrap` rather than a hamburger menu — sufficient for demo scope and keeps locators identical across viewports.
+- Touch targets applied via `min-h-11` / `min-w-11` on nav links, cart controls, and primary action buttons.
+- `data-testid` audit: retained four justified IDs (`product-card-{slug}`, `cart-item-{slug}`, `cart-total`, `order-number`); no new IDs added.
+
+**Deviations:** None.
+
+**Tests implemented:** M10-01 through M10-05 in `tests/smoke/accessibility-polish.spec.ts` (5 passing). **59 tests total across M1–M10.**
+
+### Phase 1 completion summary
+
+Phase 1 delivered a full demo e-commerce application with product catalogue, cart, fake auth, checkout, home page, error states, and accessibility polish. The app uses semantic HTML, `getByRole`-friendly patterns, Local Storage persistence, and 59 passing Playwright smoke tests across 10 milestones — ready for Phase 2 framework work (POM, fixtures, CI).
 
 ---
 
@@ -961,7 +974,7 @@ M1 Project Foundation
 | M7 — Checkout Flow | ✅ Completed | 2026-07-06 |
 | M8 — Home Page and Featured Products | ✅ Completed | 2026-07-06 |
 | M9 — Error and Empty States | ✅ Completed | 2026-07-06 |
-| M10 — Accessibility and Testability Polish | ⏳ Not started | — |
+| M10 — Accessibility and Testability Polish | ✅ Completed | 2026-07-06 |
 
 ---
 
@@ -1014,7 +1027,8 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
-| 2026-07-06 | M9 completed — error/empty state tests, corrupt storage handling |
+| 2026-07-06 | Phase 1 completed — M10 accessibility polish, 59 smoke tests, ready for Phase 2 |
+| 2026-07-06 | M10 completed — responsive layout, touch targets, cross-viewport E2E tests |
 | 2026-07-06 | M5 completed — shopping cart page, Local Storage, quantity controls |
 | 2026-07-06 | M4 completed — product detail page, slug routing, card links |
 | 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |

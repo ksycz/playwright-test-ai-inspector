@@ -50,7 +50,7 @@ export default function ProductDetailPage() {
           <button
             type="button"
             onClick={() => addItem(product)}
-            className="mt-8 rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            className="mt-8 inline-flex min-h-11 items-center rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
           >
             Add {product.name} to cart
           </button>

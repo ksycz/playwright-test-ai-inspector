@@ -763,8 +763,8 @@ Build the Home landing page with shop introduction and featured products, per AP
 
 ## M9 — Error and Empty States
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M2, M4, M5, M6, M7
 
 ### Goal
@@ -819,26 +819,35 @@ Consolidate and polish all error, empty, and edge-case states across the applica
 
 ### Acceptance criteria
 
-- [ ] All error states listed in APP_SPEC are implemented
-- [ ] Error and empty state copy is consistent across the app
-- [ ] Corrupt Local Storage handled without crashes
-- [ ] Each error state provides a clear next action for the user
+- [x] All error states listed in APP_SPEC are implemented
+- [x] Error and empty state copy is consistent across the app
+- [x] Corrupt Local Storage handled without crashes
+- [x] Each error state provides a clear next action for the user
 
 ### Completion checklist
 
-- [ ] 404 page reviewed and polished
-- [ ] Product not-found state reviewed
-- [ ] Empty cart state reviewed
-- [ ] Invalid login message reviewed
-- [ ] Form validation messages reviewed
-- [ ] Empty featured products fallback reviewed
-- [ ] Corrupt Local Storage handling added
-- [ ] Stale confirmation page redirect added
-- [ ] Roadmap updated with completion summary
+- [x] 404 page reviewed and polished
+- [x] Product not-found state reviewed
+- [x] Empty cart state reviewed
+- [x] Invalid login message reviewed
+- [x] Form validation messages reviewed
+- [x] Empty featured products fallback reviewed
+- [x] Corrupt Local Storage handling added
+- [x] Stale confirmation page redirect added
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Consolidated error and empty state regression tests in a dedicated smoke suite. Hardened `cartStorage` and `authStorage` to validate stored data, clear corrupt entries, and fall back to safe defaults without crashing.
+
+**Architectural decisions:**
+- Cart items validated with `isValidCartItem()` before hydration; partial or malformed arrays treated as corrupt and cleared.
+- Auth session requires non-empty `username` string; invalid shapes clear storage and log user out.
+- Existing page copy and visual patterns from M2–M8 retained; M9 focuses on verification and storage resilience rather than UI rewrites.
+
+**Deviations:** None.
+
+**Tests implemented:** M9-01 through M9-07 in `tests/smoke/error-empty-states.spec.ts` (7 passing). 54 tests total across M1–M9.
 
 ---
 
@@ -951,7 +960,7 @@ M1 Project Foundation
 | M6 — Fake Authentication | ✅ Completed | 2026-07-06 |
 | M7 — Checkout Flow | ✅ Completed | 2026-07-06 |
 | M8 — Home Page and Featured Products | ✅ Completed | 2026-07-06 |
-| M9 — Error and Empty States | ⏳ Not started | — |
+| M9 — Error and Empty States | ✅ Completed | 2026-07-06 |
 | M10 — Accessibility and Testability Polish | ⏳ Not started | — |
 
 ---
@@ -1005,7 +1014,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
-| 2026-07-06 | M8 completed — home page intro, featured products section, empty fallback |
+| 2026-07-06 | M9 completed — error/empty state tests, corrupt storage handling |
 | 2026-07-06 | M5 completed — shopping cart page, Local Storage, quantity controls |
 | 2026-07-06 | M4 completed — product detail page, slug routing, card links |
 | 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |

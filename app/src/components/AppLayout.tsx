@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { useCart } from '@/context/CartContext';
 
 const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
   [
@@ -7,7 +8,14 @@ const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100',
   ].join(' ');
 
+function cartAriaLabel(totalItems: number) {
+  const itemLabel = totalItems === 1 ? 'item' : 'items';
+  return `Cart, ${totalItems} ${itemLabel}`;
+}
+
 export default function AppLayout() {
+  const { totalItems } = useCart();
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-slate-200 bg-white">
@@ -29,9 +37,9 @@ export default function AppLayout() {
                 <NavLink
                   to="/cart"
                   className={navLinkClassName}
-                  aria-label="Cart, 0 items"
+                  aria-label={cartAriaLabel(totalItems)}
                 >
-                  Cart (0)
+                  Cart ({totalItems})
                 </NavLink>
               </li>
               <li>

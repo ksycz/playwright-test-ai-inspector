@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "wireless-mouse",
+    "name": "Wireless Mouse",
+    "category": "Electronics",
+    "shortDescription": "Ergonomic wireless mouse with silent clicks.",
+    "fullDescription": "A comfortable ergonomic wireless mouse featuring silent click technology, adjustable DPI settings, and a long-lasting rechargeable battery. Ideal for everyday office and home use.",
+    "price": 29.99,
+    "image": "/images/products/wireless-mouse.svg",
+    "featured": true
+  },
+  {
+    "slug": "mechanical-keyboard",
+    "name": "Mechanical Keyboard",
+    "category": "Electronics",
+    "shortDescription": "Compact mechanical keyboard with tactile switches.",
+    "fullDescription": "A compact mechanical keyboard with tactile switches, durable aluminium frame, and white backlighting. Perfect for typing and light gaming.",
+    "price": 89.99,
+    "image": "/images/products/mechanical-keyboard.svg",
+    "featured": true
+  },
+  {
+    "slug": "usb-c-hub",
+    "name": "USB-C Hub",
+    "category": "Electronics",
+    "shortDescription": "7-in-1 USB-C hub with HDMI and SD card reader.",
+    "fullDescription": "Expand your laptop connectivity with this 7-in-1 USB-C hub featuring HDMI output, USB-A ports, SD and microSD card readers, and pass-through charging.",
+    "price": 45.0,
+    "image": "/images/products/usb-c-hub.svg",
+    "featured": true
+  },
+  {
+    "slug": "desk-lamp",
+    "name": "Desk Lamp",
+    "category": "Home Office",
+    "shortDescription": "LED desk lamp with adjustable brightness.",
+    "fullDescription": "Modern LED desk lamp with adjustable brightness and colour temperature. Flexible arm and touch controls for comfortable workspace lighting.",
+    "price": 34.5,
+    "image": "/images/products/desk-lamp.svg",
+    "featured": false
+  },
+  {
+    "slug": "notebook-set",
+    "name": "Notebook Set",
+    "category": "Stationery",
+    "shortDescription": "Set of three ruled A5 notebooks.",
+    "fullDescription": "A set of three high-quality A5 notebooks with ruled pages, durable covers, and lay-flat binding. Great for notes, journaling, and planning.",
+    "price": 12.99,
+    "image": "/images/products/notebook-set.svg",
+    "featured": false
+  },
+  {
+    "slug": "insulated-bottle",
+    "name": "Insulated Bottle",
+    "category": "Accessories",
+    "shortDescription": "Stainless steel bottle keeps drinks cold for 24 hours.",
+    "fullDescription": "Double-wall stainless steel insulated bottle that keeps beverages cold for up to 24 hours and hot for up to 12 hours. Leak-proof lid and easy-carry handle.",
+    "price": 24.99,
+    "image": "/images/products/insulated-bottle.svg",
+    "featured": true
+  },
+  {
+    "slug": "laptop-stand",
+    "name": "Laptop Stand",
+    "category": "Home Office",
+    "shortDescription": "Adjustable aluminium laptop stand.",
+    "fullDescription": "Lightweight aluminium laptop stand with adjustable height and angle. Improves posture and airflow for laptops up to 17 inches.",
+    "price": 39.99,
+    "image": "/images/products/laptop-stand.svg",
+    "featured": false
+  },
+  {
+    "slug": "webcam-hd",
+    "name": "HD Webcam",
+    "category": "Electronics",
+    "shortDescription": "1080p webcam with built-in microphone.",
+    "fullDescription": "Full HD 1080p webcam with auto-focus, built-in noise-reducing microphone, and privacy shutter. Compatible with major video conferencing apps.",
+    "price": 59.99,
+    "image": "/images/products/webcam-hd.svg",
+    "featured": false
+  }
+]

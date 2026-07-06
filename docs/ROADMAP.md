@@ -240,8 +240,8 @@ Create the shared application shell, navigation, and routing foundation used by 
 
 ## M3 — Product Catalogue
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M2
 
 ### Goal
@@ -291,23 +291,33 @@ Display the full product catalogue from local JSON with add-to-cart actions.
 
 ### Acceptance criteria
 
-- [ ] 8–10 products loaded from `products.json`
-- [ ] Product grid renders all fields per APP_SPEC
-- [ ] Add to Cart updates `CartContext` and header badge
-- [ ] Quantity increments when same product is added again
+- [x] 8–10 products loaded from `products.json`
+- [x] Product grid renders all fields per APP_SPEC
+- [x] Add to Cart updates `CartContext` and header badge
+- [x] Quantity increments when same product is added again
 
 ### Completion checklist
 
-- [ ] `products.json` created with 8–10 products
-- [ ] `ProductCard` and `ProductGrid` components
-- [ ] `ProductsPage` renders full catalogue
-- [ ] `CartContext` with `addItem()` and `totalItems`
-- [ ] Header cart badge wired to context
-- [ ] Roadmap updated with completion summary
+- [x] `products.json` created with 8–10 products
+- [x] `ProductCard` and `ProductGrid` components
+- [x] `ProductsPage` renders full catalogue
+- [x] `CartContext` with `addItem()` and `totalItems`
+- [x] Header cart badge wired to context
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Added 8 demo products in `products.json`, `ProductCard`/`ProductGrid` components, and `CartContext` with `addItem()` and `totalItems`. Products page renders a responsive grid; Add to Cart updates the header badge with correct singular/plural labels.
+
+**Architectural decisions:**
+- `CartProvider` wraps the app in `main.tsx`; state is in-memory for now (Local Storage in M5).
+- Product `article` elements use `aria-labelledby` pointing to the card heading for stable `getByRole('article', { name })` queries.
+- Add to Cart button text follows the pattern `Add {product name} to cart` for accessible, testable labels.
+- Product images are local SVG placeholders in `public/images/products/`.
+
+**Deviations:** None.
+
+**Tests implemented:** M3-01 through M3-05 in `tests/smoke/product-catalogue.spec.ts` (5 passing). 13 tests total across M1–M3.
 
 ---
 
@@ -885,7 +895,7 @@ M1 Project Foundation
 |---|---|---|
 | M1 — Project Foundation | ✅ Completed | 2026-07-06 |
 | M2 — Application Layout and Routing | ✅ Completed | 2026-07-06 |
-| M3 — Product Catalogue | ⏳ Not started | — |
+| M3 — Product Catalogue | ✅ Completed | 2026-07-06 |
 | M4 — Product Details | ⏳ Not started | — |
 | M5 — Shopping Cart | ⏳ Not started | — |
 | M6 — Fake Authentication | ⏳ Not started | — |
@@ -945,6 +955,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |
 | 2026-07-06 | M2 completed — React Router, AppLayout, navigation, 404 page |
 | 2026-07-06 | M1 completed — React app scaffold, Tailwind, Playwright foundation tests |
 | 2026-07-06 | Initial roadmap created with Phase 1 milestones M1–M10 |

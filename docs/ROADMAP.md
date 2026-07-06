@@ -405,8 +405,8 @@ Allow visitors to view a single product's full details and add it to the cart fr
 
 ## M5 — Shopping Cart
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M3
 
 ### Goal
@@ -463,27 +463,37 @@ Implement the full shopping cart with quantity management, totals, persistence, 
 
 ### Acceptance criteria
 
-- [ ] All cart operations work per APP_SPEC
-- [ ] Subtotal and total calculate correctly
-- [ ] Cart persists in Local Storage across refresh
-- [ ] Empty cart state displayed when cart is empty
-- [ ] Proceed to checkout button present
+- [x] All cart operations work per APP_SPEC
+- [x] Subtotal and total calculate correctly
+- [x] Cart persists in Local Storage across refresh
+- [x] Empty cart state displayed when cart is empty
+- [x] Proceed to checkout button present
 
 ### Completion checklist
 
-- [ ] `CartContext` fully implemented
-- [ ] Local Storage persistence
-- [ ] `CartPage` with line items and controls
-- [ ] Quantity increase/decrease
-- [ ] Remove item and clear cart
-- [ ] Subtotal and total calculation
-- [ ] Empty cart state
-- [ ] Proceed to checkout button
-- [ ] Roadmap updated with completion summary
+- [x] `CartContext` fully implemented
+- [x] Local Storage persistence
+- [x] `CartPage` with line items and controls
+- [x] Quantity increase/decrease
+- [x] Remove item and clear cart
+- [x] Subtotal and total calculation
+- [x] Empty cart state
+- [x] Proceed to checkout button
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Extended `CartContext` with quantity controls, remove, clear, subtotal/total, and Local Storage persistence (`cart` key). Built full `CartPage` with accessible table layout, empty state, and Proceed to checkout button.
+
+**Architectural decisions:**
+- Cart storage logic isolated in `utils/cartStorage.ts` for testability and corrupt-data fallback.
+- `CartProvider` lazy-loads from Local Storage on mount and syncs on every items change.
+- Cart total equals subtotal (no tax/shipping in MVP).
+- Proceed to checkout navigates to `/checkout`; auth guard deferred to M6.
+
+**Deviations:** None.
+
+**Tests implemented:** M5-01 through M5-08 in `tests/smoke/shopping-cart.spec.ts` (8 passing). 27 tests total across M1–M5.
 
 ---
 
@@ -906,7 +916,7 @@ M1 Project Foundation
 | M2 — Application Layout and Routing | ✅ Completed | 2026-07-06 |
 | M3 — Product Catalogue | ✅ Completed | 2026-07-06 |
 | M4 — Product Details | ✅ Completed | 2026-07-06 |
-| M5 — Shopping Cart | ⏳ Not started | — |
+| M5 — Shopping Cart | ✅ Completed | 2026-07-06 |
 | M6 — Fake Authentication | ⏳ Not started | — |
 | M7 — Checkout Flow | ⏳ Not started | — |
 | M8 — Home Page and Featured Products | ⏳ Not started | — |
@@ -964,6 +974,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-06 | M5 completed — shopping cart page, Local Storage, quantity controls |
 | 2026-07-06 | M4 completed — product detail page, slug routing, card links |
 | 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |
 | 2026-07-06 | M2 completed — React Router, AppLayout, navigation, 404 page |

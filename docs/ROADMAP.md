@@ -149,8 +149,8 @@ Establish the React application scaffold, tooling, and repository structure so s
 
 ## M2 — Application Layout and Routing
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M1
 
 ### Goal
@@ -205,26 +205,36 @@ Create the shared application shell, navigation, and routing foundation used by 
 
 ### Acceptance criteria
 
-- [ ] All routes render inside a shared layout
-- [ ] Navigation works between all major pages
-- [ ] Active page is visually and semantically indicated
-- [ ] 404 page handles unknown routes
-- [ ] Cart badge visible in header (static `0` for now)
+- [x] All routes render inside a shared layout
+- [x] Navigation works between all major pages
+- [x] Active page is visually and semantically indicated
+- [x] 404 page handles unknown routes
+- [x] Cart badge visible in header (static `0` for now)
 
 ### Completion checklist
 
-- [ ] React Router configured
-- [ ] `AppLayout` component with header navigation
-- [ ] Routes: `/`, `/products`, `/login`, `/cart`, `/checkout`, `/order-confirmation`
-- [ ] 404 / NotFound page
-- [ ] Active nav state via `aria-current="page"`
-- [ ] Cart badge placeholder in header
-- [ ] Placeholder content on all pages
-- [ ] Roadmap updated with completion summary
+- [x] React Router configured
+- [x] `AppLayout` component with header navigation
+- [x] Routes: `/`, `/products`, `/login`, `/cart`, `/checkout`, `/order-confirmation`
+- [x] 404 / NotFound page
+- [x] Active nav state via `aria-current="page"`
+- [x] Cart badge placeholder in header
+- [x] Placeholder content on all pages
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Added React Router with a shared `AppLayout` (header, nav, main). Placeholder pages for all routes. `NavLink` provides active state via `aria-current="page"`. Cart link uses `aria-label="Cart, 0 items"` for accessible badge assertion.
+
+**Architectural decisions:**
+- `BrowserRouter` wraps the app in `main.tsx`; route definitions live in `App.tsx`.
+- Layout route pattern (`<Route element={<AppLayout />}>`) keeps nav consistent without repeating markup.
+- `NavLink` with `end` on Home prevents `/products` from highlighting Home.
+- Catch-all `*` route renders `NotFoundPage` inside the layout so nav remains available on 404.
+
+**Deviations:** None.
+
+**Tests implemented:** M2-01 through M2-06 in `tests/smoke/app-layout.spec.ts` (6 passing). M1 tests still pass (8 total).
 
 ---
 
@@ -874,7 +884,7 @@ M1 Project Foundation
 | Milestone | Status | Completed |
 |---|---|---|
 | M1 — Project Foundation | ✅ Completed | 2026-07-06 |
-| M2 — Application Layout and Routing | ⏳ Not started | — |
+| M2 — Application Layout and Routing | ✅ Completed | 2026-07-06 |
 | M3 — Product Catalogue | ⏳ Not started | — |
 | M4 — Product Details | ⏳ Not started | — |
 | M5 — Shopping Cart | ⏳ Not started | — |
@@ -935,5 +945,6 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-06 | M2 completed — React Router, AppLayout, navigation, 404 page |
 | 2026-07-06 | M1 completed — React app scaffold, Tailwind, Playwright foundation tests |
 | 2026-07-06 | Initial roadmap created with Phase 1 milestones M1–M10 |

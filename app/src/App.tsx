@@ -1,10 +1,25 @@
-function App() {
+import { Route, Routes } from 'react-router-dom';
+import AppLayout from '@/components/AppLayout';
+import CartPage from '@/pages/CartPage';
+import CheckoutPage from '@/pages/CheckoutPage';
+import HomePage from '@/pages/HomePage';
+import LoginPage from '@/pages/LoginPage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import OrderConfirmationPage from '@/pages/OrderConfirmationPage';
+import ProductsPage from '@/pages/ProductsPage';
+
+export default function App() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-3xl font-semibold">Demo Shop</h1>
-      <p className="mt-4 text-slate-600">Application scaffold ready.</p>
-    </main>
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="products" element={<ProductsPage />} />
+        <Route path="cart" element={<CartPage />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="checkout" element={<CheckoutPage />} />
+        <Route path="order-confirmation" element={<OrderConfirmationPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
-
-export default App;

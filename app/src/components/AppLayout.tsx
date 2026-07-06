@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 
 const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
@@ -15,6 +16,7 @@ function cartAriaLabel(totalItems: number) {
 
 export default function AppLayout() {
   const { totalItems } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <div className="min-h-screen">
@@ -42,11 +44,28 @@ export default function AppLayout() {
                   Cart ({totalItems})
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/login" className={navLinkClassName}>
-                  Login
-                </NavLink>
-              </li>
+              {isAuthenticated && user ? (
+                <>
+                  <li className="px-3 py-2 text-sm text-slate-700">
+                    Welcome, {user.username}
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={logout}
+                      className="rounded px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+                    >
+                      Log out
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <NavLink to="/login" className={navLinkClassName}>
+                    Login
+                  </NavLink>
+                </li>
+              )}
             </ul>
           </nav>
         </div>

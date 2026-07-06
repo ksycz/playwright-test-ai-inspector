@@ -499,8 +499,8 @@ Implement the full shopping cart with quantity management, totals, persistence, 
 
 ## M6 — Fake Authentication
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M2, M5
 
 ### Goal
@@ -558,27 +558,37 @@ Implement fake login/logout with session persistence and protect the checkout ro
 
 ### Acceptance criteria
 
-- [ ] Valid credentials log the user in
-- [ ] Invalid credentials show an error without navigation
-- [ ] Session persists in Local Storage
-- [ ] Logout clears session
-- [ ] Checkout route is protected
-- [ ] Return URL redirect works after login
+- [x] Valid credentials log the user in
+- [x] Invalid credentials show an error without navigation
+- [x] Session persists in Local Storage
+- [x] Logout clears session
+- [x] Checkout route is protected
+- [x] Return URL redirect works after login
 
 ### Completion checklist
 
-- [ ] `users.json` with fake credentials
-- [ ] `AuthContext` with Local Storage persistence
-- [ ] `LoginPage` with form and validation
-- [ ] `ProtectedRoute` for checkout and confirmation
-- [ ] Return URL support (`?redirect=`)
-- [ ] Header shows Login/Logout state
-- [ ] Proceed to checkout auth guard wired
-- [ ] Roadmap updated with completion summary
+- [x] `users.json` with fake credentials
+- [x] `AuthContext` with Local Storage persistence
+- [x] `LoginPage` with form and validation
+- [x] `ProtectedRoute` for checkout and confirmation
+- [x] Return URL support (`?redirect=`)
+- [x] Header shows Login/Logout state
+- [x] Proceed to checkout auth guard wired
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Added fake authentication with `AuthContext`, login form, Local Storage session (`auth` key), and `ProtectedRoute` for checkout and order confirmation. Header shows welcome message and Log out when authenticated; Proceed to checkout redirects guests to login with return URL.
+
+**Architectural decisions:**
+- Auth storage isolated in `utils/authStorage.ts` mirroring cart pattern.
+- `sanitizeRedirectPath()` prevents open redirects; invalid redirect falls back to `/products`.
+- `ProtectedRoute` wraps route elements in `App.tsx` rather than nested route objects for clarity.
+- Logout does not clear cart (documented behaviour for M5).
+
+**Deviations:** None.
+
+**Tests implemented:** M6-01 through M6-08 in `tests/smoke/authentication.spec.ts` (8 passing). 35 tests total across M1–M6.
 
 ---
 
@@ -917,7 +927,7 @@ M1 Project Foundation
 | M3 — Product Catalogue | ✅ Completed | 2026-07-06 |
 | M4 — Product Details | ✅ Completed | 2026-07-06 |
 | M5 — Shopping Cart | ✅ Completed | 2026-07-06 |
-| M6 — Fake Authentication | ⏳ Not started | — |
+| M6 — Fake Authentication | ✅ Completed | 2026-07-06 |
 | M7 — Checkout Flow | ⏳ Not started | — |
 | M8 — Home Page and Featured Products | ⏳ Not started | — |
 | M9 — Error and Empty States | ⏳ Not started | — |
@@ -974,6 +984,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-06 | M6 completed — fake auth, protected checkout, login redirect |
 | 2026-07-06 | M5 completed — shopping cart page, Local Storage, quantity controls |
 | 2026-07-06 | M4 completed — product detail page, slug routing, card links |
 | 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |

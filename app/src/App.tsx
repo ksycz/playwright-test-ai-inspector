@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import CartPage from '@/pages/CartPage';
 import CheckoutPage from '@/pages/CheckoutPage';
 import HomePage from '@/pages/HomePage';
@@ -18,8 +19,22 @@ export default function App() {
         <Route path="products/:slug" element={<ProductDetailPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="login" element={<LoginPage />} />
-        <Route path="checkout" element={<CheckoutPage />} />
-        <Route path="order-confirmation" element={<OrderConfirmationPage />} />
+        <Route
+          path="checkout"
+          element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="order-confirmation"
+          element={
+            <ProtectedRoute>
+              <OrderConfirmationPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

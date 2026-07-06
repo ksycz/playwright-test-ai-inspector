@@ -5,7 +5,7 @@ test.describe('M1 — Project Foundation', () => {
     const response = await page.goto('/');
 
     expect(response?.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: 'Demo Shop' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to Demo Shop' })).toBeVisible();
   });
 
   test('M1-02: page has document title and main landmark', async ({ page }) => {

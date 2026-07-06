@@ -7,6 +7,10 @@ export function getProductBySlug(slug: string): Product | undefined {
   return catalogue.find((product) => product.slug === slug);
 }
 
+export function getFeaturedProducts(): Product[] {
+  return catalogue.filter((product) => product.featured === true);
+}
+
 export function formatPrice(price: number) {
   return `$${price.toFixed(2)}`;
 }

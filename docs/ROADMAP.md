@@ -685,8 +685,8 @@ Implement the checkout form, validation, order confirmation, and cart clearing.
 
 ## M8 — Home Page and Featured Products
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M3
 
 ### Goal
@@ -730,23 +730,34 @@ Build the Home landing page with shop introduction and featured products, per AP
 
 ### Acceptance criteria
 
-- [ ] Home page introduces the demo shop
-- [ ] Featured products displayed from JSON
-- [ ] Featured cards link to product detail pages
-- [ ] Navigation to all major pages works from Home
+- [x] Home page introduces the demo shop
+- [x] Featured products displayed from JSON
+- [x] Featured cards link to product detail pages
+- [x] Navigation to all major pages works from Home
 
 ### Completion checklist
 
-- [ ] `HomePage` with intro content
-- [ ] Featured products flagged in `products.json`
-- [ ] Featured products section with `ProductCard` reuse
-- [ ] Links to product detail pages
-- [ ] Empty featured fallback message
-- [ ] Roadmap updated with completion summary
+- [x] `HomePage` with intro content
+- [x] Featured products flagged in `products.json`
+- [x] Featured products section with `ProductCard` reuse
+- [x] Links to product detail pages
+- [x] Empty featured fallback message
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Rebuilt `HomePage` with welcome intro copy and a featured products section using reused `ProductGrid`/`ProductCard` components. Featured products filtered via `getFeaturedProducts()` from JSON `featured` flags. Empty state shows fallback message; `?featured=none` query param enables E2E testing of empty featured state.
+
+**Architectural decisions:**
+- `getFeaturedProducts()` added to `utils/products.ts` alongside existing catalogue helpers.
+- Featured section uses `h2` under `h1` intro for proper heading hierarchy.
+- `ProductGrid` reuse keeps card accessibility and add-to-cart behaviour consistent with catalogue.
+
+**Deviations:**
+- Home `h1` changed from "Demo Shop" to "Welcome to Demo Shop" per M8 locator strategy; M1/M2 smoke tests updated accordingly.
+- `?featured=none` query param added as a testability hook for M8-04 empty featured state.
+
+**Tests implemented:** M8-01 through M8-04 in `tests/smoke/home-page.spec.ts` (4 passing). 47 tests total across M1–M8.
 
 ---
 
@@ -939,7 +950,7 @@ M1 Project Foundation
 | M5 — Shopping Cart | ✅ Completed | 2026-07-06 |
 | M6 — Fake Authentication | ✅ Completed | 2026-07-06 |
 | M7 — Checkout Flow | ✅ Completed | 2026-07-06 |
-| M8 — Home Page and Featured Products | ⏳ Not started | — |
+| M8 — Home Page and Featured Products | ✅ Completed | 2026-07-06 |
 | M9 — Error and Empty States | ⏳ Not started | — |
 | M10 — Accessibility and Testability Polish | ⏳ Not started | — |
 
@@ -994,7 +1005,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
-| 2026-07-06 | M7 completed — checkout form, validation, order confirmation, cart clearing |
+| 2026-07-06 | M8 completed — home page intro, featured products section, empty fallback |
 | 2026-07-06 | M5 completed — shopping cart page, Local Storage, quantity controls |
 | 2026-07-06 | M4 completed — product detail page, slug routing, card links |
 | 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |

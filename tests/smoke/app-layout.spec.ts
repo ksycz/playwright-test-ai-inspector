@@ -7,7 +7,7 @@ test.describe('M2 — Application Layout and Routing', () => {
     await expect(page.getByRole('banner')).toBeVisible();
     await expect(page.getByRole('navigation')).toBeVisible();
     await expect(page.getByRole('main')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Demo Shop', level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome to Demo Shop', level: 1 })).toBeVisible();
   });
 
   test('M2-02: navigation links are present', async ({ page }) => {

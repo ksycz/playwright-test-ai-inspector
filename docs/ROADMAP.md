@@ -594,8 +594,8 @@ Implement fake login/logout with session persistence and protect the checkout ro
 
 ## M7 — Checkout Flow
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-06  
 **Dependencies:** M5, M6
 
 ### Goal
@@ -650,26 +650,36 @@ Implement the checkout form, validation, order confirmation, and cart clearing.
 
 ### Acceptance criteria
 
-- [ ] Checkout form renders all fields per APP_SPEC
-- [ ] Validation errors shown for invalid/missing input
-- [ ] Order confirmation displays order number and summary
-- [ ] Cart cleared after successful checkout
-- [ ] Empty cart and unauthenticated access blocked
+- [x] Checkout form renders all fields per APP_SPEC
+- [x] Validation errors shown for invalid/missing input
+- [x] Order confirmation displays order number and summary
+- [x] Cart cleared after successful checkout
+- [x] Empty cart and unauthenticated access blocked
 
 ### Completion checklist
 
-- [ ] `CheckoutPage` with form and order summary
-- [ ] Client-side validation
-- [ ] Order ID generation
-- [ ] Cart cleared on successful submit
-- [ ] `OrderConfirmationPage` with order details
-- [ ] Auth and cart-non-empty guards
-- [ ] Double-submit prevention (disable button on submit)
-- [ ] Roadmap updated with completion summary
+- [x] `CheckoutPage` with form and order summary
+- [x] Client-side validation
+- [x] Order ID generation
+- [x] Cart cleared on successful submit
+- [x] `OrderConfirmationPage` with order details
+- [x] Auth and cart-non-empty guards
+- [x] Double-submit prevention (disable button on submit)
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+**Summary:** Built full checkout form with order summary, client-side validation, order ID generation (`ORD-{timestamp}`), and order confirmation page. Orders stored in `sessionStorage`; cart clears on successful submit. Empty cart redirects from checkout; confirmation page redirects to cart when no order exists.
+
+**Architectural decisions:**
+- Checkout validation isolated in `utils/checkout.ts` mirroring login pattern.
+- Order snapshot stored in `sessionStorage` via `utils/orderStorage.ts` (session-scoped, not persisted across tabs).
+- `isCompletingOrderRef` prevents empty-cart redirect race when cart clears before navigation completes.
+- Order confirmation reads order from storage on render; no separate OrderContext needed for MVP.
+
+**Deviations:** None.
+
+**Tests implemented:** M7-01 through M7-08 in `tests/smoke/checkout-flow.spec.ts` (8 passing). 43 tests total across M1–M7.
 
 ---
 
@@ -928,7 +938,7 @@ M1 Project Foundation
 | M4 — Product Details | ✅ Completed | 2026-07-06 |
 | M5 — Shopping Cart | ✅ Completed | 2026-07-06 |
 | M6 — Fake Authentication | ✅ Completed | 2026-07-06 |
-| M7 — Checkout Flow | ⏳ Not started | — |
+| M7 — Checkout Flow | ✅ Completed | 2026-07-06 |
 | M8 — Home Page and Featured Products | ⏳ Not started | — |
 | M9 — Error and Empty States | ⏳ Not started | — |
 | M10 — Accessibility and Testability Polish | ⏳ Not started | — |
@@ -984,7 +994,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
-| 2026-07-06 | M6 completed — fake auth, protected checkout, login redirect |
+| 2026-07-06 | M7 completed — checkout form, validation, order confirmation, cart clearing |
 | 2026-07-06 | M5 completed — shopping cart page, Local Storage, quantity controls |
 | 2026-07-06 | M4 completed — product detail page, slug routing, card links |
 | 2026-07-06 | M3 completed — product catalogue, CartContext, add to cart |

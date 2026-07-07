@@ -1007,8 +1007,8 @@ Build a production-inspired Playwright testing framework against the completed d
 
 ## P2-M1 — Framework Foundation and Folder Structure
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-07  
 **Dependencies:** Phase 1 complete
 
 ### Goal
@@ -1039,24 +1039,35 @@ Establish the Playwright framework folder structure, enhanced configuration, and
 
 ### Acceptance criteria
 
-- [ ] Folder structure `pages/`, `fixtures/`, `data/` created
-- [ ] Playwright config enhanced for artifacts
-- [ ] All 59 Phase 1 smoke tests still pass
-- [ ] Framework conventions documented
+- [x] Folder structure `pages/`, `fixtures/`, `data/` created
+- [x] Playwright config enhanced for artifacts
+- [x] All 59 Phase 1 smoke tests still pass
+- [x] Framework conventions documented
 
 ### Completion checklist
 
-- [ ] `tests/pages/` directory
-- [ ] `tests/fixtures/` directory
-- [ ] `tests/data/` directory
-- [ ] Enhanced `playwright.config.ts`
-- [ ] npm scripts for suite filtering
-- [ ] Documentation updated
-- [ ] Roadmap updated with completion summary
+- [x] `tests/pages/` directory
+- [x] `tests/fixtures/` directory
+- [x] `tests/data/` directory
+- [x] Enhanced `playwright.config.ts`
+- [x] npm scripts for suite filtering
+- [x] Documentation updated
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Added framework directories: `tests/pages/`, `tests/fixtures/`, and `tests/data/` with starter README guidance.
+- Enhanced Playwright config for artifacts and reporting (`outputDir`, `screenshot`, `video`, multi-reporter list).
+- Added test scripts for suite targeting (`test:smoke`, `test:e2e` with pass-when-empty behavior).
+- Added `tests/tsconfig.json` for future framework TypeScript files.
+- Documented framework conventions in `docs/TESTING.md`.
+
+Architectural decisions:
+
+- Kept existing smoke tests unchanged while laying the foundation for phased migration in P2-M2 through P2-M5.
+- Chose `test:e2e` based on `@e2e` tags to align with milestone plan and avoid hard-coding folder assumptions early.
 
 ---
 
@@ -1446,7 +1457,7 @@ Phase 1 Demo Shop (complete)
 
 | Milestone | Status | Completed |
 |---|---|---|
-| P2-M1 — Framework Foundation and Folder Structure | ⏳ Not started | — |
+| P2-M1 — Framework Foundation and Folder Structure | ✅ Completed | 2026-07-07 |
 | P2-M2 — Page Object Model | ⏳ Not started | — |
 | P2-M3 — Centralized Test Data | ⏳ Not started | — |
 | P2-M4 — Auth and Cart Fixtures | ⏳ Not started | — |
@@ -1482,6 +1493,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-07 | P2-M1 completed — framework folders, enhanced Playwright artifacts/reporters, suite scripts, and testing conventions |
 | 2026-07-06 | Phase 1 milestones renamed to P1-M1–P1-M10 for consistency with Phase 2 |
 | 2026-07-06 | Phase 2 milestones defined — P2-M1 through P2-M8 (POM, fixtures, CI) |
 | 2026-07-06 | Phase 1 completed — P1-M10 accessibility polish, 59 smoke tests, ready for Phase 2 |

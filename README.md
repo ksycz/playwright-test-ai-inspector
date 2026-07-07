@@ -222,6 +222,7 @@ Additional documentation is available in the `docs` directory.
 - `ARCHITECTURE.md` — architectural decisions
 - `AI_GUIDELINES.md` — guidelines for AI-assisted development
 - `LESSONS_LEARNED.md` — learning notes and technical discoveries
+- `TESTING.md` — Playwright framework conventions and structure
 
 ---
 

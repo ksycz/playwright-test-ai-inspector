@@ -13,6 +13,8 @@
     "build": "npm run build --prefix app",
     "preview": "npm run preview --prefix app",
     "test": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test",
+    "test:smoke": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test tests/smoke",
+    "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --grep @e2e --pass-with-no-tests",
     "test:ui": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --ui",
     "test:headed": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --headed",
     "report": "playwright show-report"

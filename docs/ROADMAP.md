@@ -1073,8 +1073,8 @@ Architectural decisions:
 
 ## P2-M2 — Page Object Model
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-07  
 **Dependencies:** P2-M1
 
 ### Goal
@@ -1109,21 +1109,31 @@ Introduce Page Object Model classes that encapsulate locators and common actions
 
 ### Acceptance criteria
 
-- [ ] `BasePage` and all major page objects implemented
-- [ ] At least 2 smoke specs refactored to use POM
-- [ ] No duplicate locator strings across refactored specs
-- [ ] All tests still pass
+- [x] `BasePage` and all major page objects implemented
+- [x] At least 2 smoke specs refactored to use POM
+- [x] No duplicate locator strings across refactored specs
+- [x] All tests still pass
 
 ### Completion checklist
 
-- [ ] `BasePage` component
-- [ ] Page objects for all major routes
-- [ ] Reference spec refactors
-- [ ] Roadmap updated with completion summary
+- [x] `BasePage` component
+- [x] Page objects for all major routes
+- [x] Reference spec refactors
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Added `BasePage` plus page objects for all major routes: Home, Products, Product Detail, Cart, Login, Checkout, Order Confirmation, and Not Found.
+- Refactored three smoke specs as reference implementations: `app-layout.spec.ts`, `product-catalogue.spec.ts`, and `authentication.spec.ts`.
+- Centralized navigation, form, and cart interactions in page object methods while keeping assertions in specs.
+
+Architectural decisions:
+
+- Page objects expose locators as getters and user actions as methods; specs retain `expect` assertions for readability.
+- Used `getByRole` / `getByLabel` throughout; `data-testid` only in `CartPage` and `OrderConfirmationPage` where semantic alternatives are weaker.
+- Left remaining smoke specs unchanged for full POM migration in P2-M5.
 
 ---
 
@@ -1458,7 +1468,7 @@ Phase 1 Demo Shop (complete)
 | Milestone | Status | Completed |
 |---|---|---|
 | P2-M1 — Framework Foundation and Folder Structure | ✅ Completed | 2026-07-07 |
-| P2-M2 — Page Object Model | ⏳ Not started | — |
+| P2-M2 — Page Object Model | ✅ Completed | 2026-07-07 |
 | P2-M3 — Centralized Test Data | ⏳ Not started | — |
 | P2-M4 — Auth and Cart Fixtures | ⏳ Not started | — |
 | P2-M5 — Smoke Suite Refactor and Tags | ⏳ Not started | — |
@@ -1493,6 +1503,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-07 | P2-M2 completed — Page Object Model for all major routes, three reference spec refactors |
 | 2026-07-07 | P2-M1 completed — framework folders, enhanced Playwright artifacts/reporters, suite scripts, and testing conventions |
 | 2026-07-06 | Phase 1 milestones renamed to P1-M1–P1-M10 for consistency with Phase 2 |
 | 2026-07-06 | Phase 2 milestones defined — P2-M1 through P2-M8 (POM, fixtures, CI) |

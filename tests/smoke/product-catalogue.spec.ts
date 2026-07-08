@@ -1,20 +1,25 @@
 import { test, expect } from '@playwright/test';
 import products from '../../app/src/data/products.json';
+import { ProductsPage } from '../pages';
 
 const sampleProduct = products[0];
 
 test.describe('P1-M3 — Product Catalogue', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/products');
+    const productsPage = new ProductsPage(page);
+    await productsPage.goto();
   });
 
   test('P1-M3-01: catalogue displays all products from JSON', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Products', level: 1 })).toBeVisible();
-    await expect(page.getByRole('article')).toHaveCount(products.length);
+    const productsPage = new ProductsPage(page);
+
+    await expect(productsPage.heading).toBeVisible();
+    await expect(productsPage.productCards).toHaveCount(products.length);
   });
 
   test('P1-M3-02: product card shows name, category, price, and description', async ({ page }) => {
-    const card = page.getByRole('article', { name: sampleProduct.name });
+    const productsPage = new ProductsPage(page);
+    const card = productsPage.productCard(sampleProduct.name);
 
     await expect(card.getByRole('heading', { name: sampleProduct.name, level: 2 })).toBeVisible();
     await expect(card.getByText(sampleProduct.category)).toBeVisible();
@@ -23,23 +28,27 @@ test.describe('P1-M3 — Product Catalogue', () => {
   });
 
   test('P1-M3-03: add to cart from catalogue updates badge to 1', async ({ page }) => {
-    await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
+    const productsPage = new ProductsPage(page);
+    await productsPage.addToCart(sampleProduct.name);
 
-    await expect(page.getByRole('link', { name: 'Cart, 1 item' })).toBeVisible();
+    await expect(productsPage.cartLink(1)).toBeVisible();
   });
 
   test('P1-M3-04: adding same product twice updates badge to 2', async ({ page }) => {
-    const addButton = page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` });
+    const productsPage = new ProductsPage(page);
+    const addButton = productsPage.addToCartButton(sampleProduct.name);
 
     await addButton.click();
     await addButton.click();
 
-    await expect(page.getByRole('link', { name: 'Cart, 2 items' })).toBeVisible();
+    await expect(productsPage.cartLink(2)).toBeVisible();
   });
 
   test('P1-M3-05: product images have alt text matching product name', async ({ page }) => {
+    const productsPage = new ProductsPage(page);
+
     for (const product of products) {
-      await expect(page.getByRole('img', { name: product.name })).toBeVisible();
+      await expect(productsPage.productImage(product.name)).toBeVisible();
     }
   });
 });

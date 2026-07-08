@@ -1,62 +1,61 @@
 import { test, expect } from '@playwright/test';
+import { BasePage, HomePage, NotFoundPage, ProductsPage } from '../pages';
 
 test.describe('P1-M2 — Application Layout and Routing', () => {
   test('P1-M2-01: app loads at / with layout visible', async ({ page }) => {
-    await page.goto('/');
+    const homePage = new HomePage(page);
+    await homePage.goto();
 
-    await expect(page.getByRole('banner')).toBeVisible();
-    await expect(page.getByRole('navigation')).toBeVisible();
-    await expect(page.getByRole('main')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Welcome to Demo Shop', level: 1 })).toBeVisible();
+    await expect(homePage.banner).toBeVisible();
+    await expect(homePage.navigation).toBeVisible();
+    await expect(homePage.main).toBeVisible();
+    await expect(homePage.heading).toBeVisible();
   });
 
   test('P1-M2-02: navigation links are present', async ({ page }) => {
-    await page.goto('/');
+    const basePage = new BasePage(page);
+    await basePage.gotoHome();
 
-    await expect(page.getByRole('link', { name: 'Home' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Products' })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Cart/ })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
+    await expect(basePage.homeLink).toBeVisible();
+    await expect(basePage.productsLink).toBeVisible();
+    await expect(basePage.cartLink(0)).toBeVisible();
+    await expect(basePage.loginLink).toBeVisible();
   });
 
   test('P1-M2-03: clicking Products navigates to /products', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('link', { name: 'Products' }).click();
+    const basePage = new BasePage(page);
+    const productsPage = new ProductsPage(page);
+    await basePage.gotoHome();
+    await basePage.navigateToProducts();
 
     await expect(page).toHaveURL('/products');
-    await expect(page.getByRole('heading', { name: 'Products', level: 1 })).toBeVisible();
+    await expect(productsPage.heading).toBeVisible();
   });
 
   test('P1-M2-04: active nav link is indicated on the current page', async ({ page }) => {
-    await page.goto('/');
+    const basePage = new BasePage(page);
+    await basePage.gotoHome();
 
-    await expect(page.getByRole('link', { name: 'Home' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    await expect(basePage.homeLink).toHaveAttribute('aria-current', 'page');
 
-    await page.getByRole('link', { name: 'Products' }).click();
+    await basePage.navigateToProducts();
 
-    await expect(page.getByRole('link', { name: 'Products' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
-    await expect(page.getByRole('link', { name: 'Home' })).not.toHaveAttribute(
-      'aria-current',
-      'page',
-    );
+    await expect(basePage.productsLink).toHaveAttribute('aria-current', 'page');
+    await expect(basePage.homeLink).not.toHaveAttribute('aria-current', 'page');
   });
 
   test('P1-M2-05: unknown route shows 404 with link to Home', async ({ page }) => {
-    await page.goto('/does-not-exist');
+    const notFoundPage = new NotFoundPage(page);
+    await notFoundPage.goto('/does-not-exist');
 
-    await expect(page.getByRole('heading', { name: 'Page not found', level: 1 })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Back to Home' })).toBeVisible();
+    await expect(notFoundPage.heading).toBeVisible();
+    await expect(notFoundPage.backToHomeLink).toBeVisible();
   });
 
   test('P1-M2-06: cart badge displays 0 initially', async ({ page }) => {
-    await page.goto('/');
+    const basePage = new BasePage(page);
+    await basePage.gotoHome();
 
-    await expect(page.getByRole('link', { name: 'Cart, 0 items' })).toBeVisible();
+    await expect(basePage.cartLink(0)).toBeVisible();
   });
 });

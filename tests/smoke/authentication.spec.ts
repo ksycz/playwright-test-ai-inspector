@@ -1,102 +1,101 @@
 import { test, expect } from '@playwright/test';
 import products from '../../app/src/data/products.json';
+import { CartPage, CheckoutPage, LoginPage, ProductsPage } from '../pages';
 
 const validUsername = 'standard_user';
 const validPassword = 'secret123';
 
 async function addProductAndOpenCart(page: import('@playwright/test').Page) {
-  const sampleProduct = products[0];
-  await page.goto('/products');
-  await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
-  await page.goto('/cart');
+  const productsPage = new ProductsPage(page);
+  const cartPage = new CartPage(page);
+  await productsPage.goto();
+  await productsPage.addToCart(products[0].name);
+  await cartPage.goto();
 }
 
 test.describe('P1-M6 — Fake Authentication', () => {
   test('P1-M6-01: login with valid credentials succeeds', async ({ page }) => {
-    await page.goto('/login');
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(validUsername, validPassword);
 
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
-
-    await expect(page.getByText(`Welcome, ${validUsername}`)).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible();
+    await expect(loginPage.welcomeMessage(validUsername)).toBeVisible();
+    await expect(loginPage.logoutButton).toBeVisible();
   });
 
   test('P1-M6-02: invalid credentials show error message', async ({ page }) => {
-    await page.goto('/login');
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(validUsername, 'wrong-password');
 
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill('wrong-password');
-    await page.getByRole('button', { name: 'Log in' }).click();
-
-    await expect(page.getByRole('alert')).toHaveText('Invalid username or password');
+    await expect(loginPage.errorAlert).toHaveText('Invalid username or password');
     await expect(page).toHaveURL('/login');
   });
 
   test('P1-M6-03: empty fields show validation errors', async ({ page }) => {
-    await page.goto('/login');
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.submitButton.click();
 
-    await page.getByRole('button', { name: 'Log in' }).click();
-
-    await expect(page.getByText('Username is required')).toBeVisible();
-    await expect(page.getByText('Password is required')).toBeVisible();
+    await expect(loginPage.validationError('Username is required')).toBeVisible();
+    await expect(loginPage.validationError('Password is required')).toBeVisible();
   });
 
   test('P1-M6-04: logout clears session and shows Login link', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(validUsername, validPassword);
+    await loginPage.logout();
 
-    await page.getByRole('button', { name: 'Log out' }).click();
-
-    await expect(page.getByRole('link', { name: 'Login' })).toBeVisible();
-    await expect(page.getByText(`Welcome, ${validUsername}`)).toHaveCount(0);
+    await expect(loginPage.loginLink).toBeVisible();
+    await expect(loginPage.welcomeMessage(validUsername)).toHaveCount(0);
   });
 
   test('P1-M6-05: session persists after page reload', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await loginPage.login(validUsername, validPassword);
 
     await page.reload();
 
-    await expect(page.getByText(`Welcome, ${validUsername}`)).toBeVisible();
+    await expect(loginPage.welcomeMessage(validUsername)).toBeVisible();
   });
 
   test('P1-M6-06: guest at /checkout redirects to /login', async ({ page }) => {
-    await page.goto('/checkout');
+    const checkoutPage = new CheckoutPage(page);
+    const loginPage = new LoginPage(page);
+    await checkoutPage.goto();
 
     await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
-    await expect(page.getByRole('heading', { name: 'Log in', level: 1 })).toBeVisible();
+    await expect(loginPage.heading).toBeVisible();
   });
 
   test('P1-M6-07: login with redirect returns to intended page', async ({ page }) => {
+    const cartPage = new CartPage(page);
+    const loginPage = new LoginPage(page);
+    const checkoutPage = new CheckoutPage(page);
     await addProductAndOpenCart(page);
-    await page.getByRole('button', { name: 'Proceed to checkout' }).click();
+    await cartPage.proceedToCheckout();
 
     await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
 
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await loginPage.login(validUsername, validPassword);
 
     await expect(page).toHaveURL('/checkout');
-    await expect(page.getByRole('heading', { name: 'Checkout', level: 1 })).toBeVisible();
+    await expect(checkoutPage.heading).toBeVisible();
   });
 
   test('P1-M6-08: logged-in user can proceed to checkout', async ({ page }) => {
-    await page.goto('/login');
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    const loginPage = new LoginPage(page);
+    const checkoutPage = new CheckoutPage(page);
+    const cartPage = new CartPage(page);
+    await loginPage.goto();
+    await loginPage.login(validUsername, validPassword);
 
     await addProductAndOpenCart(page);
-    await page.getByRole('button', { name: 'Proceed to checkout' }).click();
+    await cartPage.proceedToCheckout();
 
     await expect(page).toHaveURL('/checkout');
-    await expect(page.getByRole('heading', { name: 'Checkout', level: 1 })).toBeVisible();
+    await expect(checkoutPage.heading).toBeVisible();
   });
 });

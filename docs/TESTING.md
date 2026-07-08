@@ -27,6 +27,13 @@ Playwright is configured to:
 
 Use `npm run report` to open the latest HTML report.
 
+## Page Object Model
+
+- Page objects live in `tests/pages/` and export from `tests/pages/index.ts`
+- Specs import page objects and express user journeys through page methods
+- Locators are defined as getters or methods on page object classes
+- Reference refactors: `app-layout.spec.ts`, `product-catalogue.spec.ts`, `authentication.spec.ts`
+
 ## Scripts
 
 - `npm test` - full Playwright suite

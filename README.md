@@ -123,7 +123,10 @@ npm run setup
 
 This installs root dependencies (Playwright), app dependencies, and the Chromium browser into `.playwright-browsers/` inside the project (avoids permission issues with the global cache).
 
-If a previous `playwright install` appears stuck, press **Ctrl+C** and run `npm run setup` again.
+**Use `npm run setup` or `npm run playwright:install` for browsers — not `npx playwright install`.**  
+The raw `npx` command installs to Playwright’s default cache and can appear to hang or leave tests looking for binaries in the wrong place. This repo sets `PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers` in all test scripts.
+
+If a previous install appears stuck, press **Ctrl+C** and run `npm run playwright:install` again.
 
 ### Application
 

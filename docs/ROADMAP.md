@@ -1139,8 +1139,8 @@ Architectural decisions:
 
 ## P2-M3 — Centralized Test Data
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-08  
 **Dependencies:** P2-M1
 
 ### Goal
@@ -1169,21 +1169,30 @@ Provide a single test data module for credentials, products, checkout details, a
 
 ### Acceptance criteria
 
-- [ ] Centralized test data modules created
-- [ ] Data aligned with app JSON sources
-- [ ] Documented import pattern for specs
+- [x] Centralized test data modules created
+- [x] Data aligned with app JSON sources
+- [x] Documented import pattern for specs
 
 ### Completion checklist
 
-- [ ] `tests/data/users.ts`
-- [ ] `tests/data/products.ts`
-- [ ] `tests/data/checkout.ts`
-- [ ] `tests/data/index.ts` barrel export (optional)
-- [ ] Roadmap updated with completion summary
+- [x] `tests/data/users.ts`
+- [x] `tests/data/products.ts`
+- [x] `tests/data/checkout.ts`
+- [x] `tests/data/index.ts` barrel export (optional)
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Added centralized test data modules for users, products, and checkout flows under `tests/data/`, plus a barrel export in `tests/data/index.ts`.
+- Kept data aligned with app sources (`app/src/data/products.json` and `standard_user` / `secret123` credentials used in Phase 1 smoke specs).
+- Left smoke specs using inline literals for now; migration to shared data is scheduled for P2-M5.
+
+Architectural decisions:
+
+- Test data modules expose small, focused exports (e.g. `validUser`, `sampleProduct`, `validCheckoutDetails`) to keep imports explicit in specs.
+- Centralized error-case data (like `checkoutFieldErrors`) mirrors existing spec usage to make future refactors mechanical.
 
 ---
 
@@ -1469,7 +1478,7 @@ Phase 1 Demo Shop (complete)
 |---|---|---|
 | P2-M1 — Framework Foundation and Folder Structure | ✅ Completed | 2026-07-07 |
 | P2-M2 — Page Object Model | ✅ Completed | 2026-07-07 |
-| P2-M3 — Centralized Test Data | ⏳ Not started | — |
+| P2-M3 — Centralized Test Data | ✅ Completed | 2026-07-08 |
 | P2-M4 — Auth and Cart Fixtures | ⏳ Not started | — |
 | P2-M5 — Smoke Suite Refactor and Tags | ⏳ Not started | — |
 | P2-M6 — E2E Journey Suites | ⏳ Not started | — |
@@ -1503,6 +1512,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-08 | P2-M3 completed — centralized test data modules for users, products, and checkout |
 | 2026-07-07 | P2-M2 completed — Page Object Model for all major routes, three reference spec refactors |
 | 2026-07-07 | P2-M1 completed — framework folders, enhanced Playwright artifacts/reporters, suite scripts, and testing conventions |
 | 2026-07-06 | Phase 1 milestones renamed to P1-M1–P1-M10 for consistency with Phase 2 |

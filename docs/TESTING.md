@@ -34,6 +34,14 @@ Use `npm run report` to open the latest HTML report.
 - Locators are defined as getters or methods on page object classes
 - Reference refactors: `app-layout.spec.ts`, `product-catalogue.spec.ts`, `authentication.spec.ts`
 
+## Centralized test data
+
+- Test data modules live in `tests/data/` and export from `tests/data/index.ts`
+- `users.ts` provides demo credentials (`validUser`, `invalidUser`, `demoUsers`)
+- `products.ts` mirrors the app catalogue (`catalogue`, `sampleProduct`, `featuredProducts`)
+- `checkout.ts` contains `validCheckoutDetails`, `invalidEmailDetails`, and `checkoutFieldErrors`
+- Existing smoke specs still use inline literals; migration to shared data happens in P2-M5
+
 ## Scripts
 
 - `npm test` - full Playwright suite

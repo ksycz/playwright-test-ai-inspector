@@ -1,11 +1,36 @@
 # Fixtures
 
-This folder holds custom Playwright fixtures introduced in Phase 2.
+Custom Playwright fixtures for authenticated sessions and preloaded cart state.
 
-Planned fixtures:
+## Usage
 
-- Auth/session fixture helpers
-- Cart state fixtures
-- Shared test setup composition helpers
+Import the extended `test` helper instead of `@playwright/test`:
 
-Keep fixture APIs small and focused so specs stay readable.
+```ts
+import { test, expect } from '../fixtures';
+import { CheckoutPage } from '../pages';
+
+test('checkout with logged-in session', async ({ loggedInPage }) => {
+  const checkoutPage = new CheckoutPage(loggedInPage);
+  await checkoutPage.goto();
+  await expect(checkoutPage.heading).toBeVisible();
+});
+```
+
+## Available fixtures
+
+| Fixture | Description |
+|---|---|
+| `loggedInPage` | Page with a valid demo user session (`standard_user`) |
+| `cartWithItem` | Page with `sampleProduct` already added to the cart |
+
+## Helpers
+
+Reusable setup functions are also exported for specs that still use the default Playwright `test`:
+
+- `loginViaUi(page)` — logs in through the login form
+- `addSampleProductToCart(page)` — adds the shared sample product via the catalogue
+
+## Examples
+
+See `fixtures.spec.ts` for P2-M4 fixture scenarios.

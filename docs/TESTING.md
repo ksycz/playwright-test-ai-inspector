@@ -42,6 +42,15 @@ Use `npm run report` to open the latest HTML report.
 - `checkout.ts` contains `validCheckoutDetails`, `invalidEmailDetails`, and `checkoutFieldErrors`
 - Existing smoke specs still use inline literals; migration to shared data happens in P2-M5
 
+## Fixtures
+
+- Custom fixtures live in `tests/fixtures/` and export from `tests/fixtures/index.ts`
+- Import `test` and `expect` from `../fixtures` (not `@playwright/test`) when using fixtures
+- `loggedInPage` — authenticated session via UI login
+- `cartWithItem` — catalogue page with the shared sample product in cart
+- Helpers `loginViaUi(page)` and `addSampleProductToCart(page)` are available for gradual adoption
+- Example scenarios: `tests/fixtures/fixtures.spec.ts`
+
 ## Scripts
 
 - `npm test` - full Playwright suite

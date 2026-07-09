@@ -1198,8 +1198,8 @@ Architectural decisions:
 
 ## P2-M4 — Auth and Cart Fixtures
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-08  
 **Dependencies:** P2-M2, P2-M3
 
 ### Goal
@@ -1229,22 +1229,31 @@ Create Playwright fixtures that provide authenticated sessions and preloaded car
 
 ### Acceptance criteria
 
-- [ ] Auth fixture logs in via UI or storage state
-- [ ] Cart fixture preloads cart via UI
-- [ ] Example specs use fixtures successfully
-- [ ] Fixtures documented with usage examples
+- [x] Auth fixture logs in via UI or storage state
+- [x] Cart fixture preloads cart via UI
+- [x] Example specs use fixtures successfully
+- [x] Fixtures documented with usage examples
 
 ### Completion checklist
 
-- [ ] `auth` fixture implemented
-- [ ] `cart` fixture implemented
-- [ ] Custom `test` export from `tests/fixtures/index.ts`
-- [ ] Example fixture specs
-- [ ] Roadmap updated with completion summary
+- [x] `auth` fixture implemented
+- [x] `cart` fixture implemented
+- [x] Custom `test` export from `tests/fixtures/index.ts`
+- [x] Example fixture specs
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Added `loggedInPage` and `cartWithItem` fixtures using Playwright `test.extend` and `mergeTests`.
+- Exported reusable helpers `loginViaUi` and `addSampleProductToCart` for gradual adoption in smoke specs.
+- Added `tests/fixtures/fixtures.spec.ts` with P2-M4-01 through P2-M4-03 example scenarios composing fixtures with page objects.
+
+Architectural decisions:
+
+- Used UI-based setup (not `storageState`) to keep fixture behavior aligned with real user flows and existing smoke tests.
+- Kept smoke specs unchanged; fixture adoption across the suite is scheduled for P2-M5.
 
 ---
 
@@ -1479,7 +1488,7 @@ Phase 1 Demo Shop (complete)
 | P2-M1 — Framework Foundation and Folder Structure | ✅ Completed | 2026-07-07 |
 | P2-M2 — Page Object Model | ✅ Completed | 2026-07-07 |
 | P2-M3 — Centralized Test Data | ✅ Completed | 2026-07-08 |
-| P2-M4 — Auth and Cart Fixtures | ⏳ Not started | — |
+| P2-M4 — Auth and Cart Fixtures | ✅ Completed | 2026-07-08 |
 | P2-M5 — Smoke Suite Refactor and Tags | ⏳ Not started | — |
 | P2-M6 — E2E Journey Suites | ⏳ Not started | — |
 | P2-M7 — Reporting, Traces, and Debug Artifacts | ⏳ Not started | — |
@@ -1512,6 +1521,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-08 | P2-M4 completed — auth and cart fixtures with example specs and fixture documentation |
 | 2026-07-08 | P2-M3 completed — centralized test data modules for users, products, and checkout |
 | 2026-07-07 | P2-M2 completed — Page Object Model for all major routes, three reference spec refactors |
 | 2026-07-07 | P2-M1 completed — framework folders, enhanced Playwright artifacts/reporters, suite scripts, and testing conventions |

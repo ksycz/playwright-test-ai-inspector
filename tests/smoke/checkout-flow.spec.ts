@@ -1,149 +1,131 @@
 import { test, expect } from '@playwright/test';
-import products from '../../app/src/data/products.json';
+import { invalidEmailDetails, sampleProduct, validCheckoutDetails, validUser } from '../data';
+import { loginViaUi, loginWithProductInCart } from '../fixtures';
+import {
+  CartPage,
+  CheckoutPage,
+  LoginPage,
+  OrderConfirmationPage,
+  ProductsPage,
+} from '../pages';
 
-const validUsername = 'standard_user';
-const validPassword = 'secret123';
-const sampleProduct = products[0];
-
-const validCheckoutDetails = {
-  name: 'Jane Tester',
-  email: 'jane@example.com',
-  address: '123 Test Street',
-  city: 'Testville',
-  zipCode: '12345',
-};
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login');
-  await page.getByLabel('Username').fill(validUsername);
-  await page.getByLabel('Password').fill(validPassword);
-  await page.getByRole('button', { name: 'Log in' }).click();
-}
-
-async function addSampleProductToCart(page: import('@playwright/test').Page) {
-  await page.goto('/products');
-  await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
-}
-
-async function loginWithProductInCart(page: import('@playwright/test').Page) {
-  await login(page);
-  await addSampleProductToCart(page);
-}
-
-async function fillCheckoutForm(
-  page: import('@playwright/test').Page,
-  details = validCheckoutDetails,
-) {
-  await page.getByLabel('Name').fill(details.name);
-  await page.getByLabel('Email').fill(details.email);
-  await page.getByLabel('Address').fill(details.address);
-  await page.getByLabel('City').fill(details.city);
-  await page.getByLabel('ZIP Code').fill(details.zipCode);
-}
-
-test.describe('P1-M7 — Checkout Flow', () => {
+test.describe('@smoke P1-M7 — Checkout Flow', () => {
   test('P1-M7-01: happy path fills form, submits, and shows confirmation with order number', async ({
     page,
   }) => {
+    const checkoutPage = new CheckoutPage(page);
+    const orderConfirmationPage = new OrderConfirmationPage(page);
     await loginWithProductInCart(page);
-    await page.goto('/checkout');
+    await checkoutPage.goto();
 
-    await fillCheckoutForm(page);
-    await page.getByRole('button', { name: 'Place order' }).click();
+    await checkoutPage.fillForm(validCheckoutDetails);
+    await checkoutPage.placeOrder();
 
     await expect(page).toHaveURL('/order-confirmation');
-    await expect(page.getByRole('heading', { name: 'Order confirmed', level: 1 })).toBeVisible();
-    await expect(page.getByTestId('order-number')).toHaveText(/^ORD-\d+$/);
+    await expect(orderConfirmationPage.heading).toBeVisible();
+    await expect(orderConfirmationPage.orderNumber).toHaveText(/^ORD-\d+$/);
   });
 
   test('P1-M7-02: order summary on checkout matches cart contents', async ({ page }) => {
+    const checkoutPage = new CheckoutPage(page);
     await loginWithProductInCart(page);
-    await page.goto('/checkout');
+    await checkoutPage.goto();
 
-    const summary = page.getByRole('region', { name: 'Order summary' });
-    await expect(summary.getByRole('heading', { name: 'Order summary', level: 2 })).toBeVisible();
-    await expect(summary.getByText(sampleProduct.name)).toBeVisible();
-    await expect(summary.getByRole('listitem').filter({ hasText: sampleProduct.name })).toContainText(
+    await expect(checkoutPage.orderSummary.getByRole('heading', { name: 'Order summary', level: 2 })).toBeVisible();
+    await expect(checkoutPage.orderSummary).toContainText(sampleProduct.name);
+    await expect(checkoutPage.orderSummaryItem(sampleProduct.name)).toContainText(
       `$${sampleProduct.price.toFixed(2)}`,
     );
   });
 
   test('P1-M7-03: empty cart blocks checkout', async ({ page }) => {
-    await login(page);
-    await page.goto('/checkout');
+    const checkoutPage = new CheckoutPage(page);
+    const cartPage = new CartPage(page);
+    await loginViaUi(page);
+    await checkoutPage.goto();
 
     await expect(page).toHaveURL('/cart');
-    await expect(page.getByRole('heading', { name: 'Your cart is empty' })).toBeVisible();
+    await expect(cartPage.emptyHeading).toBeVisible();
   });
 
   test('P1-M7-04: required field validation on empty submit', async ({ page }) => {
+    const checkoutPage = new CheckoutPage(page);
     await loginWithProductInCart(page);
-    await page.goto('/checkout');
+    await checkoutPage.goto();
 
-    await page.getByRole('button', { name: 'Place order' }).click();
+    await checkoutPage.placeOrder();
 
-    await expect(page.getByText('Name is required')).toBeVisible();
-    await expect(page.getByText('Email is required')).toBeVisible();
-    await expect(page.getByText('Address is required')).toBeVisible();
-    await expect(page.getByText('City is required')).toBeVisible();
-    await expect(page.getByText('ZIP Code is required')).toBeVisible();
+    await expect(checkoutPage.validationError('Name is required')).toBeVisible();
+    await expect(checkoutPage.validationError('Email is required')).toBeVisible();
+    await expect(checkoutPage.validationError('Address is required')).toBeVisible();
+    await expect(checkoutPage.validationError('City is required')).toBeVisible();
+    await expect(checkoutPage.validationError('ZIP Code is required')).toBeVisible();
     await expect(page).toHaveURL('/checkout');
   });
 
   test('P1-M7-05: invalid email format shows validation error', async ({ page }) => {
+    const checkoutPage = new CheckoutPage(page);
     await loginWithProductInCart(page);
-    await page.goto('/checkout');
+    await checkoutPage.goto();
 
-    await fillCheckoutForm(page, { ...validCheckoutDetails, email: 'not-an-email' });
-    await page.getByRole('button', { name: 'Place order' }).click();
+    await checkoutPage.fillForm(invalidEmailDetails);
+    await checkoutPage.placeOrder();
 
-    await expect(page.getByText('Enter a valid email address')).toBeVisible();
+    await expect(checkoutPage.validationError('Enter a valid email address')).toBeVisible();
     await expect(page).toHaveURL('/checkout');
   });
 
   test('P1-M7-06: cart cleared after successful order', async ({ page }) => {
+    const checkoutPage = new CheckoutPage(page);
+    const cartPage = new CartPage(page);
     await loginWithProductInCart(page);
-    await page.goto('/checkout');
+    await checkoutPage.goto();
 
-    await fillCheckoutForm(page);
-    await page.getByRole('button', { name: 'Place order' }).click();
+    await checkoutPage.fillForm(validCheckoutDetails);
+    await checkoutPage.placeOrder();
 
     await expect(page).toHaveURL('/order-confirmation');
-    await page.goto('/cart');
+    await cartPage.goto();
 
-    await expect(page.getByRole('heading', { name: 'Your cart is empty' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Cart, 0 items' })).toBeVisible();
+    await expect(cartPage.emptyHeading).toBeVisible();
+    await expect(cartPage.cartLink(0)).toBeVisible();
   });
 
   test('P1-M7-07: full E2E browse, add, login, checkout, confirm', async ({ page }) => {
-    await page.goto('/products');
-    await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
-    await expect(page.getByRole('link', { name: 'Cart, 1 item' })).toBeVisible();
+    const productsPage = new ProductsPage(page);
+    const cartPage = new CartPage(page);
+    const loginPage = new LoginPage(page);
+    const checkoutPage = new CheckoutPage(page);
+    const orderConfirmationPage = new OrderConfirmationPage(page);
 
-    await page.goto('/cart');
-    await page.getByRole('button', { name: 'Proceed to checkout' }).click();
+    await productsPage.goto();
+    await productsPage.addToCart(sampleProduct.name);
+    await expect(productsPage.cartLink(1)).toBeVisible();
+
+    await cartPage.goto();
+    await cartPage.proceedToCheckout();
     await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
 
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await loginPage.login(validUser.username, validUser.password);
 
     await expect(page).toHaveURL('/checkout');
-    await fillCheckoutForm(page);
-    await page.getByRole('button', { name: 'Place order' }).click();
+    await checkoutPage.fillForm(validCheckoutDetails);
+    await checkoutPage.placeOrder();
 
     await expect(page).toHaveURL('/order-confirmation');
-    await expect(page.getByRole('heading', { name: 'Order confirmed', level: 1 })).toBeVisible();
-    await expect(page.getByTestId('order-number')).toHaveText(/^ORD-\d+$/);
+    await expect(orderConfirmationPage.heading).toBeVisible();
+    await expect(orderConfirmationPage.orderNumber).toHaveText(/^ORD-\d+$/);
     await expect(page.getByText(sampleProduct.name)).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Continue shopping' })).toBeVisible();
+    await expect(orderConfirmationPage.continueShoppingLink).toBeVisible();
   });
 
   test('P1-M7-08: direct visit to confirmation without order redirects away', async ({ page }) => {
-    await login(page);
-    await page.goto('/order-confirmation');
+    const orderConfirmationPage = new OrderConfirmationPage(page);
+    const cartPage = new CartPage(page);
+    await loginViaUi(page);
+    await orderConfirmationPage.goto();
 
     await expect(page).toHaveURL('/cart');
-    await expect(page.getByRole('heading', { name: 'Your cart is empty' })).toBeVisible();
+    await expect(cartPage.emptyHeading).toBeVisible();
   });
 });

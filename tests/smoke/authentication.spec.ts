@@ -1,32 +1,22 @@
 import { test, expect } from '@playwright/test';
-import products from '../../app/src/data/products.json';
-import { CartPage, CheckoutPage, LoginPage, ProductsPage } from '../pages';
+import { invalidUser, sampleProduct, validUser } from '../data';
+import { addProductAndOpenCart } from '../fixtures';
+import { CartPage, CheckoutPage, LoginPage } from '../pages';
 
-const validUsername = 'standard_user';
-const validPassword = 'secret123';
-
-async function addProductAndOpenCart(page: import('@playwright/test').Page) {
-  const productsPage = new ProductsPage(page);
-  const cartPage = new CartPage(page);
-  await productsPage.goto();
-  await productsPage.addToCart(products[0].name);
-  await cartPage.goto();
-}
-
-test.describe('P1-M6 — Fake Authentication', () => {
+test.describe('@smoke P1-M6 — Fake Authentication', () => {
   test('P1-M6-01: login with valid credentials succeeds', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    await loginPage.login(validUsername, validPassword);
+    await loginPage.login(validUser.username, validUser.password);
 
-    await expect(loginPage.welcomeMessage(validUsername)).toBeVisible();
+    await expect(loginPage.welcomeMessage(validUser.username)).toBeVisible();
     await expect(loginPage.logoutButton).toBeVisible();
   });
 
   test('P1-M6-02: invalid credentials show error message', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    await loginPage.login(validUsername, 'wrong-password');
+    await loginPage.login(invalidUser.username, invalidUser.password);
 
     await expect(loginPage.errorAlert).toHaveText('Invalid username or password');
     await expect(page).toHaveURL('/login');
@@ -44,21 +34,21 @@ test.describe('P1-M6 — Fake Authentication', () => {
   test('P1-M6-04: logout clears session and shows Login link', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    await loginPage.login(validUsername, validPassword);
+    await loginPage.login(validUser.username, validUser.password);
     await loginPage.logout();
 
     await expect(loginPage.loginLink).toBeVisible();
-    await expect(loginPage.welcomeMessage(validUsername)).toHaveCount(0);
+    await expect(loginPage.welcomeMessage(validUser.username)).toHaveCount(0);
   });
 
   test('P1-M6-05: session persists after page reload', async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    await loginPage.login(validUsername, validPassword);
+    await loginPage.login(validUser.username, validUser.password);
 
     await page.reload();
 
-    await expect(loginPage.welcomeMessage(validUsername)).toBeVisible();
+    await expect(loginPage.welcomeMessage(validUser.username)).toBeVisible();
   });
 
   test('P1-M6-06: guest at /checkout redirects to /login', async ({ page }) => {
@@ -79,7 +69,7 @@ test.describe('P1-M6 — Fake Authentication', () => {
 
     await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
 
-    await loginPage.login(validUsername, validPassword);
+    await loginPage.login(validUser.username, validUser.password);
 
     await expect(page).toHaveURL('/checkout');
     await expect(checkoutPage.heading).toBeVisible();
@@ -90,7 +80,7 @@ test.describe('P1-M6 — Fake Authentication', () => {
     const checkoutPage = new CheckoutPage(page);
     const cartPage = new CartPage(page);
     await loginPage.goto();
-    await loginPage.login(validUsername, validPassword);
+    await loginPage.login(validUser.username, validUser.password);
 
     await addProductAndOpenCart(page);
     await cartPage.proceedToCheckout();

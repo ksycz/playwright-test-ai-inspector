@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
-import products from '../../app/src/data/products.json';
+import { catalogue, sampleProduct } from '../data';
 import { ProductsPage } from '../pages';
 
-const sampleProduct = products[0];
-
-test.describe('P1-M3 — Product Catalogue', () => {
+test.describe('@smoke P1-M3 — Product Catalogue', () => {
   test.beforeEach(async ({ page }) => {
     const productsPage = new ProductsPage(page);
     await productsPage.goto();
@@ -14,7 +12,7 @@ test.describe('P1-M3 — Product Catalogue', () => {
     const productsPage = new ProductsPage(page);
 
     await expect(productsPage.heading).toBeVisible();
-    await expect(productsPage.productCards).toHaveCount(products.length);
+    await expect(productsPage.productCards).toHaveCount(catalogue.length);
   });
 
   test('P1-M3-02: product card shows name, category, price, and description', async ({ page }) => {
@@ -47,7 +45,7 @@ test.describe('P1-M3 — Product Catalogue', () => {
   test('P1-M3-05: product images have alt text matching product name', async ({ page }) => {
     const productsPage = new ProductsPage(page);
 
-    for (const product of products) {
+    for (const product of catalogue) {
       await expect(productsPage.productImage(product.name)).toBeVisible();
     }
   });

@@ -30,6 +30,8 @@ Reusable setup functions are also exported for specs that still use the default 
 
 - `loginViaUi(page)` — logs in through the login form
 - `addSampleProductToCart(page)` — adds the shared sample product via the catalogue
+- `loginWithProductInCart(page)` — logs in and adds the sample product
+- `addProductAndOpenCart(page)` — adds the sample product and navigates to the cart page
 
 ## Examples
 

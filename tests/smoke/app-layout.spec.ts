@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { BasePage, HomePage, NotFoundPage, ProductsPage } from '../pages';
 
-test.describe('P1-M2 — Application Layout and Routing', () => {
+test.describe('@smoke P1-M2 — Application Layout and Routing', () => {
   test('P1-M2-01: app loads at / with layout visible', async ({ page }) => {
     const homePage = new HomePage(page);
     await homePage.goto();

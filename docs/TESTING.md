@@ -40,7 +40,8 @@ Use `npm run report` to open the latest HTML report.
 - `users.ts` provides demo credentials (`validUser`, `invalidUser`, `demoUsers`)
 - `products.ts` mirrors the app catalogue (`catalogue`, `sampleProduct`, `featuredProducts`)
 - `checkout.ts` contains `validCheckoutDetails`, `invalidEmailDetails`, and `checkoutFieldErrors`
-- Existing smoke specs still use inline literals; migration to shared data happens in P2-M5
+- Existing smoke specs import shared data from `tests/data/` and setup helpers from `tests/fixtures/`
+- Smoke tests are tagged with `@smoke` in describe titles; `npm run test:smoke` filters by tag
 
 ## Fixtures
 
@@ -54,7 +55,7 @@ Use `npm run report` to open the latest HTML report.
 ## Scripts
 
 - `npm test` - full Playwright suite
-- `npm run test:smoke` - smoke specs in `tests/smoke/`
+- `npm run test:smoke` - tests tagged with `@smoke`
 - `npm run test:e2e` - tests tagged with `@e2e` (passes when none exist yet)
 
 ## Naming

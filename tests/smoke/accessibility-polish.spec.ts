@@ -1,17 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
-import products from '../../app/src/data/products.json';
-
-const validUsername = 'standard_user';
-const validPassword = 'secret123';
-const sampleProduct = products[0];
-
-const checkoutDetails = {
-  name: 'Jane Tester',
-  email: 'jane@example.com',
-  address: '123 Test Street',
-  city: 'Testville',
-  zipCode: '12345',
-};
+import { sampleProduct, validCheckoutDetails, validUser } from '../data';
+import { addSampleProductToCart } from '../fixtures';
+import {
+  CartPage,
+  CheckoutPage,
+  LoginPage,
+  OrderConfirmationPage,
+  ProductsPage,
+} from '../pages';
 
 async function expectNoHorizontalScroll(page: Page) {
   const hasHorizontalScroll = await page.evaluate(() => {
@@ -22,44 +18,48 @@ async function expectNoHorizontalScroll(page: Page) {
 }
 
 async function runPurchaseHappyPath(page: Page) {
-  await page.goto('/products');
-  await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
-  await expect(page.getByRole('link', { name: 'Cart, 1 item' })).toBeVisible();
+  const productsPage = new ProductsPage(page);
+  const cartPage = new CartPage(page);
+  const loginPage = new LoginPage(page);
+  const checkoutPage = new CheckoutPage(page);
+  const orderConfirmationPage = new OrderConfirmationPage(page);
 
-  await page.goto('/cart');
-  await page.getByRole('button', { name: 'Proceed to checkout' }).click();
+  await productsPage.goto();
+  await productsPage.addToCart(sampleProduct.name);
+  await expect(productsPage.cartLink(1)).toBeVisible();
+
+  await cartPage.goto();
+  await cartPage.proceedToCheckout();
   await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
 
-  await page.getByLabel('Username').fill(validUsername);
-  await page.getByLabel('Password').fill(validPassword);
-  await page.getByRole('button', { name: 'Log in' }).click();
+  await loginPage.login(validUser.username, validUser.password);
 
   await expect(page).toHaveURL('/checkout');
-  await page.getByLabel('Name').fill(checkoutDetails.name);
-  await page.getByLabel('Email').fill(checkoutDetails.email);
-  await page.getByLabel('Address').fill(checkoutDetails.address);
-  await page.getByLabel('City').fill(checkoutDetails.city);
-  await page.getByLabel('ZIP Code').fill(checkoutDetails.zipCode);
-  await page.getByRole('button', { name: 'Place order' }).click();
+  await checkoutPage.fillForm(validCheckoutDetails);
+  await checkoutPage.placeOrder();
 
   await expect(page).toHaveURL('/order-confirmation');
-  await expect(page.getByRole('heading', { name: 'Order confirmed', level: 1 })).toBeVisible();
+  await expect(orderConfirmationPage.heading).toBeVisible();
 }
 
-test.describe('P1-M10 — Accessibility and Testability Polish', () => {
+test.describe('@smoke P1-M10 — Accessibility and Testability Polish', () => {
   test('P1-M10-01: full E2E happy path on desktop', async ({ page }) => {
+    const orderConfirmationPage = new OrderConfirmationPage(page);
     await page.setViewportSize({ width: 1280, height: 720 });
     await runPurchaseHappyPath(page);
-    await expect(page.getByTestId('order-number')).toHaveText(/^ORD-\d+$/);
+    await expect(orderConfirmationPage.orderNumber).toHaveText(/^ORD-\d+$/);
   });
 
   test('P1-M10-02: full E2E happy path on mobile', async ({ page }) => {
+    const orderConfirmationPage = new OrderConfirmationPage(page);
     await page.setViewportSize({ width: 375, height: 667 });
     await runPurchaseHappyPath(page);
-    await expect(page.getByRole('link', { name: 'Continue shopping' })).toBeVisible();
+    await expect(orderConfirmationPage.continueShoppingLink).toBeVisible();
   });
 
   test('P1-M10-03: all pages have exactly one h1', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    const checkoutPage = new CheckoutPage(page);
     const publicPaths = [
       '/',
       '/products',
@@ -75,53 +75,48 @@ test.describe('P1-M10 — Accessibility and Testability Polish', () => {
       await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
     }
 
-    await page.goto('/login');
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await loginPage.goto();
+    await loginPage.login(validUser.username, validUser.password);
 
-    await page.goto('/products');
-    await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
-    await page.goto('/checkout');
+    await addSampleProductToCart(page);
+    await checkoutPage.goto();
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
 
-    await page.getByLabel('Name').fill(checkoutDetails.name);
-    await page.getByLabel('Email').fill(checkoutDetails.email);
-    await page.getByLabel('Address').fill(checkoutDetails.address);
-    await page.getByLabel('City').fill(checkoutDetails.city);
-    await page.getByLabel('ZIP Code').fill(checkoutDetails.zipCode);
-    await page.getByRole('button', { name: 'Place order' }).click();
+    await checkoutPage.fillForm(validCheckoutDetails);
+    await checkoutPage.placeOrder();
 
     await expect(page).toHaveURL('/order-confirmation');
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   });
 
   test('P1-M10-04: form fields reachable and submittable via keyboard', async ({ page }) => {
-    await page.goto('/login');
+    const loginPage = new LoginPage(page);
+    const checkoutPage = new CheckoutPage(page);
 
-    await page.getByLabel('Username').focus();
-    await page.keyboard.type(validUsername);
+    await loginPage.goto();
+
+    await loginPage.usernameInput.focus();
+    await page.keyboard.type(validUser.username);
     await page.keyboard.press('Tab');
-    await page.keyboard.type(validPassword);
+    await page.keyboard.type(validUser.password);
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
 
-    await expect(page.getByText(`Welcome, ${validUsername}`)).toBeVisible();
+    await expect(loginPage.welcomeMessage(validUser.username)).toBeVisible();
 
-    await page.goto('/products');
-    await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
-    await page.goto('/checkout');
+    await addSampleProductToCart(page);
+    await checkoutPage.goto();
 
-    await page.getByLabel('Name').focus();
-    await page.keyboard.type(checkoutDetails.name);
+    await checkoutPage.nameInput.focus();
+    await page.keyboard.type(validCheckoutDetails.name);
     await page.keyboard.press('Tab');
-    await page.keyboard.type(checkoutDetails.email);
+    await page.keyboard.type(validCheckoutDetails.email);
     await page.keyboard.press('Tab');
-    await page.keyboard.type(checkoutDetails.address);
+    await page.keyboard.type(validCheckoutDetails.address);
     await page.keyboard.press('Tab');
-    await page.keyboard.type(checkoutDetails.city);
+    await page.keyboard.type(validCheckoutDetails.city);
     await page.keyboard.press('Tab');
-    await page.keyboard.type(checkoutDetails.zipCode);
+    await page.keyboard.type(validCheckoutDetails.zipCode);
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
 
@@ -129,6 +124,9 @@ test.describe('P1-M10 — Accessibility and Testability Polish', () => {
   });
 
   test('P1-M10-05: no horizontal scroll on mobile viewports', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    const cartPage = new CartPage(page);
+    const checkoutPage = new CheckoutPage(page);
     await page.setViewportSize({ width: 375, height: 667 });
 
     const mobilePaths = ['/', '/products', '/cart', '/login'];
@@ -138,17 +136,14 @@ test.describe('P1-M10 — Accessibility and Testability Polish', () => {
       await expectNoHorizontalScroll(page);
     }
 
-    await page.goto('/login');
-    await page.getByLabel('Username').fill(validUsername);
-    await page.getByLabel('Password').fill(validPassword);
-    await page.getByRole('button', { name: 'Log in' }).click();
+    await loginPage.goto();
+    await loginPage.login(validUser.username, validUser.password);
 
-    await page.goto('/products');
-    await page.getByRole('button', { name: `Add ${sampleProduct.name} to cart` }).click();
-    await page.goto('/cart');
+    await addSampleProductToCart(page);
+    await cartPage.goto();
     await expectNoHorizontalScroll(page);
 
-    await page.goto('/checkout');
+    await checkoutPage.goto();
     await expectNoHorizontalScroll(page);
   });
 });

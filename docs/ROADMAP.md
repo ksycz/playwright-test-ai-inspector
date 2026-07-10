@@ -1259,8 +1259,8 @@ Architectural decisions:
 
 ## P2-M5 — Smoke Suite Refactor and Tags
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-09  
 **Dependencies:** P2-M2, P2-M3, P2-M4
 
 ### Goal
@@ -1290,21 +1290,30 @@ Migrate all 59 Phase 1 smoke tests to use page objects, shared test data, and fi
 
 ### Acceptance criteria
 
-- [ ] All smoke specs use page objects
-- [ ] Shared test data used consistently
-- [ ] `@smoke` tag/filter works
-- [ ] 59 tests passing
+- [x] All smoke specs use page objects
+- [x] Shared test data used consistently
+- [x] `@smoke` tag/filter works
+- [x] 59 tests passing
 
 ### Completion checklist
 
-- [ ] All `tests/smoke/*.spec.ts` refactored
-- [ ] Fixtures applied where beneficial
-- [ ] `test:smoke` npm script verified
-- [ ] Roadmap updated with completion summary
+- [x] All `tests/smoke/*.spec.ts` refactored
+- [x] Fixtures applied where beneficial
+- [x] `test:smoke` npm script verified
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Refactored all 10 smoke spec files to use page objects, shared test data from `tests/data/`, and fixture helpers for auth/cart setup.
+- Tagged every smoke describe block with `@smoke` and updated `npm run test:smoke` to filter by tag.
+- Removed duplicated inline credentials, product imports, and login/add-to-cart helpers from smoke specs.
+
+Architectural decisions:
+
+- Smoke specs continue using the default Playwright `test` with fixture helper functions rather than fixture-injected pages, keeping migration incremental while eliminating duplication.
+- Left `runPurchaseHappyPath` local to accessibility specs as a journey helper built from page objects.
 
 ---
 
@@ -1489,7 +1498,7 @@ Phase 1 Demo Shop (complete)
 | P2-M2 — Page Object Model | ✅ Completed | 2026-07-07 |
 | P2-M3 — Centralized Test Data | ✅ Completed | 2026-07-08 |
 | P2-M4 — Auth and Cart Fixtures | ✅ Completed | 2026-07-08 |
-| P2-M5 — Smoke Suite Refactor and Tags | ⏳ Not started | — |
+| P2-M5 — Smoke Suite Refactor and Tags | ✅ Completed | 2026-07-09 |
 | P2-M6 — E2E Journey Suites | ⏳ Not started | — |
 | P2-M7 — Reporting, Traces, and Debug Artifacts | ⏳ Not started | — |
 | P2-M8 — GitHub Actions CI | ⏳ Not started | — |
@@ -1521,6 +1530,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-09 | P2-M5 completed — smoke suite refactored to POM/data/fixtures with `@smoke` tag filtering |
 | 2026-07-08 | P2-M4 completed — auth and cart fixtures with example specs and fixture documentation |
 | 2026-07-08 | P2-M3 completed — centralized test data modules for users, products, and checkout |
 | 2026-07-07 | P2-M2 completed — Page Object Model for all major routes, three reference spec refactors |

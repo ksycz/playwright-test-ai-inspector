@@ -1,17 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { HomePage } from '../pages';
 
-test.describe('P1-M1 — Project Foundation', () => {
+test.describe('@smoke P1-M1 — Project Foundation', () => {
   test('P1-M1-01: app dev server serves the root page', async ({ page }) => {
+    const homePage = new HomePage(page);
     const response = await page.goto('/');
 
     expect(response?.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: 'Welcome to Demo Shop' })).toBeVisible();
+    await expect(homePage.heading).toBeVisible();
   });
 
   test('P1-M1-02: page has document title and main landmark', async ({ page }) => {
-    await page.goto('/');
+    const homePage = new HomePage(page);
+    await homePage.goto();
 
     await expect(page).toHaveTitle('Demo Shop');
-    await expect(page.getByRole('main')).toBeVisible();
+    await expect(homePage.main).toBeVisible();
   });
 });

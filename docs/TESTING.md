@@ -19,11 +19,43 @@ This document captures the baseline Playwright framework structure introduced in
 
 Playwright is configured to:
 
-- write output artifacts to `test-results/`
-- capture screenshots only on failure
-- retain video only on failure
-- capture traces on first retry
-- produce both list and HTML reports
+- write per-test artifacts to `test-results/`
+- write the HTML report to `playwright-report/`
+- capture screenshots only on failure (`screenshot: 'only-on-failure'`)
+- retain video only on failure (`video: 'retain-on-failure'`)
+- capture traces on the first retry (`trace: 'on-first-retry'`)
+- produce both `list` (CI-friendly console output) and `html` reporters
+
+### Output locations
+
+| Path | Contents |
+|---|---|
+| `test-results/` | Screenshots, videos, traces (`.zip`), and `error-context.md` per failed/retried test |
+| `playwright-report/` | Interactive HTML report from the latest run |
+
+Both directories are gitignored.
+
+### Trace strategy
+
+- **CI (`CI=true`):** tests retry up to 2 times; traces are captured on the first retry so flaky failures include a replayable timeline.
+- **Local:** retries are disabled by default; run with `CI=true npm test` to match CI retry/trace behaviour.
+- Open a trace file after a failed run:
+
+```bash
+npm run trace -- test-results/<test-folder>/trace.zip
+```
+
+Playwright prints the exact trace path in the terminal when a retry captures one.
+
+### Debugging workflow
+
+1. Run the suite: `npm test`, `npm run test:smoke`, or `npm run test:e2e`
+2. On failure, inspect the HTML report: `npm run report`
+3. For step-by-step replay, open the trace zip from `test-results/`: `npm run trace -- <path-to-trace.zip>`
+4. For interactive debugging during development: `npm run test:ui` or `npm run test:headed`
+5. Check `error-context.md` inside the failing test's `test-results/` folder for a DOM snapshot summary
+
+These artifact paths are stable for future Phase 3 AI Failure Analyzer integration.
 
 Use `npm run report` to open the latest HTML report.
 
@@ -62,7 +94,9 @@ Use `npm run report` to open the latest HTML report.
 
 - `npm test` - full Playwright suite
 - `npm run test:smoke` - tests tagged with `@smoke`
-- `npm run test:e2e` - tests tagged with `@e2e` (passes when none exist yet)
+- `npm run test:e2e` - tests tagged with `@e2e`
+- `npm run report` - open HTML report from `playwright-report/`
+- `npm run trace` - open a trace zip (`npm run trace -- <path>`)
 
 ## Naming
 

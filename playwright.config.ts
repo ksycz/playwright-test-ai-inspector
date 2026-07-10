@@ -1,5 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 
+/**
+ * Artifact policy (P2-M7):
+ * - test-results/  — per-test output (screenshots, videos, traces, error context)
+ * - playwright-report/ — HTML report from the html reporter
+ *
+ * Trace strategy: on-first-retry (captures traces when CI retries a flaky/failed test).
+ * Screenshot/video: only retained on failure to keep local runs lightweight.
+ */
 export default defineConfig({
   testDir: './tests',
   outputDir: 'test-results',
@@ -9,7 +17,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['list'],
-    ['html', { open: 'never' }],
+    ['html', { open: 'never', outputFolder: 'playwright-report' }],
   ],
   use: {
     baseURL: 'http://localhost:5173',

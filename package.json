@@ -17,7 +17,8 @@
     "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --grep @e2e --pass-with-no-tests",
     "test:ui": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --ui",
     "test:headed": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --headed",
-    "report": "playwright show-report"
+    "report": "playwright show-report playwright-report",
+    "trace": "playwright show-trace"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

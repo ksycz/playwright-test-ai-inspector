@@ -1380,8 +1380,8 @@ Architectural decisions:
 
 ## P2-M7 — Reporting, Traces, and Debug Artifacts
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-10  
 **Dependencies:** P2-M1
 
 ### Goal
@@ -1412,21 +1412,30 @@ Configure rich failure artifacts and document the debugging workflow to support 
 
 ### Acceptance criteria
 
-- [ ] Screenshot on failure configured
-- [ ] Video on failure configured (or retain-on-failure)
-- [ ] Trace strategy documented
-- [ ] Debugging workflow documented
+- [x] Screenshot on failure configured
+- [x] Video on failure configured (or retain-on-failure)
+- [x] Trace strategy documented
+- [x] Debugging workflow documented
 
 ### Completion checklist
 
-- [ ] Artifact config in `playwright.config.ts`
-- [ ] CI-friendly reporter setup
-- [ ] Debugging docs updated
-- [ ] Roadmap updated with completion summary
+- [x] Artifact config in `playwright.config.ts`
+- [x] CI-friendly reporter setup
+- [x] Debugging docs updated
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Documented artifact policy in `playwright.config.ts` with explicit `outputDir` and `playwright-report` HTML output folder.
+- Added `npm run trace` script for opening trace files; updated `npm run report` to target `playwright-report/` explicitly.
+- Expanded debugging workflow in `docs/TESTING.md` and `README.md` (HTML report, trace viewer, UI/headed modes, error context files).
+
+Architectural decisions:
+
+- Kept `trace: 'on-first-retry'` paired with CI retries rather than `retain-on-failure` for all traces, balancing artifact size with debuggability.
+- Stable artifact paths (`test-results/`, `playwright-report/`) documented for Phase 3 AI Failure Analyzer consumption.
 
 ---
 
@@ -1509,7 +1518,7 @@ Phase 1 Demo Shop (complete)
 | P2-M4 — Auth and Cart Fixtures | ✅ Completed | 2026-07-08 |
 | P2-M5 — Smoke Suite Refactor and Tags | ✅ Completed | 2026-07-09 |
 | P2-M6 — E2E Journey Suites | ✅ Completed | 2026-07-10 |
-| P2-M7 — Reporting, Traces, and Debug Artifacts | ⏳ Not started | — |
+| P2-M7 — Reporting, Traces, and Debug Artifacts | ✅ Completed | 2026-07-10 |
 | P2-M8 — GitHub Actions CI | ⏳ Not started | — |
 
 ---
@@ -1539,6 +1548,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-10 | P2-M7 completed — artifact policy documented, trace/report scripts, and debugging workflow |
 | 2026-07-10 | P2-M6 completed — E2E journey suites with @e2e tag, desktop/mobile purchase flow, and cart journeys |
 | 2026-07-09 | P2-M5 completed — smoke suite refactored to POM/data/fixtures with `@smoke` tag filtering |
 | 2026-07-08 | P2-M4 completed — auth and cart fixtures with example specs and fixture documentation |

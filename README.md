@@ -146,10 +146,24 @@ npm run preview
 ```bash
 nvm use
 npm test
+npm run test:smoke
+npm run test:e2e
 npm run test:ui
 npm run test:headed
 npm run report
 ```
+
+**Debugging failed tests:**
+
+```bash
+# Open HTML report from the latest run
+npm run report
+
+# Open a trace file captured on retry (path printed in test output)
+npm run trace -- test-results/<test-folder>/trace.zip
+```
+
+Failure artifacts (screenshots, videos, traces) are written to `test-results/`. See `docs/TESTING.md` for the full debugging workflow.
 
 If tests fail with a missing browser error, run:
 

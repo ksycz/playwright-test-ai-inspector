@@ -52,6 +52,12 @@ Use `npm run report` to open the latest HTML report.
 - Helpers `loginViaUi(page)` and `addSampleProductToCart(page)` are available for gradual adoption
 - Example scenarios: `tests/fixtures/fixtures.spec.ts`
 
+## E2E journey suites
+
+- E2E specs live in `tests/e2e/` and are tagged with `@e2e` in describe titles
+- Run with `npm run test:e2e` (filters by `@e2e` tag)
+- Journeys cover guest purchase (desktop/mobile), checkout auth guard, cart persistence, and returning customer checkout
+
 ## Scripts
 
 - `npm test` - full Playwright suite

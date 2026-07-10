@@ -1319,8 +1319,8 @@ Architectural decisions:
 
 ## P2-M6 — E2E Journey Suites
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-10  
 **Dependencies:** P2-M5
 
 ### Goal
@@ -1351,21 +1351,30 @@ Add dedicated end-to-end journey specs that exercise full user flows across mult
 
 ### Acceptance criteria
 
-- [ ] `tests/e2e/` suite with at least 4 journey specs
-- [ ] `@e2e` tag/filter works
-- [ ] Desktop and mobile coverage for primary journey
-- [ ] All e2e tests pass
+- [x] `tests/e2e/` suite with at least 4 journey specs
+- [x] `@e2e` tag/filter works
+- [x] Desktop and mobile coverage for primary journey
+- [x] All e2e tests pass
 
 ### Completion checklist
 
-- [ ] `tests/e2e/` directory and specs
-- [ ] `test:e2e` npm script
-- [ ] Mobile viewport project or per-test viewport
-- [ ] Roadmap updated with completion summary
+- [x] `tests/e2e/` directory and specs
+- [x] `test:e2e` npm script
+- [x] Mobile viewport project or per-test viewport
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Added `tests/e2e/` with four journey spec files and a shared `completeGuestPurchaseJourney` helper.
+- Implemented P2-M6-01 through P2-M6-04 scenarios plus a returning-customer checkout journey.
+- Desktop (1280px) and mobile (375px) viewport coverage for the primary guest purchase flow.
+
+Architectural decisions:
+
+- Used per-test viewport sizing for mobile coverage instead of a separate Playwright project, keeping the config simple until CI matrix needs grow in P2-M8.
+- Extracted the guest purchase flow into `tests/e2e/helpers/purchase-journey.ts` to avoid duplicating the smoke checkout E2E steps.
 
 ---
 
@@ -1499,7 +1508,7 @@ Phase 1 Demo Shop (complete)
 | P2-M3 — Centralized Test Data | ✅ Completed | 2026-07-08 |
 | P2-M4 — Auth and Cart Fixtures | ✅ Completed | 2026-07-08 |
 | P2-M5 — Smoke Suite Refactor and Tags | ✅ Completed | 2026-07-09 |
-| P2-M6 — E2E Journey Suites | ⏳ Not started | — |
+| P2-M6 — E2E Journey Suites | ✅ Completed | 2026-07-10 |
 | P2-M7 — Reporting, Traces, and Debug Artifacts | ⏳ Not started | — |
 | P2-M8 — GitHub Actions CI | ⏳ Not started | — |
 
@@ -1530,6 +1539,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-10 | P2-M6 completed — E2E journey suites with @e2e tag, desktop/mobile purchase flow, and cart journeys |
 | 2026-07-09 | P2-M5 completed — smoke suite refactored to POM/data/fixtures with `@smoke` tag filtering |
 | 2026-07-08 | P2-M4 completed — auth and cart fixtures with example specs and fixture documentation |
 | 2026-07-08 | P2-M3 completed — centralized test data modules for users, products, and checkout |

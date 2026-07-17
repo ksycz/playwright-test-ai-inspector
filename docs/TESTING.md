@@ -98,6 +98,15 @@ Use `npm run report` to open the latest HTML report.
 - `npm run report` - open HTML report from `playwright-report/`
 - `npm run trace` - open a trace zip (`npm run trace -- <path>`)
 
+## Continuous Integration
+
+GitHub Actions workflow: `.github/workflows/playwright.yml`
+
+- Triggers on `push` to `main` and on `pull_request`
+- Matrix jobs run `test:smoke` and `test:e2e` in parallel with `CI=true`
+- Uses Node 22 from `.nvmrc` and project-local browsers via `PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers`
+- On failure, uploads `playwright-report/` and `test-results/` as artifacts (14-day retention)
+
 ## Naming
 
 - Spec files: `kebab-case.spec.ts`

@@ -1441,8 +1441,8 @@ Architectural decisions:
 
 ## P2-M8 — GitHub Actions CI
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-15  
 **Dependencies:** P2-M5, P2-M7
 
 ### Goal
@@ -1473,22 +1473,32 @@ Run Playwright tests automatically on GitHub Actions with artifact upload for re
 
 ### Acceptance criteria
 
-- [ ] GitHub Actions workflow runs successfully
-- [ ] Smoke (and e2e) tests pass in CI
-- [ ] Artifacts uploaded on failure
-- [ ] README documents CI behavior
+- [x] GitHub Actions workflow runs successfully
+- [x] Smoke (and e2e) tests pass in CI
+- [x] Artifacts uploaded on failure
+- [x] README documents CI behavior
 
 ### Completion checklist
 
-- [ ] `.github/workflows/playwright.yml`
-- [ ] Artifact upload configured
-- [ ] README CI section updated
-- [ ] Phase 2 completion summary written in this document
-- [ ] Roadmap updated with completion summary
+- [x] `.github/workflows/playwright.yml`
+- [x] Artifact upload configured
+- [x] README CI section updated
+- [x] Phase 2 completion summary written in this document
+- [x] Roadmap updated with completion summary
 
 ### Implementation notes
 
-_Summary, architectural decisions, and deviations will be recorded here after completion._
+Summary:
+
+- Added `.github/workflows/playwright.yml` with parallel matrix jobs for `test:smoke` and `test:e2e`.
+- CI uses Node 22 from `.nvmrc`, `npm run setup`, Playwright system deps, and `CI=true` for config-aligned runs.
+- Failure artifacts (`playwright-report/`, `test-results/`) uploaded per matrix job.
+- README badge and CI documentation added.
+
+Architectural decisions:
+
+- Split smoke and e2e into parallel matrix jobs for faster feedback and clearer failure attribution.
+- Installed `playwright install-deps` in CI only (Linux system libraries) without changing local setup scripts.
 
 ---
 
@@ -1519,7 +1529,23 @@ Phase 1 Demo Shop (complete)
 | P2-M5 — Smoke Suite Refactor and Tags | ✅ Completed | 2026-07-09 |
 | P2-M6 — E2E Journey Suites | ✅ Completed | 2026-07-10 |
 | P2-M7 — Reporting, Traces, and Debug Artifacts | ✅ Completed | 2026-07-10 |
-| P2-M8 — GitHub Actions CI | ⏳ Not started | — |
+| P2-M8 — GitHub Actions CI | ✅ Completed | 2026-07-15 |
+
+**Phase 2 status: ✅ Complete** — all 8 milestones delivered (2026-07-07 through 2026-07-15).
+
+### Phase 2 — Completion Summary
+
+Phase 2 transformed the Phase 1 inline smoke suite into a production-inspired Playwright framework:
+
+- **Framework structure** — `tests/pages/`, `tests/fixtures/`, `tests/data/`, `tests/e2e/`
+- **Page Object Model** — 9 page objects covering all major routes
+- **Centralized test data** — users, products, checkout constants
+- **Fixtures** — `loggedInPage`, `cartWithItem`, and reusable setup helpers
+- **Tagged suites** — `@smoke` (59 tests), `@e2e` (6 tests), filterable npm scripts
+- **Artifacts** — screenshots, video, traces on failure; documented debugging workflow
+- **CI** — GitHub Actions matrix for smoke + e2e with artifact upload
+
+**Total tests:** 68 (59 smoke + 6 e2e + 3 fixture examples). Ready for Phase 3 AI Test Inspector.
 
 ---
 
@@ -1548,6 +1574,7 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-15 | P2-M8 completed — GitHub Actions CI with smoke/e2e matrix and failure artifact upload; Phase 2 complete |
 | 2026-07-10 | P2-M7 completed — artifact policy documented, trace/report scripts, and debugging workflow |
 | 2026-07-10 | P2-M6 completed — E2E journey suites with @e2e tag, desktop/mobile purchase flow, and cart journeys |
 | 2026-07-09 | P2-M5 completed — smoke suite refactored to POM/data/fixtures with `@smoke` tag filtering |

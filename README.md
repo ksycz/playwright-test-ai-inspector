@@ -1,5 +1,7 @@
 # Playwright AI Test Inspector
 
+[![Playwright Tests](https://github.com/ksycz/playwright-test-ai-inspector/actions/workflows/playwright.yml/badge.svg)](https://github.com/ksycz/playwright-test-ai-inspector/actions/workflows/playwright.yml)
+
 A portfolio project focused on learning **Playwright** while exploring practical applications of **AI in modern test automation**.
 
 The project combines a small demo e-commerce application with a production-inspired Playwright testing framework and a growing collection of AI-assisted testing tools.
@@ -86,9 +88,11 @@ scripts/        Utility scripts
 
 ## Current Status
 
-✅ Phase 1 complete — P1-M1 through P1-M10 (59 smoke tests passing).
+✅ Phase 1 complete — P1-M1 through P1-M10 (59 smoke tests).
 
-🚧 Phase 2 in progress — P2-M1 (Framework Foundation) next.
+✅ Phase 2 complete — P2-M1 through P2-M8 (framework, POM, fixtures, tagged suites, E2E journeys, CI).
+
+**Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 tests total.
 
 The repository is being developed incrementally, with each milestone focusing on learning, maintainability, and production-quality engineering practices.
 
@@ -164,6 +168,18 @@ npm run trace -- test-results/<test-folder>/trace.zip
 ```
 
 Failure artifacts (screenshots, videos, traces) are written to `test-results/`. See `docs/TESTING.md` for the full debugging workflow.
+
+### Continuous Integration
+
+GitHub Actions runs Playwright on every push to `main` and on pull requests:
+
+- **Workflow:** `.github/workflows/playwright.yml`
+- **Node:** 22 (from `.nvmrc`)
+- **Browsers:** project-local Chromium in `.playwright-browsers/`
+- **Suites:** `test:smoke` and `test:e2e` run in parallel matrix jobs
+- **On failure:** `playwright-report/` and `test-results/` are uploaded as downloadable artifacts
+
+Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
 
 If tests fail with a missing browser error, run:
 

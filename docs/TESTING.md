@@ -97,6 +97,8 @@ Use `npm run report` to open the latest HTML report.
 - `npm run test:e2e` - tests tagged with `@e2e`
 - `npm run report` - open HTML report from `playwright-report/`
 - `npm run trace` - open a trace zip (`npm run trace -- <path>`)
+- `npm run analyze:failure -- <folder>` - collect Playwright failure artifacts into JSON
+- `npm run test:ai` - unit tests for the AI failure analyzer
 
 ## Continuous Integration
 
@@ -106,6 +108,13 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - Matrix jobs run `test:smoke` and `test:e2e` in parallel with `CI=true`
 - Uses Node 22 from `.nvmrc` and project-local browsers via `PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers`
 - On failure, uploads `playwright-report/` and `test-results/` as artifacts (14-day retention)
+
+## AI Failure Analyzer
+
+- Code lives in `ai/failure-analyzer/` (`.mts` ESM modules, no root `"type": "module"` so Playwright JSON imports stay intact)
+- `collectFailureContext(path)` normalizes screenshots, videos, traces, and `error-context.md`
+- Golden fixtures under `ai/failure-analyzer/fixtures/` drive `npm run test:ai`
+- Classification and Markdown reports land in P3-M2 / P3-M3
 
 ## Naming
 

@@ -1551,22 +1551,211 @@ Phase 2 transformed the Phase 1 inline smoke suite into a production-inspired Pl
 
 # Phase 3 — AI Test Inspector
 
-**Status:** ⏳ Planned — expand after Phase 2 is complete.
+**Status:** 🚧 In progress — P3-M1 complete; P3-M2 next  
+**Current focus:** Heuristic failure classification
 
 ### Goal
 
-Build AI-assisted testing tools that consume Playwright artifacts and generate actionable insights.
+Build AI-assisted testing tools that consume Playwright artifacts (`test-results/`) and generate actionable investigation insights.
 
-### Planned scope (high-level)
+### Design principles
 
-- AI Failure Analyzer (traces, screenshots, stack traces, console logs)
+- **Deterministic first** — collect and classify without an LLM so behaviour is testable and works offline
+- **Optional LLM later** — provider interface for root-cause suggestions when an API key is present
+- **Stable inputs** — rely on P2-M7 artifact paths (`test-results/`, `error-context.md`, screenshots, traces)
+- **No backend** — CLI + local Node scripts only
+
+### Planned modules (high-level)
+
+- AI Failure Analyzer (artifacts → structured context → report)
+- Heuristic failure classification
 - Structured Markdown investigation reports
-- Failure classification and root cause suggestions
-- Future modules: flaky test detection, locator suggestions, PR summaries
+- Optional LLM root-cause suggestions
+- Future: flaky detection, locator suggestions, PR summaries
 
-### Milestones
+---
 
-_To be defined after Phase 2 completion._
+## P3-M1 — Failure Artifact Ingestion and CLI Scaffold
+
+**Status:** ✅ Completed  
+**Completed:** 2026-07-17  
+**Dependencies:** Phase 2 complete (P2-M7 artifact layout)
+
+### Goal
+
+Create a local CLI that collects Playwright failure artifacts from a `test-results/` folder into a normalized JSON context object for later classification and reporting.
+
+### Implementation scope
+
+- Create `ai/failure-analyzer/` with TypeScript modules (`types`, `collect`, `cli`)
+- Discover screenshots, videos, traces, and `error-context.md` under a given failure directory
+- Emit normalized JSON to stdout (and optional `--out` file)
+- Add npm scripts: `analyze:failure`, `test:ai`
+- Add golden fixtures under `ai/failure-analyzer/fixtures/` for unit tests
+- Document usage in `ai/failure-analyzer/README.md` and `docs/TESTING.md`
+
+### User scenarios
+
+- Developer points the CLI at a failed test folder and receives structured JSON of available artifacts.
+- Developer runs unit tests for the collector without needing Playwright browsers.
+
+### Future test scenarios
+
+| ID | Scenario |
+|---|---|
+| P3-M1-01 | Collector finds screenshot, video, error-context, and trace paths in a fixture folder |
+| P3-M1-02 | Collector returns empty lists gracefully for a folder with no artifacts |
+| P3-M1-03 | CLI exits non-zero when the target path does not exist |
+
+### Acceptance criteria
+
+- [x] Collector returns normalized `FailureContext` JSON
+- [x] CLI script works against fixture and real `test-results/` paths
+- [x] Unit tests cover happy path and missing-path edge cases
+- [x] Usage documented
+
+### Completion checklist
+
+- [x] `ai/failure-analyzer/` modules
+- [x] Fixtures + unit tests
+- [x] npm scripts
+- [x] Docs updated
+- [x] Roadmap updated with completion summary
+
+### Implementation notes
+
+Summary:
+
+- Added `ai/failure-analyzer/` with `collectFailureContext()`, CLI entrypoint, golden fixtures, and Node test suite (`npm run test:ai`).
+- CLI supports `--out <file.json>` and prints normalized artifact paths plus `errorContextText`.
+
+Architectural decisions:
+
+- Used `.mts` ESM modules instead of root `"type": "module"` so Playwright can continue importing JSON test data without import attributes.
+- Kept the collector deterministic and offline — classification/reporting deferred to P3-M2/P3-M3.
+
+---
+
+## P3-M2 — Heuristic Failure Classification
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P3-M1
+
+### Goal
+
+Classify failures into stable categories using deterministic heuristics on error text and artifact signals (no LLM).
+
+### Implementation scope
+
+- Categories: `assertion`, `timeout`, `locator`, `network`, `auth`, `unknown`
+- Score confidence from keyword/signal matches
+- Attach classification to `FailureContext`
+- Unit tests with fixture error snippets
+
+### Acceptance criteria
+
+- [ ] Classifier returns category + confidence
+- [ ] Known fixture errors map to expected categories
+- [ ] Unknown errors fall back to `unknown`
+
+---
+
+## P3-M3 — Markdown Investigation Report Generator
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P3-M1, P3-M2
+
+### Goal
+
+Generate a structured Markdown investigation report from collected context and classification.
+
+### Implementation scope
+
+- Report sections: summary, classification, artifacts, suggested next steps
+- Write report to `ai-reports/` (gitignored) or `--out` path
+- npm script: `analyze:report`
+
+### Acceptance criteria
+
+- [ ] Report includes classification and artifact links
+- [ ] Suggested steps vary by category
+- [ ] Unit tests assert required sections
+
+---
+
+## P3-M4 — Optional LLM Root-Cause Suggestions
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P3-M3
+
+### Goal
+
+Add an optional LLM provider interface that enhances reports with root-cause suggestions when configured; fall back to heuristic report when not.
+
+### Implementation scope
+
+- Provider interface (`suggestRootCause(context)`)
+- Env-based opt-in (e.g. `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`) — never required
+- Prompt template constrained by `docs/AI_GUIDELINES.md`
+- No secrets committed
+
+### Acceptance criteria
+
+- [ ] Works offline without API keys
+- [ ] With provider mocked, suggestions appear in report
+- [ ] Provider interface is swappable
+
+---
+
+## P3-M5 — Analyzer Integration and Documentation Polish
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P3-M3 (P3-M4 optional)
+
+### Goal
+
+Polish end-to-end CLI UX, README/AI module docs, and optional CI hook notes for using the analyzer on downloaded failure artifacts.
+
+### Implementation scope
+
+- End-to-end CLI flow documented
+- README AI Modules section updated with real commands
+- Phase 3 progress summary in roadmap
+
+### Acceptance criteria
+
+- [ ] Documented one-command analyze flow
+- [ ] Sample report checked into docs or fixtures (sanitized)
+- [ ] Phase 3 milestones marked complete where delivered
+
+---
+
+## Phase 3 — Milestone Dependency Graph
+
+```text
+Phase 2 complete
+ └── P3-M1 Failure Artifact Ingestion
+      └── P3-M2 Heuristic Classification
+           └── P3-M3 Markdown Report Generator
+                ├── P3-M4 Optional LLM Suggestions
+                └── P3-M5 Integration & Docs Polish
+```
+
+---
+
+## Phase 3 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P3-M1 — Failure Artifact Ingestion and CLI Scaffold | ✅ Completed | 2026-07-17 |
+| P3-M2 — Heuristic Failure Classification | ⏳ Not started | — |
+| P3-M3 — Markdown Investigation Report Generator | ⏳ Not started | — |
+| P3-M4 — Optional LLM Root-Cause Suggestions | ⏳ Not started | — |
+| P3-M5 — Analyzer Integration and Documentation Polish | ⏳ Not started | — |
 
 ---
 
@@ -1574,6 +1763,8 @@ _To be defined after Phase 2 completion._
 
 | Date | Change |
 |---|---|
+| 2026-07-17 | P3-M1 completed — failure artifact collector CLI, fixtures, and `npm run test:ai` |
+| 2026-07-17 | Phase 3 milestones defined — P3-M1 through P3-M5 (AI Failure Analyzer) |
 | 2026-07-15 | P2-M8 completed — GitHub Actions CI with smoke/e2e matrix and failure artifact upload; Phase 2 complete |
 | 2026-07-10 | P2-M7 completed — artifact policy documented, trace/report scripts, and debugging workflow |
 | 2026-07-10 | P2-M6 completed — E2E journey suites with @e2e tag, desktop/mobile purchase flow, and cart journeys |

@@ -16,3 +16,4 @@ app/**/*.tsbuildinfo
 # Environment
 .env
 .env.*
+/ai-reports/

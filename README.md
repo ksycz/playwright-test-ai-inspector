@@ -76,10 +76,9 @@ This repository is developed incrementally and serves as both a learning journey
 ```text
 app/            Demo e-commerce application
 tests/          Playwright test suite
+ai/             AI Failure Analyzer (Phase 3)
 docs/           Project documentation
-scripts/        Utility scripts
 .github/        GitHub Actions workflows
-
 ```
 
 ---
@@ -92,9 +91,9 @@ scripts/        Utility scripts
 
 ✅ Phase 2 complete — P2-M1 through P2-M8 (framework, POM, fixtures, tagged suites, E2E journeys, CI).
 
-**Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 tests total.
+🚧 Phase 3 in progress — P3-M1 complete; P3-M2 (Heuristic Classification) next.
 
-The repository is being developed incrementally, with each milestone focusing on learning, maintainability, and production-quality engineering practices.
+**Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
 ---
 
@@ -197,23 +196,23 @@ npm run playwright:install
 
 ### AI Failure Analyzer
 
-The first planned AI module will assist with failed Playwright test investigations.
+The first AI module assists with failed Playwright test investigations.
 
-It will collect information such as:
+Collect failure artifacts into normalized JSON:
 
-- stack traces
+```bash
+npm run analyze:failure -- test-results/<failed-test-folder>
+npm run test:ai
+```
+
+It collects information such as:
+
+- stack traces / error context (`error-context.md`)
 - Playwright traces
 - screenshots
-- console logs
-- network failures
+- videos
 
-and generate a structured Markdown report containing:
-
-- failure summary
-- likely root cause
-- failure classification
-- suggested debugging steps
-- confidence level
+Later milestones will add heuristic classification, Markdown investigation reports, and optional LLM root-cause suggestions.
 
 The goal is not to replace engineers, but to reduce investigation time and improve debugging efficiency.
 

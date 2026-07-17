@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 2 — Playwright Testing Framework.
+**Current focus:** Phase 3 — AI Failure Analyzer (P3-M4 next).
 
 ---
 
@@ -1551,8 +1551,8 @@ Phase 2 transformed the Phase 1 inline smoke suite into a production-inspired Pl
 
 # Phase 3 — AI Test Inspector
 
-**Status:** 🚧 In progress — P3-M2 complete; P3-M3 next  
-**Current focus:** Markdown investigation report generator
+**Status:** 🚧 In progress — P3-M3b complete; P3-M4 next  
+**Current focus:** Optional LLM root-cause suggestions
 
 ### Goal
 
@@ -1676,8 +1676,8 @@ Architectural decisions:
 
 ## P3-M3 — Markdown Investigation Report Generator
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-17  
 **Dependencies:** P3-M1, P3-M2
 
 ### Goal
@@ -1692,9 +1692,60 @@ Generate a structured Markdown investigation report from collected context and c
 
 ### Acceptance criteria
 
-- [ ] Report includes classification and artifact links
-- [ ] Suggested steps vary by category
-- [ ] Unit tests assert required sections
+- [x] Report includes classification and artifact links
+- [x] Suggested steps vary by category
+- [x] Unit tests assert required sections
+
+### Implementation notes
+
+Summary:
+
+- Added `generateMarkdownReport()` with summary, classification, artifacts, error excerpt, and category-specific next steps.
+- Added `npm run analyze:report` CLI that collects, classifies, and writes Markdown (default `ai-reports/<folder>.md`).
+- Added 3 unit tests for required sections, category-specific guidance, and empty-artifact handling.
+
+Architectural decisions:
+
+- Reports are plain Markdown for easy review in GitHub and future Phase 3 LLM augmentation.
+- Default output directory `ai-reports/` is gitignored; `--out` overrides for CI or local inspection.
+
+---
+
+## P3-M3b — HTML Investigation Reports
+
+**Status:** ✅ Completed  
+**Completed:** 2026-07-17  
+**Dependencies:** P3-M3
+
+### Goal
+
+Offer a self-contained HTML investigation report alongside Markdown for local review and CI artifacts.
+
+### Implementation scope
+
+- `generateHtmlReport(context)` — semantic HTML, escaped excerpts, same sections as Markdown
+- CLI `--format md|html|both` (default `md`)
+- Default output `ai-reports/<folder>.html` when `--format html`
+
+### Acceptance criteria
+
+- [x] HTML includes summary, classification, artifacts, and next steps
+- [x] Suggested steps vary by category
+- [x] Error text is HTML-escaped
+- [x] Unit tests cover HTML sections and escaping
+
+### Implementation notes
+
+Summary:
+
+- Added self-contained HTML report generator with accessible landmarks and category badge.
+- Extended `analyze:report` with `--format md|html|both`; `both` writes Markdown + HTML into a directory.
+- Added 4 unit tests (sections, category steps, empty artifacts, HTML escaping).
+
+Architectural decisions:
+
+- Markdown remains the default for GitHub-friendly diffs; HTML is opt-in for browser review.
+- No new dependencies — template string + `escapeHtml` keeps the analyzer offline and portable.
 
 ---
 
@@ -1754,6 +1805,7 @@ Phase 2 complete
  └── P3-M1 Failure Artifact Ingestion
       └── P3-M2 Heuristic Classification
            └── P3-M3 Markdown Report Generator
+                ├── P3-M3b HTML Investigation Reports
                 ├── P3-M4 Optional LLM Suggestions
                 └── P3-M5 Integration & Docs Polish
 ```
@@ -1766,7 +1818,8 @@ Phase 2 complete
 |---|---|---|
 | P3-M1 — Failure Artifact Ingestion and CLI Scaffold | ✅ Completed | 2026-07-17 |
 | P3-M2 — Heuristic Failure Classification | ✅ Completed | 2026-07-17 |
-| P3-M3 — Markdown Investigation Report Generator | ⏳ Not started | — |
+| P3-M3 — Markdown Investigation Report Generator | ✅ Completed | 2026-07-17 |
+| P3-M3b — HTML Investigation Reports | ✅ Completed | 2026-07-17 |
 | P3-M4 — Optional LLM Root-Cause Suggestions | ⏳ Not started | — |
 | P3-M5 — Analyzer Integration and Documentation Polish | ⏳ Not started | — |
 
@@ -1776,6 +1829,8 @@ Phase 2 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-17 | P3-M3b completed — HTML investigation reports and `--format md|html|both` |
+| 2026-07-17 | P3-M3 completed — Markdown investigation report generator and `analyze:report` CLI |
 | 2026-07-17 | P3-M2 completed — heuristic failure classification with confidence scoring |
 | 2026-07-17 | P3-M1 completed — failure artifact collector CLI, fixtures, and `npm run test:ai` |
 | 2026-07-17 | Phase 3 milestones defined — P3-M1 through P3-M5 (AI Failure Analyzer) |

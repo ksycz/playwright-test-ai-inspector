@@ -98,6 +98,7 @@ Use `npm run report` to open the latest HTML report.
 - `npm run report` - open HTML report from `playwright-report/`
 - `npm run trace` - open a trace zip (`npm run trace -- <path>`)
 - `npm run analyze:failure -- <folder>` - collect Playwright failure artifacts into JSON
+- `npm run analyze:report -- <folder>` - write Markdown and/or HTML investigation reports (`--format md|html|both`, default `ai-reports/`)
 - `npm run test:ai` - unit tests for the AI failure analyzer
 
 ## Continuous Integration
@@ -114,8 +115,9 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - Code lives in `ai/failure-analyzer/` (`.mts` ESM modules, no root `"type": "module"` so Playwright JSON imports stay intact)
 - `collectFailureContext(path)` normalizes screenshots, videos, traces, and `error-context.md`
 - `classifyFailure(context)` adds heuristic category + confidence (`assertion`, `timeout`, `locator`, `network`, `auth`, `unknown`)
+- `generateMarkdownReport(context)` / `generateHtmlReport(context)` build investigation reports with category-specific next steps
 - Golden fixtures under `ai/failure-analyzer/fixtures/` drive `npm run test:ai`
-- Markdown investigation reports land in P3-M3
+- Optional LLM suggestions land in P3-M4
 
 ## Naming
 

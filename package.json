@@ -19,6 +19,7 @@
     "test:headed": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --headed",
     "test:ai": "node --experimental-strip-types --test ai/failure-analyzer/**/*.test.mts",
     "analyze:failure": "node --experimental-strip-types ai/failure-analyzer/cli.mts",
+    "analyze:report": "node --experimental-strip-types ai/failure-analyzer/report-cli.mts",
     "report": "playwright show-report playwright-report",
     "trace": "playwright show-trace"
   },

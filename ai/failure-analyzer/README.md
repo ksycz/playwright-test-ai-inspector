@@ -1,20 +1,24 @@
 # Failure Analyzer (Phase 3)
 
-Local CLI that collects Playwright failure artifacts into normalized JSON for later classification and reporting.
+Local CLI that collects Playwright failure artifacts, classifies them heuristically, and writes Markdown or HTML investigation reports.
 
 ## Commands
 
 ```bash
-# Unit tests for the collector
+# Unit tests for the analyzer
 npm run test:ai
 
-# Collect artifacts from a failed test folder
+# Collect artifacts + classification as JSON
 npm run analyze:failure -- test-results/<failed-test-folder>
 
-# Write JSON to a file as well as stdout
-npm run analyze:failure -- ai/failure-analyzer/fixtures/sample-failure --out /tmp/failure-context.json
+# Generate investigation report (default: Markdown → ai-reports/<folder>.md)
+npm run analyze:report -- test-results/<failed-test-folder>
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format both
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --out /tmp/report.md
 ```
 
+`--format` accepts `md` (default), `html`, or `both`. With `both`, `--out` is treated as a directory.
 ## Output shape
 
 ```json
@@ -39,6 +43,7 @@ npm run analyze:failure -- ai/failure-analyzer/fixtures/sample-failure --out /tm
 ```
 
 Categories: `assertion`, `timeout`, `locator`, `network`, `auth`, `unknown`.
+
 ## Fixtures
 
 - `fixtures/sample-failure/` — golden folder with screenshot, video, trace, and error context

@@ -91,7 +91,7 @@ docs/           Project documentation
 
 ✅ Phase 2 complete — P2-M1 through P2-M8 (framework, POM, fixtures, tagged suites, E2E journeys, CI).
 
-🚧 Phase 3 in progress — P3-M2 complete; P3-M3 (Markdown reports) next.
+🚧 Phase 3 in progress — P3-M3b complete; P3-M4 (optional LLM suggestions) next.
 
 **Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
@@ -198,10 +198,13 @@ npm run playwright:install
 
 The first AI module assists with failed Playwright test investigations.
 
-Collect failure artifacts into normalized JSON:
+Collect failure artifacts into normalized JSON, or generate a Markdown/HTML investigation report:
 
 ```bash
 npm run analyze:failure -- test-results/<failed-test-folder>
+npm run analyze:report -- test-results/<failed-test-folder>
+npm run analyze:report -- test-results/<failed-test-folder> --format html
+npm run analyze:report -- test-results/<failed-test-folder> --format both
 npm run test:ai
 ```
 
@@ -212,7 +215,9 @@ It collects information such as:
 - screenshots
 - videos
 
-Later milestones will add Markdown investigation reports and optional LLM root-cause suggestions.
+Then classifies the failure and writes a structured report with suggested next steps (Markdown by default; HTML via `--format html`).
+
+Later milestones will add optional LLM root-cause suggestions.
 
 The goal is not to replace engineers, but to reduce investigation time and improve debugging efficiency.
 

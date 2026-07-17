@@ -43,8 +43,8 @@ After every completed milestone, update:
 | Phase | Name | Status | Focus |
 |---|---|---|---|
 | **1** | Demo Shop Application | ✅ Completed | React demo e-commerce app |
-| **2** | Playwright Testing Framework | 🚧 In progress | POM, fixtures, suites, CI |
-| **3** | AI Test Inspector | ⏳ Planned | AI-assisted failure analysis |
+| **2** | Playwright Testing Framework | ✅ Completed | POM, fixtures, suites, CI |
+| **3** | AI Test Inspector | 🚧 In progress | Failure analyzer (P3-M4 next) |
 
 ---
 
@@ -982,9 +982,9 @@ P1-M1 Project Foundation
 
 Build a production-inspired Playwright testing framework against the completed demo shop. Phase 1 delivered **59 passing smoke tests** in `tests/smoke/`; Phase 2 refactors those tests into a maintainable framework and adds E2E suites, reporting, and CI.
 
-**Phase 2 status:** 🚧 In progress  
+**Phase 2 status:** ✅ Completed  
 **Phase 2 started:** 2026-07-06  
-**Phase 2 completed:** —
+**Phase 2 completed:** 2026-07-15
 
 ---
 
@@ -1829,6 +1829,7 @@ Phase 2 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-17 | Phase Overview refreshed — Phase 2 ✅ Completed, Phase 3 🚧 In progress (P3-M4 next) |
 | 2026-07-17 | P3-M3b completed — HTML investigation reports and `--format md|html|both` |
 | 2026-07-17 | P3-M3 completed — Markdown investigation report generator and `analyze:report` CLI |
 | 2026-07-17 | P3-M2 completed — heuristic failure classification with confidence scoring |

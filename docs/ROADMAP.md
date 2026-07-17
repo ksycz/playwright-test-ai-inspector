@@ -1551,8 +1551,8 @@ Phase 2 transformed the Phase 1 inline smoke suite into a production-inspired Pl
 
 # Phase 3 — AI Test Inspector
 
-**Status:** 🚧 In progress — P3-M1 complete; P3-M2 next  
-**Current focus:** Heuristic failure classification
+**Status:** 🚧 In progress — P3-M2 complete; P3-M3 next  
+**Current focus:** Markdown investigation report generator
 
 ### Goal
 
@@ -1638,8 +1638,8 @@ Architectural decisions:
 
 ## P3-M2 — Heuristic Failure Classification
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-17  
 **Dependencies:** P3-M1
 
 ### Goal
@@ -1655,9 +1655,22 @@ Classify failures into stable categories using deterministic heuristics on error
 
 ### Acceptance criteria
 
-- [ ] Classifier returns category + confidence
-- [ ] Known fixture errors map to expected categories
-- [ ] Unknown errors fall back to `unknown`
+- [x] Classifier returns category + confidence
+- [x] Known fixture errors map to expected categories
+- [x] Unknown errors fall back to `unknown`
+
+### Implementation notes
+
+Summary:
+
+- Added `classifyFailure()` with ordered heuristic rules and confidence scores.
+- Wired classification into `collectFailureContext()` so CLI JSON always includes `classification`.
+- Added 7 unit tests covering all categories plus missing-error-text fallback.
+
+Architectural decisions:
+
+- Highest-confidence matching rule wins when multiple signals appear (e.g. expect + Timeout → assertion).
+- Kept classification fully offline and deterministic for portfolio reliability before optional LLM (P3-M4).
 
 ---
 
@@ -1752,7 +1765,7 @@ Phase 2 complete
 | Milestone | Status | Completed |
 |---|---|---|
 | P3-M1 — Failure Artifact Ingestion and CLI Scaffold | ✅ Completed | 2026-07-17 |
-| P3-M2 — Heuristic Failure Classification | ⏳ Not started | — |
+| P3-M2 — Heuristic Failure Classification | ✅ Completed | 2026-07-17 |
 | P3-M3 — Markdown Investigation Report Generator | ⏳ Not started | — |
 | P3-M4 — Optional LLM Root-Cause Suggestions | ⏳ Not started | — |
 | P3-M5 — Analyzer Integration and Documentation Polish | ⏳ Not started | — |
@@ -1763,6 +1776,7 @@ Phase 2 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-17 | P3-M2 completed — heuristic failure classification with confidence scoring |
 | 2026-07-17 | P3-M1 completed — failure artifact collector CLI, fixtures, and `npm run test:ai` |
 | 2026-07-17 | Phase 3 milestones defined — P3-M1 through P3-M5 (AI Failure Analyzer) |
 | 2026-07-15 | P2-M8 completed — GitHub Actions CI with smoke/e2e matrix and failure artifact upload; Phase 2 complete |

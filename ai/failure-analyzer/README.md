@@ -28,10 +28,17 @@ npm run analyze:failure -- ai/failure-analyzer/fixtures/sample-failure --out /tm
     "errorContextPath": "error-context.md",
     "otherFiles": []
   },
-  "errorContextText": "..."
+  "errorContextText": "...",
+  "classification": {
+    "category": "assertion",
+    "confidence": 0.88,
+    "matchedSignals": ["assertion:expect assertion mismatch"],
+    "summary": "Failure looks like an assertion mismatch (expected vs received)."
+  }
 }
 ```
 
+Categories: `assertion`, `timeout`, `locator`, `network`, `auth`, `unknown`.
 ## Fixtures
 
 - `fixtures/sample-failure/` — golden folder with screenshot, video, trace, and error context

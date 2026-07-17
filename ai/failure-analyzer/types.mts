@@ -1,3 +1,18 @@
+export type FailureCategory =
+  | 'assertion'
+  | 'timeout'
+  | 'locator'
+  | 'network'
+  | 'auth'
+  | 'unknown';
+
+export interface FailureClassification {
+  category: FailureCategory;
+  confidence: number;
+  matchedSignals: string[];
+  summary: string;
+}
+
 export interface FailureArtifacts {
   screenshots: string[];
   videos: string[];
@@ -11,4 +26,5 @@ export interface FailureContext {
   collectedAt: string;
   artifacts: FailureArtifacts;
   errorContextText: string | null;
+  classification: FailureClassification;
 }

@@ -91,7 +91,7 @@ docs/           Project documentation
 
 ✅ Phase 2 complete — P2-M1 through P2-M8 (framework, POM, fixtures, tagged suites, E2E journeys, CI).
 
-🚧 Phase 3 in progress — P3-M1 complete; P3-M2 (Heuristic Classification) next.
+🚧 Phase 3 in progress — P3-M2 complete; P3-M3 (Markdown reports) next.
 
 **Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
@@ -212,7 +212,7 @@ It collects information such as:
 - screenshots
 - videos
 
-Later milestones will add heuristic classification, Markdown investigation reports, and optional LLM root-cause suggestions.
+Later milestones will add Markdown investigation reports and optional LLM root-cause suggestions.
 
 The goal is not to replace engineers, but to reduce investigation time and improve debugging efficiency.
 

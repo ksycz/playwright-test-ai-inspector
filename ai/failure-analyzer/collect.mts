@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { classifyFailure } from './classify.mts';
 import type { FailureArtifacts, FailureContext } from './types.mts';
 
 const SCREENSHOT_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp']);
@@ -89,10 +90,15 @@ export async function collectFailureContext(sourcePath: string): Promise<Failure
     errorContextText = await readFile(errorContextAbsolute, 'utf8');
   }
 
-  return {
+  const partial = {
     sourcePath: absoluteSource,
     collectedAt: new Date().toISOString(),
     artifacts,
     errorContextText,
+  };
+
+  return {
+    ...partial,
+    classification: classifyFailure(partial),
   };
 }

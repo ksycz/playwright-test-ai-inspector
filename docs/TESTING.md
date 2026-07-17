@@ -113,8 +113,9 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 
 - Code lives in `ai/failure-analyzer/` (`.mts` ESM modules, no root `"type": "module"` so Playwright JSON imports stay intact)
 - `collectFailureContext(path)` normalizes screenshots, videos, traces, and `error-context.md`
+- `classifyFailure(context)` adds heuristic category + confidence (`assertion`, `timeout`, `locator`, `network`, `auth`, `unknown`)
 - Golden fixtures under `ai/failure-analyzer/fixtures/` drive `npm run test:ai`
-- Classification and Markdown reports land in P3-M2 / P3-M3
+- Markdown investigation reports land in P3-M3
 
 ## Naming
 

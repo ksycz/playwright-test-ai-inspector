@@ -16,6 +16,8 @@ describe('P3-M1 failure artifact collector', () => {
     assert.deepEqual(context.artifacts.videos, ['video.webm']);
     assert.deepEqual(context.artifacts.traces, ['trace.zip']);
     assert.match(context.errorContextText ?? '', /order-confirmation/);
+    assert.equal(context.classification.category, 'assertion');
+    assert.ok(context.classification.confidence >= 0.8);
     assert.ok(context.sourcePath.endsWith(`${path.sep}sample-failure`));
     assert.ok(Date.parse(context.collectedAt));
   });
@@ -28,6 +30,7 @@ describe('P3-M1 failure artifact collector', () => {
     assert.deepEqual(context.artifacts.videos, []);
     assert.deepEqual(context.artifacts.traces, []);
     assert.equal(context.errorContextText, null);
+    assert.equal(context.classification.category, 'unknown');
   });
 
   it('P3-M1-03: rejects a missing failure path', async () => {

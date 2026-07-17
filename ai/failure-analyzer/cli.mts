@@ -5,7 +5,7 @@ import { collectFailureContext } from './collect.mts';
 function printUsage(): void {
   console.error(`Usage: npm run analyze:failure -- <test-results-folder> [--out <file.json>]
 
-Collect Playwright failure artifacts into normalized JSON.
+Collect Playwright failure artifacts into normalized JSON (includes heuristic classification).
 
 Examples:
   npm run analyze:failure -- test-results/smoke-checkout-flow-...-chromium

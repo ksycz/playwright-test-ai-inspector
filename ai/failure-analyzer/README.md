@@ -1,6 +1,6 @@
 # Failure Analyzer (Phase 3)
 
-Local CLI that collects Playwright failure artifacts, classifies them heuristically, and writes Markdown or HTML investigation reports.
+Local CLI that collects Playwright failure artifacts, classifies them heuristically, and writes Markdown or HTML investigation reports. Optional LLM root-cause suggestions when an API key is configured.
 
 ## Commands
 
@@ -16,9 +16,15 @@ npm run analyze:report -- test-results/<failed-test-folder>
 npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
 npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format both
 npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --out /tmp/report.md
+
+# Optional LLM suggestions (requires OPENAI_API_KEY or ANTHROPIC_API_KEY)
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --llm
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --no-llm
 ```
 
 `--format` accepts `md` (default), `html`, or `both`. With `both`, `--out` is treated as a directory.
+
+If `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set, suggestions are attempted automatically unless `--no-llm` is passed. Without keys, reports stay fully offline.
 ## Output shape
 
 ```json

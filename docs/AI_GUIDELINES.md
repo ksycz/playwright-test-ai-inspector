@@ -40,6 +40,19 @@ Suggest improvements.
 
 ---
 
+## Failure Analyzer (Phase 3)
+
+When generating optional LLM root-cause suggestions for Playwright failures:
+
+- Use only the provided failure context (classification, error excerpt, artifact inventory).
+- Do not invent stack traces, network logs, or UI states that were not supplied.
+- Prefer Playwright best practices: `getByRole`, fixtures, no arbitrary waits.
+- Propose 2–4 concrete debugging hypotheses and 1–3 caveats.
+- Never request, log, or repeat API keys or secrets.
+- Respond with structured JSON only when asked by the analyzer prompt.
+
+---
+
 ## Refactoring
 
 Do not change behavior.

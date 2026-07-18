@@ -1,8 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { FailureCategory, FailureContext } from './types.mts';
+import type { FailureCategory, FailureContext, RootCauseSuggestion } from './types.mts';
 
 export type ReportFormat = 'md' | 'html' | 'both';
+
+export interface ReportOptions {
+  suggestion?: RootCauseSuggestion | null;
+}
 
 const SUGGESTED_STEPS: Record<FailureCategory, string[]> = {
   assertion: [
@@ -112,6 +116,65 @@ function htmlNumberedList(items: string[]): string {
   return `<ol>\n${items.map((item) => `  <li>${escapeHtml(item)}</li>`).join('\n')}\n</ol>`;
 }
 
+function markdownSuggestionSection(suggestion: RootCauseSuggestion | null | undefined): string {
+  if (!suggestion) {
+    return '';
+  }
+
+  const hypotheses = numberedList(suggestion.hypotheses);
+  const caveats =
+    suggestion.caveats.length > 0
+      ? suggestion.caveats.map((item) => `- ${item}`).join('\n')
+      : '- None';
+
+  return `
+## AI root-cause suggestions
+
+- **Provider:** \`${suggestion.provider}\`
+- **Summary:** ${suggestion.summary}
+
+### Hypotheses
+
+${hypotheses}
+
+### Caveats
+
+${caveats}
+`;
+}
+
+function htmlSuggestionSection(suggestion: RootCauseSuggestion | null | undefined): string {
+  if (!suggestion) {
+    return '';
+  }
+
+  const caveats =
+    suggestion.caveats.length > 0
+      ? `<ul>\n${suggestion.caveats.map((item) => `  <li>${escapeHtml(item)}</li>`).join('\n')}\n</ul>`
+      : '<p class="muted">None</p>';
+
+  return `
+    <section aria-labelledby="ai-heading">
+      <h2 id="ai-heading">AI root-cause suggestions</h2>
+      <div class="panel">
+        <dl class="summary-grid">
+          <div>
+            <dt>Provider</dt>
+            <dd><code>${escapeHtml(suggestion.provider)}</code></dd>
+          </div>
+          <div>
+            <dt>Summary</dt>
+            <dd>${escapeHtml(suggestion.summary)}</dd>
+          </div>
+        </dl>
+      </div>
+      <h3>Hypotheses</h3>
+      ${htmlNumberedList(suggestion.hypotheses)}
+      <h3>Caveats</h3>
+      ${caveats}
+    </section>`;
+}
+
 const SCREENSHOT_MIME: Record<string, string> = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -197,7 +260,10 @@ function htmlScreenshotGallery(screenshots: EmbeddedScreenshot[]): string {
     .join('\n');
 }
 
-export function generateMarkdownReport(context: FailureContext): string {
+export function generateMarkdownReport(
+  context: FailureContext,
+  options: ReportOptions = {},
+): string {
   const folderName = path.basename(context.sourcePath);
   const { classification, artifacts } = context;
   const confidencePercent = Math.round(classification.confidence * 100);
@@ -250,7 +316,7 @@ ${truncateErrorText(context.errorContextText)}
 ## Suggested next steps
 
 ${numberedList(steps)}
-
+${markdownSuggestionSection(options.suggestion)}
 ## Debugging commands
 
 \`\`\`bash
@@ -261,7 +327,10 @@ npm run analyze:failure -- ${context.sourcePath}
 `;
 }
 
-export async function generateHtmlReport(context: FailureContext): Promise<string> {
+export async function generateHtmlReport(
+  context: FailureContext,
+  options: ReportOptions = {},
+): Promise<string> {
   const folderName = path.basename(context.sourcePath);
   const { classification, artifacts } = context;
   const confidencePercent = Math.round(classification.confidence * 100);
@@ -530,7 +599,7 @@ export async function generateHtmlReport(context: FailureContext): Promise<strin
       <h2 id="steps-heading">Suggested next steps</h2>
       ${htmlNumberedList(steps)}
     </section>
-
+${htmlSuggestionSection(options.suggestion)}
     <section class="commands" aria-labelledby="commands-heading">
       <h2 id="commands-heading">Debugging commands</h2>
       <pre><code>npm run report

@@ -28,3 +28,15 @@ export interface FailureContext {
   errorContextText: string | null;
   classification: FailureClassification;
 }
+
+export interface RootCauseSuggestion {
+  provider: string;
+  summary: string;
+  hypotheses: string[];
+  caveats: string[];
+}
+
+export interface LlmProvider {
+  readonly name: string;
+  suggestRootCause(context: FailureContext): Promise<RootCauseSuggestion | null>;
+}

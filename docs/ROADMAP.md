@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 3 — AI Failure Analyzer (P3-M4 next).
+**Current focus:** Phase 3 — AI Failure Analyzer (P3-M5 next).
 
 ---
 
@@ -44,7 +44,7 @@ After every completed milestone, update:
 |---|---|---|---|
 | **1** | Demo Shop Application | ✅ Completed | React demo e-commerce app |
 | **2** | Playwright Testing Framework | ✅ Completed | POM, fixtures, suites, CI |
-| **3** | AI Test Inspector | 🚧 In progress | Failure analyzer (P3-M4 next) |
+| **3** | AI Test Inspector | 🚧 In progress | Failure analyzer (P3-M5 next) |
 
 ---
 
@@ -1551,8 +1551,8 @@ Phase 2 transformed the Phase 1 inline smoke suite into a production-inspired Pl
 
 # Phase 3 — AI Test Inspector
 
-**Status:** 🚧 In progress — P3-M3b complete; P3-M4 next  
-**Current focus:** Optional LLM root-cause suggestions
+**Status:** 🚧 In progress — P3-M4 complete; P3-M5 next  
+**Current focus:** Analyzer integration and documentation polish
 
 ### Goal
 
@@ -1751,8 +1751,8 @@ Architectural decisions:
 
 ## P3-M4 — Optional LLM Root-Cause Suggestions
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-18  
 **Dependencies:** P3-M3
 
 ### Goal
@@ -1768,9 +1768,24 @@ Add an optional LLM provider interface that enhances reports with root-cause sug
 
 ### Acceptance criteria
 
-- [ ] Works offline without API keys
-- [ ] With provider mocked, suggestions appear in report
-- [ ] Provider interface is swappable
+- [x] Works offline without API keys
+- [x] With provider mocked, suggestions appear in report
+- [x] Provider interface is swappable
+
+### Implementation notes
+
+Summary:
+
+- Added `LlmProvider` interface with OpenAI and Anthropic implementations (injectable `fetch` for tests).
+- `resolveProviderFromEnv()` returns a provider only when a key is present; otherwise reports stay heuristic-only.
+- Reports gain an optional **AI root-cause suggestions** section; CLI supports `--llm` / `--no-llm`.
+- Prompt rules documented under Failure Analyzer in `docs/AI_GUIDELINES.md`.
+
+Architectural decisions:
+
+- LLM is opt-in via environment keys — no network calls and no report section when offline.
+- Provider failures warn and continue so investigation reports remain usable without an API.
+- JSON response shape keeps Markdown/HTML rendering deterministic once suggestions arrive.
 
 ---
 
@@ -1820,7 +1835,7 @@ Phase 2 complete
 | P3-M2 — Heuristic Failure Classification | ✅ Completed | 2026-07-17 |
 | P3-M3 — Markdown Investigation Report Generator | ✅ Completed | 2026-07-17 |
 | P3-M3b — HTML Investigation Reports | ✅ Completed | 2026-07-17 |
-| P3-M4 — Optional LLM Root-Cause Suggestions | ⏳ Not started | — |
+| P3-M4 — Optional LLM Root-Cause Suggestions | ✅ Completed | 2026-07-18 |
 | P3-M5 — Analyzer Integration and Documentation Polish | ⏳ Not started | — |
 
 ---
@@ -1829,6 +1844,7 @@ Phase 2 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-18 | P3-M4 completed — optional LLM root-cause suggestions with offline fallback |
 | 2026-07-17 | Phase Overview refreshed — Phase 2 ✅ Completed, Phase 3 🚧 In progress (P3-M4 next) |
 | 2026-07-17 | P3-M3b completed — HTML investigation reports and `--format md|html|both` |
 | 2026-07-17 | P3-M3 completed — Markdown investigation report generator and `analyze:report` CLI |

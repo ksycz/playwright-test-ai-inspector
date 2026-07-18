@@ -8,6 +8,8 @@ import {
   parseReportFormat,
   type ReportFormat,
 } from './report.mts';
+import { resolveProviderFromEnv, suggestRootCause } from './suggest.mts';
+import type { RootCauseSuggestion } from './types.mts';
 
 function printUsage(): void {
   console.error(`Usage: npm run analyze:report -- <test-results-folder> [options]
@@ -17,13 +19,20 @@ Collect failure artifacts, classify the failure, and write an investigation repo
 Options:
   --format <md|html|both>   Output format (default: md)
   --out <path>              Output file (md|html) or directory (both)
+  --llm                     Request optional LLM suggestions when an API key is set
+  --no-llm                  Skip LLM suggestions even if an API key is set
   -h, --help                Show this help
+
+Environment (optional LLM):
+  OPENAI_API_KEY            Prefer OpenAI provider
+  ANTHROPIC_API_KEY         Used when OpenAI key is absent
+  OPENAI_MODEL / ANTHROPIC_MODEL   Optional model overrides
 
 Examples:
   npm run analyze:report -- test-results/smoke-checkout-flow-...-chromium
   npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+  npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --llm
   npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format both
-  npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --out /tmp/report.md
 `);
 }
 
@@ -38,6 +47,7 @@ async function main(argv: string[]): Promise<number> {
   let sourcePath: string | undefined;
   let outPath: string | undefined;
   let format: ReportFormat = 'md';
+  let llmMode: 'auto' | 'on' | 'off' = 'auto';
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -67,6 +77,16 @@ async function main(argv: string[]): Promise<number> {
       continue;
     }
 
+    if (arg === '--llm') {
+      llmMode = 'on';
+      continue;
+    }
+
+    if (arg === '--no-llm') {
+      llmMode = 'off';
+      continue;
+    }
+
     if (arg.startsWith('-')) {
       console.error(`Unknown option: ${arg}`);
       printUsage();
@@ -89,6 +109,30 @@ async function main(argv: string[]): Promise<number> {
 
   try {
     const context = await collectFailureContext(sourcePath);
+    let suggestion: RootCauseSuggestion | null = null;
+
+    if (llmMode !== 'off') {
+      const provider = resolveProviderFromEnv();
+      if (provider) {
+        try {
+          suggestion = await suggestRootCause(context, provider);
+          if (suggestion) {
+            console.error(`Added LLM suggestions from provider "${provider.name}".`);
+          } else {
+            console.error(`LLM provider "${provider.name}" returned no usable suggestions.`);
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          console.error(`LLM suggestions skipped: ${message}`);
+        }
+      } else if (llmMode === 'on') {
+        console.error(
+          'LLM requested via --llm, but neither OPENAI_API_KEY nor ANTHROPIC_API_KEY is set. Continuing offline.',
+        );
+      }
+    }
+
+    const reportOptions = { suggestion };
     const written: string[] = [];
 
     if (format === 'both') {
@@ -97,21 +141,20 @@ async function main(argv: string[]): Promise<number> {
       const htmlPath = path.join(reportsDir, path.basename(defaultReportPath(context, '.', 'html')));
 
       await mkdir(reportsDir, { recursive: true });
-      await writeFile(mdPath, generateMarkdownReport(context), 'utf8');
-      await writeFile(htmlPath, await generateHtmlReport(context), 'utf8');
+      await writeFile(mdPath, generateMarkdownReport(context, reportOptions), 'utf8');
+      await writeFile(htmlPath, await generateHtmlReport(context, reportOptions), 'utf8');
       written.push(mdPath, htmlPath);
     } else {
       const report =
         format === 'html'
-          ? await generateHtmlReport(context)
-          : generateMarkdownReport(context);
+          ? await generateHtmlReport(context, reportOptions)
+          : generateMarkdownReport(context, reportOptions);
       const absoluteOut = path.resolve(outPath ?? defaultReportPath(context, 'ai-reports', format));
 
       await mkdir(path.dirname(absoluteOut), { recursive: true });
       await writeFile(absoluteOut, report, 'utf8');
       written.push(absoluteOut);
 
-      // Keep stdout useful for piping a single report (Markdown or HTML).
       process.stdout.write(report);
     }
 

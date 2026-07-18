@@ -116,8 +116,8 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - `collectFailureContext(path)` normalizes screenshots, videos, traces, and `error-context.md`
 - `classifyFailure(context)` adds heuristic category + confidence (`assertion`, `timeout`, `locator`, `network`, `auth`, `unknown`)
 - `generateMarkdownReport(context)` / `generateHtmlReport(context)` build investigation reports with category-specific next steps
+- Optional LLM root-cause suggestions via `suggestRootCause` + `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` (offline without keys)
 - Golden fixtures under `ai/failure-analyzer/fixtures/` drive `npm run test:ai`
-- Optional LLM suggestions land in P3-M4
 
 ## Naming
 

@@ -91,7 +91,7 @@ docs/           Project documentation
 
 ✅ Phase 2 complete — P2-M1 through P2-M8 (framework, POM, fixtures, tagged suites, E2E journeys, CI).
 
-🚧 Phase 3 in progress — P3-M3b complete; P3-M4 (optional LLM suggestions) next.
+🚧 Phase 3 in progress — P3-M4 complete; P3-M5 (docs polish) next.
 
 **Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
@@ -217,7 +217,7 @@ It collects information such as:
 
 Then classifies the failure and writes a structured report with suggested next steps (Markdown by default; HTML via `--format html`).
 
-Later milestones will add optional LLM root-cause suggestions.
+Optional LLM root-cause suggestions run when `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set (`--llm` / `--no-llm` override). Without keys, everything stays offline.
 
 The goal is not to replace engineers, but to reduce investigation time and improve debugging efficiency.
 

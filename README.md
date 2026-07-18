@@ -91,7 +91,7 @@ docs/           Project documentation
 
 ✅ Phase 2 complete — P2-M1 through P2-M8 (framework, POM, fixtures, tagged suites, E2E journeys, CI).
 
-🚧 Phase 3 in progress — P3-M4 complete; P3-M5 (docs polish) next.
+✅ Phase 3 complete — P3-M1 through P3-M5 (ingestion, classification, Markdown/HTML reports, optional LLM, docs polish).
 
 **Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
@@ -198,13 +198,22 @@ npm run playwright:install
 
 The first AI module assists with failed Playwright test investigations.
 
-Collect failure artifacts into normalized JSON, or generate a Markdown/HTML investigation report:
+**One-command flow** (after a local or CI failure):
 
 ```bash
-npm run analyze:failure -- test-results/<failed-test-folder>
-npm run analyze:report -- test-results/<failed-test-folder>
-npm run analyze:report -- test-results/<failed-test-folder> --format html
 npm run analyze:report -- test-results/<failed-test-folder> --format both
+```
+
+That collects artifacts, classifies the failure, and writes Markdown + HTML reports under `ai-reports/`.
+
+```bash
+# Golden fixture (no Playwright run required)
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+
+# JSON-only collection
+npm run analyze:failure -- test-results/<failed-test-folder>
+
+# Analyzer unit tests
 npm run test:ai
 ```
 
@@ -218,6 +227,11 @@ It collects information such as:
 Then classifies the failure and writes a structured report with suggested next steps (Markdown by default; HTML via `--format html`).
 
 Optional LLM root-cause suggestions run when `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set (`--llm` / `--no-llm` override). Without keys, everything stays offline.
+
+Sanitized sample report: [`docs/samples/failure-investigation-report.md`](docs/samples/failure-investigation-report.md).  
+Module docs: [`ai/failure-analyzer/README.md`](ai/failure-analyzer/README.md).
+
+On CI failure, download the `test-results-*` artifact, unzip, and point `analyze:report` at the failed folder — see Testing docs for the full workflow.
 
 The goal is not to replace engineers, but to reduce investigation time and improve debugging efficiency.
 
@@ -260,6 +274,8 @@ Additional documentation is available in the `docs` directory.
 - `AI_GUIDELINES.md` — guidelines for AI-assisted development
 - `LESSONS_LEARNED.md` — learning notes and technical discoveries
 - `TESTING.md` — Playwright framework conventions and structure
+- `ROADMAP.md` — milestone plan and progress log
+- `samples/failure-investigation-report.md` — sanitized analyzer sample report
 
 ---
 
@@ -285,63 +301,63 @@ Each milestone includes:
 
 ### MVP
 
-- [ ] Initialize React application
+- [x] Initialize React application
 
-- [ ] Configure Tailwind CSS
+- [x] Configure Tailwind CSS
 
-- [ ] Implement fake authentication
+- [x] Implement fake authentication
 
-- [ ] Build product catalogue
+- [x] Build product catalogue
 
-- [ ] Build shopping cart
+- [x] Build shopping cart
 
-- [ ] Implement checkout flow
+- [x] Implement checkout flow
 
-- [ ] Add responsive layout
+- [x] Add responsive layout
 
 
 
 ### Playwright
 
-- [ ] Configure Playwright
+- [x] Configure Playwright
 
-- [ ] Create Page Object Model
+- [x] Create Page Object Model
 
-- [ ] Implement fixtures
+- [x] Implement fixtures
 
-- [ ] Organize test data
+- [x] Organize test data
 
-- [ ] Generate HTML reports
+- [x] Generate HTML reports
 
-- [ ] Enable Trace Viewer
+- [x] Enable Trace Viewer
 
-- [ ] Capture screenshots and videos
+- [x] Capture screenshots and videos
 
-- [ ] Add smoke tests
+- [x] Add smoke tests
 
-- [ ] Add end-to-end test suite
+- [x] Add end-to-end test suite
 
 
 
 ### CI/CD
 
-- [ ] Configure GitHub Actions
+- [x] Configure GitHub Actions
 
-- [ ] Upload test artifacts
+- [x] Upload test artifacts
 
-- [ ] Publish Playwright reports
+- [x] Publish Playwright reports
 
 
 
 ### AI
 
-- [ ] AI Failure Analyzer
+- [x] AI Failure Analyzer
 
-- [ ] Failure classification
+- [x] Failure classification
 
-- [ ] AI investigation reports
+- [x] AI investigation reports
 
-- [ ] AI debugging suggestions
+- [x] AI debugging suggestions
 
 
 

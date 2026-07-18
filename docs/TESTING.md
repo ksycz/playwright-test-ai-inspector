@@ -109,6 +109,16 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - Matrix jobs run `test:smoke` and `test:e2e` in parallel with `CI=true`
 - Uses Node 22 from `.nvmrc` and project-local browsers via `PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers`
 - On failure, uploads `playwright-report/` and `test-results/` as artifacts (14-day retention)
+- A separate job runs `npm run test:ai` (analyzer unit tests; no browsers required)
+
+### Analyze downloaded CI artifacts
+
+1. Download the `test-results-<suite>` artifact from the failed workflow
+2. Unzip and locate the failed test folder (contains `error-context.md`, screenshots, etc.)
+3. Run: `npm run analyze:report -- <folder> --format both`
+4. Open `ai-reports/<folder>.html` locally
+
+Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md). Sample report: [`docs/samples/failure-investigation-report.md`](./samples/failure-investigation-report.md).
 
 ## AI Failure Analyzer
 
@@ -118,6 +128,7 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - `generateMarkdownReport(context)` / `generateHtmlReport(context)` build investigation reports with category-specific next steps
 - Optional LLM root-cause suggestions via `suggestRootCause` + `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` (offline without keys)
 - Golden fixtures under `ai/failure-analyzer/fixtures/` drive `npm run test:ai`
+- One-command flow: `npm run analyze:report -- <failure-folder> --format both`
 
 ## Naming
 

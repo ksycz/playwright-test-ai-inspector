@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 3 — AI Failure Analyzer (P3-M5 next).
+**Current focus:** Phases 1–3 complete — ready for future enhancements.
 
 ---
 
@@ -44,7 +44,7 @@ After every completed milestone, update:
 |---|---|---|---|
 | **1** | Demo Shop Application | ✅ Completed | React demo e-commerce app |
 | **2** | Playwright Testing Framework | ✅ Completed | POM, fixtures, suites, CI |
-| **3** | AI Test Inspector | 🚧 In progress | Failure analyzer (P3-M5 next) |
+| **3** | AI Test Inspector | ✅ Completed | Failure analyzer CLI + optional LLM |
 
 ---
 
@@ -1551,8 +1551,9 @@ Phase 2 transformed the Phase 1 inline smoke suite into a production-inspired Pl
 
 # Phase 3 — AI Test Inspector
 
-**Status:** 🚧 In progress — P3-M4 complete; P3-M5 next  
-**Current focus:** Analyzer integration and documentation polish
+**Status:** ✅ Completed — P3-M1 through P3-M5  
+**Completed:** 2026-07-18  
+**Current focus:** —
 
 ### Goal
 
@@ -1791,8 +1792,8 @@ Architectural decisions:
 
 ## P3-M5 — Analyzer Integration and Documentation Polish
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-18  
 **Dependencies:** P3-M3 (P3-M4 optional)
 
 ### Goal
@@ -1807,9 +1808,23 @@ Polish end-to-end CLI UX, README/AI module docs, and optional CI hook notes for 
 
 ### Acceptance criteria
 
-- [ ] Documented one-command analyze flow
-- [ ] Sample report checked into docs or fixtures (sanitized)
-- [ ] Phase 3 milestones marked complete where delivered
+- [x] Documented one-command analyze flow
+- [x] Sample report checked into docs or fixtures (sanitized)
+- [x] Phase 3 milestones marked complete where delivered
+
+### Implementation notes
+
+Summary:
+
+- Documented one-command `analyze:report --format both` flow in README and analyzer README.
+- Added sanitized sample at `docs/samples/failure-investigation-report.md`.
+- Documented CI artifact download → local analyze workflow in `docs/TESTING.md`.
+- Added GitHub Actions `ai-unit` job running `npm run test:ai` on every push/PR.
+
+Architectural decisions:
+
+- Keep LLM off CI by default (no secrets required); engineers opt in locally with API keys.
+- Check in a sanitized Markdown sample; HTML remains generated locally under gitignored `ai-reports/`.
 
 ---
 
@@ -1836,7 +1851,21 @@ Phase 2 complete
 | P3-M3 — Markdown Investigation Report Generator | ✅ Completed | 2026-07-17 |
 | P3-M3b — HTML Investigation Reports | ✅ Completed | 2026-07-17 |
 | P3-M4 — Optional LLM Root-Cause Suggestions | ✅ Completed | 2026-07-18 |
-| P3-M5 — Analyzer Integration and Documentation Polish | ⏳ Not started | — |
+| P3-M5 — Analyzer Integration and Documentation Polish | ✅ Completed | 2026-07-18 |
+
+**Phase 3 status: ✅ Complete** — all milestones delivered (2026-07-17 through 2026-07-18).
+
+### Phase 3 — Completion Summary
+
+Phase 3 delivered a local, offline-first AI Failure Analyzer that consumes Playwright artifacts:
+
+- **Ingestion** — `collectFailureContext()` + `analyze:failure` CLI
+- **Classification** — heuristic categories with confidence scoring
+- **Reports** — Markdown and self-contained HTML (embedded screenshots, cleaned error excerpts)
+- **Optional LLM** — swappable OpenAI/Anthropic providers; never required
+- **Docs & CI** — one-command flow, sanitized sample report, `test:ai` job, CI artifact analyze notes
+
+**Commands:** `npm run test:ai`, `npm run analyze:failure`, `npm run analyze:report`.
 
 ---
 
@@ -1844,6 +1873,7 @@ Phase 2 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-18 | P3-M5 completed — docs polish, sample report, CI `ai-unit` job; Phase 3 complete |
 | 2026-07-18 | P3-M4 completed — optional LLM root-cause suggestions with offline fallback |
 | 2026-07-17 | Phase Overview refreshed — Phase 2 ✅ Completed, Phase 3 🚧 In progress (P3-M4 next) |
 | 2026-07-17 | P3-M3b completed — HTML investigation reports and `--format md|html|both` |

@@ -27,7 +27,7 @@ export async function completeGuestPurchaseJourney(page: Page) {
 
   await expect(page).toHaveURL('/checkout');
   await checkoutPage.fillForm(validCheckoutDetails);
-  await checkoutPage.placeOrder();
+  await checkoutPage.placeOrder({ waitForConfirmation: true });
 
   await expect(page).toHaveURL('/order-confirmation');
   await expect(orderConfirmationPage.heading).toBeVisible();

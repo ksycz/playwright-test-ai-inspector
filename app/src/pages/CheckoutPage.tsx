@@ -31,6 +31,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState<CheckoutFormData>(initialFormData);
   const [fieldErrors, setFieldErrors] = useState<CheckoutFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  /** Blocks empty-cart redirect while submit navigates away after clearCart(). */
   const isCompletingOrderRef = useRef(false);
 
   if (items.length === 0 && !isCompletingOrderRef.current) {
@@ -65,9 +66,11 @@ export default function CheckoutPage() {
       shippingZipCode: formData.zipCode.trim(),
     };
 
+    // Navigate first, then clear the cart. Clearing before navigate can leave the
+    // URL on /checkout when cart re-renders race the router transition.
     saveOrderToStorage(order);
-    clearCart();
     navigate('/order-confirmation', { replace: true });
+    clearCart();
   };
 
   return (

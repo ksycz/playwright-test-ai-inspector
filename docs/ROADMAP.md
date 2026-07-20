@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phases 1–3 complete — ready for future enhancements.
+**Current focus:** Phase 4 — Reliability (P4-M2 flaky detection next).
 
 ---
 
@@ -45,6 +45,7 @@ After every completed milestone, update:
 | **1** | Demo Shop Application | ✅ Completed | React demo e-commerce app |
 | **2** | Playwright Testing Framework | ✅ Completed | POM, fixtures, suites, CI |
 | **3** | AI Test Inspector | ✅ Completed | Failure analyzer CLI + optional LLM |
+| **4** | Reliability & Flaky Detection | 🚧 In progress | P4-M1 done; flaky detection next |
 
 ---
 
@@ -1869,10 +1870,150 @@ Phase 3 delivered a local, offline-first AI Failure Analyzer that consumes Playw
 
 ---
 
+# Phase 4 — Reliability & Flaky Detection
+
+**Status:** 🚧 In progress — P4-M1 complete; P4-M2 next  
+**Current focus:** Flaky test detection CLI
+
+### Goal
+
+Improve suite reliability by fixing a known checkout navigation race, then add a local flaky-test detection tool that analyzes Playwright JSON/retry history.
+
+### Design principles
+
+- Prefer app-side race fixes over arbitrary test waits
+- Keep flaky detection offline and deterministic (no LLM required)
+- Reuse Playwright artifacts / report JSON already produced in Phase 2–3
+
+---
+
+## P4-M1 — Fix Checkout Place-Order Navigation Race
+
+**Status:** ✅ Completed  
+**Completed:** 2026-07-20  
+**Dependencies:** Phase 1 checkout flow
+
+### Goal
+
+Stop intermittent failures where Place order leaves the browser on `/checkout` instead of `/order-confirmation`.
+
+### User scenarios
+
+1. Authenticated shopper with items in cart submits a valid checkout form and always lands on order confirmation.
+2. After a successful order, cart is empty when visiting `/cart`.
+3. Invalid checkout form still stays on `/checkout` with validation errors.
+
+### Future Playwright test cases
+
+| ID | Scenario |
+|---|---|
+| P4-M1-01 | Happy path Place order reaches `/order-confirmation` (existing P1-M7-01) |
+| P4-M1-02 | Cart empty after successful order (existing P1-M7-06) |
+| P4-M1-03 | Validation failure stays on `/checkout` (existing negative tests) |
+
+### Accessibility requirements
+
+- Unchanged: Place order remains a labeled submit button; confirmation keeps a single `h1`.
+
+### Stable locator strategy
+
+- `getByRole('button', { name: 'Place order' })`
+- `getByRole('heading', { name: 'Order confirmed' })`
+- URL assertion `/order-confirmation`
+
+### Edge cases
+
+- Cart clear must not race with navigation
+- Direct visit to confirmation without an order still redirects to `/cart`
+- Validation submit must not wait for confirmation URL
+
+### Implementation scope
+
+- Navigate to confirmation before clearing cart (clear on confirmation mount)
+- Remove `isCompletingOrderRef` workaround no longer needed
+- Harden POM `placeOrder({ waitForConfirmation: true })` for happy paths only
+
+### Acceptance criteria
+
+- [x] Place order navigates before clearing cart
+- [x] Cart still clears after successful order (badge reaches 0)
+- [x] Happy-path tests wait for confirmation URL (+ empty cart badge) in POM
+- [x] Smoke checkout / accessibility / error-empty related tests pass
+
+### Implementation notes
+
+Summary:
+
+- Reordered checkout submit to `saveOrder` → `navigate('/order-confirmation')` → `clearCart()`.
+- Kept `isCompletingOrderRef` so an empty-cart re-render cannot bounce to `/cart` mid-transition.
+- Extended `CheckoutPage.placeOrder({ waitForConfirmation: true })` to wait for confirmation URL and `Cart, 0 items`.
+
+Architectural decisions:
+
+- App-side ordering fix preferred over arbitrary test sleeps.
+- Validation paths keep click-only `placeOrder()` so they do not wait for confirmation.
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P4-M1 (preferred), Phase 2 report JSON
+
+### Goal
+
+Add a local CLI that analyzes Playwright JSON reports (and/or retry outcomes) to flag likely flaky tests.
+
+### User scenarios
+
+1. After a suite run with retries, engineer runs one command and sees which tests passed only after retry.
+2. Works offline from committed fixtures or `playwright-report` / result JSON — no API keys.
+
+### Future Playwright / unit test cases
+
+| ID | Scenario |
+|---|---|
+| P4-M2-01 | Fixture with retry-then-pass is reported as flaky |
+| P4-M2-02 | Always-failing test is not classified as flaky |
+| P4-M2-03 | Missing report path exits with a clear error |
+
+### Implementation scope
+
+- Parse Playwright JSON report / result files
+- Heuristic: failed then passed within retries → flaky candidate
+- Markdown (and optional HTML) summary under `ai-reports/` or stdout
+- npm script e.g. `npm run analyze:flaky`
+
+### Acceptance criteria
+
+- [ ] Offline CLI with unit tests
+- [ ] Clear flaky vs hard-fail distinction
+- [ ] Documented in README / TESTING
+
+---
+
+## Phase 4 — Milestone Dependency Graph
+
+```text
+Phase 3 complete
+ └── P4-M1 Fix Checkout Place-Order Navigation Race
+      └── P4-M2 Flaky Test Detection CLI
+```
+
+---
+
+## Phase 4 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P4-M1 — Fix Checkout Place-Order Navigation Race | ✅ Completed | 2026-07-20 |
+| P4-M2 — Flaky Test Detection CLI | ⏳ Not started | — |
+
+---
+
 ## Document History
 
 | Date | Change |
 |---|---|
+| 2026-07-20 | P4-M1 completed — checkout Place order navigates before cart clear |
+| 2026-07-20 | Phase 4 defined — P4-M1 checkout navigation flake, P4-M2 flaky detection |
 | 2026-07-18 | P3-M5 completed — docs polish, sample report, CI `ai-unit` job; Phase 3 complete |
 | 2026-07-18 | P3-M4 completed — optional LLM root-cause suggestions with offline fallback |
 | 2026-07-17 | Phase Overview refreshed — Phase 2 ✅ Completed, Phase 3 🚧 In progress (P3-M4 next) |

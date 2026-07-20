@@ -36,7 +36,7 @@ async function runPurchaseHappyPath(page: Page) {
 
   await expect(page).toHaveURL('/checkout');
   await checkoutPage.fillForm(validCheckoutDetails);
-  await checkoutPage.placeOrder();
+  await checkoutPage.placeOrder({ waitForConfirmation: true });
 
   await expect(page).toHaveURL('/order-confirmation');
   await expect(orderConfirmationPage.heading).toBeVisible();
@@ -83,7 +83,7 @@ test.describe('@smoke P1-M10 — Accessibility and Testability Polish', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
 
     await checkoutPage.fillForm(validCheckoutDetails);
-    await checkoutPage.placeOrder();
+    await checkoutPage.placeOrder({ waitForConfirmation: true });
 
     await expect(page).toHaveURL('/order-confirmation');
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);

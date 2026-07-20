@@ -16,7 +16,7 @@ test.describe('@e2e Returning customer checkout', () => {
     await expect(loginPage.heading).toHaveCount(0);
 
     await checkoutPage.fillForm(validCheckoutDetails);
-    await checkoutPage.placeOrder();
+    await checkoutPage.placeOrder({ waitForConfirmation: true });
 
     await expect(page).toHaveURL('/order-confirmation');
     await expect(orderConfirmationPage.heading).toBeVisible();

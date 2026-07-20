@@ -93,6 +93,8 @@ docs/           Project documentation
 
 ✅ Phase 3 complete — P3-M1 through P3-M5 (ingestion, classification, Markdown/HTML reports, optional LLM, docs polish).
 
+🚧 Phase 4 in progress — P4-M1 complete; P4-M2 (flaky detection) next.
+
 **Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
 ---

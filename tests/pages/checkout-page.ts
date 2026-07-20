@@ -61,7 +61,16 @@ export class CheckoutPage extends BasePage {
     await this.zipCodeInput.fill(details.zipCode);
   }
 
-  async placeOrder() {
+  async placeOrder(options: { waitForConfirmation?: boolean } = {}) {
+    if (options.waitForConfirmation) {
+      await Promise.all([
+        this.page.waitForURL(/\/order-confirmation\/?$/),
+        this.placeOrderButton.click(),
+      ]);
+      await this.cartLink(0).waitFor({ state: 'visible' });
+      return;
+    }
+
     await this.placeOrderButton.click();
   }
 }

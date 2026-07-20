@@ -19,7 +19,7 @@ test.describe('@smoke P1-M7 — Checkout Flow', () => {
     await checkoutPage.goto();
 
     await checkoutPage.fillForm(validCheckoutDetails);
-    await checkoutPage.placeOrder();
+    await checkoutPage.placeOrder({ waitForConfirmation: true });
 
     await expect(page).toHaveURL('/order-confirmation');
     await expect(orderConfirmationPage.heading).toBeVisible();
@@ -82,7 +82,7 @@ test.describe('@smoke P1-M7 — Checkout Flow', () => {
     await checkoutPage.goto();
 
     await checkoutPage.fillForm(validCheckoutDetails);
-    await checkoutPage.placeOrder();
+    await checkoutPage.placeOrder({ waitForConfirmation: true });
 
     await expect(page).toHaveURL('/order-confirmation');
     await cartPage.goto();
@@ -110,7 +110,7 @@ test.describe('@smoke P1-M7 — Checkout Flow', () => {
 
     await expect(page).toHaveURL('/checkout');
     await checkoutPage.fillForm(validCheckoutDetails);
-    await checkoutPage.placeOrder();
+    await checkoutPage.placeOrder({ waitForConfirmation: true });
 
     await expect(page).toHaveURL('/order-confirmation');
     await expect(orderConfirmationPage.heading).toBeVisible();

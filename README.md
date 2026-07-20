@@ -76,7 +76,7 @@ This repository is developed incrementally and serves as both a learning journey
 ```text
 app/            Demo e-commerce application
 tests/          Playwright test suite
-ai/             AI Failure Analyzer (Phase 3)
+ai/             AI tools (Failure Analyzer + Flaky Detector)
 docs/           Project documentation
 .github/        GitHub Actions workflows
 ```
@@ -93,7 +93,7 @@ docs/           Project documentation
 
 ✅ Phase 3 complete — P3-M1 through P3-M5 (ingestion, classification, Markdown/HTML reports, optional LLM, docs polish).
 
-🚧 Phase 4 in progress — P4-M1 complete; P4-M2 (flaky detection) next.
+✅ Phase 4 complete — P4-M1 checkout flake fix + P4-M2 flaky test detection.
 
 **Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
@@ -237,9 +237,20 @@ On CI failure, download the `test-results-*` artifact, unzip, and point `analyze
 
 The goal is not to replace engineers, but to reduce investigation time and improve debugging efficiency.
 
+### Flaky Test Detector
+
+After a suite run (especially with CI retries), analyze the Playwright JSON report:
+
+```bash
+npm run analyze:flaky
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+```
+
+Distinguishes **flaky** (failed then passed on retry) from **hard failures** (failed all attempts).  
+Module docs: [`ai/flaky-detector/README.md`](ai/flaky-detector/README.md).
+
 ### Future AI Modules
 
-- Flaky Test Detection
 - AI Test Execution Summary
 - Locator Change Suggestions
 - Pull Request Test Summaries
@@ -365,11 +376,11 @@ Each milestone includes:
 
 ### Future Enhancements
 
+- [x] Flaky test detection
+
 - [ ] API testing with Playwright
 
 - [ ] Visual regression testing
-
-- [ ] Flaky test detection
 
 - [ ] AI-generated Pull Request summaries
 

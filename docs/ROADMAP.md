@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 4 — Reliability (P4-M2 flaky detection next).
+**Current focus:** Phases 1–4 complete — ready for future enhancements.
 
 ---
 
@@ -45,7 +45,7 @@ After every completed milestone, update:
 | **1** | Demo Shop Application | ✅ Completed | React demo e-commerce app |
 | **2** | Playwright Testing Framework | ✅ Completed | POM, fixtures, suites, CI |
 | **3** | AI Test Inspector | ✅ Completed | Failure analyzer CLI + optional LLM |
-| **4** | Reliability & Flaky Detection | 🚧 In progress | P4-M1 done; flaky detection next |
+| **4** | Reliability & Flaky Detection | ✅ Completed | Checkout flake fix + flaky detection CLI |
 
 ---
 
@@ -1872,8 +1872,9 @@ Phase 3 delivered a local, offline-first AI Failure Analyzer that consumes Playw
 
 # Phase 4 — Reliability & Flaky Detection
 
-**Status:** 🚧 In progress — P4-M1 complete; P4-M2 next  
-**Current focus:** Flaky test detection CLI
+**Status:** ✅ Completed — P4-M1 through P4-M2  
+**Completed:** 2026-07-20  
+**Current focus:** —
 
 ### Goal
 
@@ -1953,8 +1954,12 @@ Architectural decisions:
 - App-side ordering fix preferred over arbitrary test sleeps.
 - Validation paths keep click-only `placeOrder()` so they do not wait for confirmation.
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+---
+
+## P4-M2 — Flaky Test Detection CLI
+
+**Status:** ✅ Completed  
+**Completed:** 2026-07-20  
 **Dependencies:** P4-M1 (preferred), Phase 2 report JSON
 
 ### Goal
@@ -1983,9 +1988,22 @@ Add a local CLI that analyzes Playwright JSON reports (and/or retry outcomes) to
 
 ### Acceptance criteria
 
-- [ ] Offline CLI with unit tests
-- [ ] Clear flaky vs hard-fail distinction
-- [ ] Documented in README / TESTING
+- [x] Offline CLI with unit tests
+- [x] Clear flaky vs hard-fail distinction
+- [x] Documented in README / TESTING
+
+### Implementation notes
+
+Summary:
+
+- Added `ai/flaky-detector/` with `analyzeFlakyReport()`, Markdown report generator, and `npm run analyze:flaky`.
+- Enabled Playwright JSON reporter → `test-results/playwright-results.json`.
+- Fixtures cover flaky, hard-fail, and all-pass; 4 unit tests included in `npm run test:ai`.
+
+Architectural decisions:
+
+- Prefer Playwright JSON `status: flaky | unexpected` with attempt-history fallback.
+- Default input path is `test-results/playwright-results.json` so CI artifact downloads work without extra flags.
 
 ---
 
@@ -2004,7 +2022,14 @@ Phase 3 complete
 | Milestone | Status | Completed |
 |---|---|---|
 | P4-M1 — Fix Checkout Place-Order Navigation Race | ✅ Completed | 2026-07-20 |
-| P4-M2 — Flaky Test Detection CLI | ⏳ Not started | — |
+| P4-M2 — Flaky Test Detection CLI | ✅ Completed | 2026-07-20 |
+
+**Phase 4 status: ✅ Complete** — checkout flake fix and flaky detection delivered (2026-07-20).
+
+### Phase 4 — Completion Summary
+
+- **P4-M1** — Place order navigates before cart clear; POM waits for confirmation + empty cart badge
+- **P4-M2** — `npm run analyze:flaky` parses Playwright JSON for flaky vs hard-fail outcomes
 
 ---
 
@@ -2012,6 +2037,7 @@ Phase 3 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-20 | P4-M2 completed — flaky test detection CLI; Phase 4 complete |
 | 2026-07-20 | P4-M1 completed — checkout Place order navigates before cart clear |
 | 2026-07-20 | Phase 4 defined — P4-M1 checkout navigation flake, P4-M2 flaky detection |
 | 2026-07-18 | P3-M5 completed — docs polish, sample report, CI `ai-unit` job; Phase 3 complete |

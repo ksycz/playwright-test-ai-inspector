@@ -3,10 +3,12 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Artifact policy (P2-M7):
  * - test-results/  — per-test output (screenshots, videos, traces, error context)
+ *                   and playwright-results.json (JSON reporter for flaky analysis)
  * - playwright-report/ — HTML report from the html reporter
  *
  * Trace strategy: on-first-retry (captures traces when CI retries a flaky/failed test).
  * Screenshot/video: only retained on failure to keep local runs lightweight.
+ * Flaky analysis: npm run analyze:flaky (reads test-results/playwright-results.json)
  */
 export default defineConfig({
   testDir: './tests',
@@ -18,6 +20,7 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'test-results/playwright-results.json' }],
   ],
   use: {
     baseURL: 'http://localhost:5173',

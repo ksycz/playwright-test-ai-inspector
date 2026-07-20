@@ -1,0 +1,41 @@
+{
+  "config": {
+    "projects": [{ "name": "chromium", "retries": 0 }]
+  },
+  "suites": [
+    {
+      "title": "app-layout.spec.ts",
+      "file": "tests/smoke/app-layout.spec.ts",
+      "specs": [
+        {
+          "title": "P1-M2-01: home page loads",
+          "ok": true,
+          "file": "tests/smoke/app-layout.spec.ts",
+          "tests": [
+            {
+              "projectName": "chromium",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "results": [
+                {
+                  "retry": 0,
+                  "status": "passed",
+                  "duration": 400
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-07-20T10:00:00.000Z",
+    "duration": 1000,
+    "expected": 1,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0
+  }
+}

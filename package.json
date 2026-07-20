@@ -17,9 +17,10 @@
     "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --grep @e2e --pass-with-no-tests",
     "test:ui": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --ui",
     "test:headed": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --headed",
-    "test:ai": "node --experimental-strip-types --test ai/failure-analyzer/**/*.test.mts",
+    "test:ai": "node --experimental-strip-types --test ai/**/*.test.mts",
     "analyze:failure": "node --experimental-strip-types ai/failure-analyzer/cli.mts",
     "analyze:report": "node --experimental-strip-types ai/failure-analyzer/report-cli.mts",
+    "analyze:flaky": "node --experimental-strip-types ai/flaky-detector/cli.mts",
     "report": "playwright show-report playwright-report",
     "trace": "playwright show-trace"
   },

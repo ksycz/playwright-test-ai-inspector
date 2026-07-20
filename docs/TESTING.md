@@ -99,7 +99,8 @@ Use `npm run report` to open the latest HTML report.
 - `npm run trace` - open a trace zip (`npm run trace -- <path>`)
 - `npm run analyze:failure -- <folder>` - collect Playwright failure artifacts into JSON
 - `npm run analyze:report -- <folder>` - write Markdown and/or HTML investigation reports (`--format md|html|both`, default `ai-reports/`)
-- `npm run test:ai` - unit tests for the AI failure analyzer
+- `npm run analyze:flaky -- [results.json]` - flag flaky vs hard-fail tests from Playwright JSON report
+- `npm run test:ai` - unit tests for AI modules (failure analyzer + flaky detector)
 
 ## Continuous Integration
 
@@ -110,15 +111,17 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - Uses Node 22 from `.nvmrc` and project-local browsers via `PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers`
 - On failure, uploads `playwright-report/` and `test-results/` as artifacts (14-day retention)
 - A separate job runs `npm run test:ai` (analyzer unit tests; no browsers required)
+- JSON reporter writes `test-results/playwright-results.json` (included in failure artifacts) for `npm run analyze:flaky`
 
 ### Analyze downloaded CI artifacts
 
 1. Download the `test-results-<suite>` artifact from the failed workflow
 2. Unzip and locate the failed test folder (contains `error-context.md`, screenshots, etc.)
 3. Run: `npm run analyze:report -- <folder> --format both`
-4. Open `ai-reports/<folder>.html` locally
+4. Optionally run: `npm run analyze:flaky -- <unzipped>/playwright-results.json`
+5. Open `ai-reports/<folder>.html` locally
 
-Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md). Sample report: [`docs/samples/failure-investigation-report.md`](./samples/failure-investigation-report.md).
+Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md), [`ai/flaky-detector/README.md`](../ai/flaky-detector/README.md). Sample report: [`docs/samples/failure-investigation-report.md`](./samples/failure-investigation-report.md).
 
 ## AI Failure Analyzer
 
@@ -129,6 +132,12 @@ Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md). Sa
 - Optional LLM root-cause suggestions via `suggestRootCause` + `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` (offline without keys)
 - Golden fixtures under `ai/failure-analyzer/fixtures/` drive `npm run test:ai`
 - One-command flow: `npm run analyze:report -- <failure-folder> --format both`
+
+## Flaky Test Detector
+
+- Code lives in `ai/flaky-detector/`
+- Reads Playwright JSON (`status: flaky | unexpected | expected | skipped`)
+- `npm run analyze:flaky` defaults to `test-results/playwright-results.json`
 
 ## Naming
 

@@ -1,0 +1,47 @@
+{
+  "config": {
+    "projects": [{ "name": "chromium", "retries": 2 }]
+  },
+  "suites": [
+    {
+      "title": "checkout-flow.spec.ts",
+      "file": "tests/smoke/checkout-flow.spec.ts",
+      "specs": [
+        {
+          "title": "P1-M7-01: happy path fills form",
+          "ok": true,
+          "file": "tests/smoke/checkout-flow.spec.ts",
+          "tests": [
+            {
+              "projectName": "chromium",
+              "expectedStatus": "passed",
+              "status": "flaky",
+              "results": [
+                {
+                  "retry": 0,
+                  "status": "failed",
+                  "duration": 1200,
+                  "error": { "message": "expect(page).toHaveURL(expected) failed\nExpected: /order-confirmation" }
+                },
+                {
+                  "retry": 1,
+                  "status": "passed",
+                  "duration": 900
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-07-20T10:00:00.000Z",
+    "duration": 5000,
+    "expected": 0,
+    "unexpected": 0,
+    "flaky": 1,
+    "skipped": 0
+  }
+}

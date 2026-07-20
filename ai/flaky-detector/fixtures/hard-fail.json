@@ -1,0 +1,54 @@
+{
+  "config": {
+    "projects": [{ "name": "chromium", "retries": 2 }]
+  },
+  "suites": [
+    {
+      "title": "checkout-flow.spec.ts",
+      "file": "tests/smoke/checkout-flow.spec.ts",
+      "specs": [
+        {
+          "title": "P1-M7-04: required field validation",
+          "ok": false,
+          "file": "tests/smoke/checkout-flow.spec.ts",
+          "tests": [
+            {
+              "projectName": "chromium",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "results": [
+                {
+                  "retry": 0,
+                  "status": "failed",
+                  "duration": 800,
+                  "error": { "message": "Timeout 5000ms exceeded." }
+                },
+                {
+                  "retry": 1,
+                  "status": "failed",
+                  "duration": 810,
+                  "error": { "message": "Timeout 5000ms exceeded." }
+                },
+                {
+                  "retry": 2,
+                  "status": "failed",
+                  "duration": 805,
+                  "error": { "message": "Timeout 5000ms exceeded." }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-07-20T10:00:00.000Z",
+    "duration": 4000,
+    "expected": 0,
+    "unexpected": 1,
+    "flaky": 0,
+    "skipped": 0
+  }
+}

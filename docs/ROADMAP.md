@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phases 1–4 complete — ready for future enhancements.
+**Current focus:** Phase 5 — API Testing (P5-M1 next).
 
 ---
 
@@ -46,6 +46,7 @@ After every completed milestone, update:
 | **2** | Playwright Testing Framework | ✅ Completed | POM, fixtures, suites, CI |
 | **3** | AI Test Inspector | ✅ Completed | Failure analyzer CLI + optional LLM |
 | **4** | Reliability & Flaky Detection | ✅ Completed | Checkout flake fix + flaky detection CLI |
+| **5** | API Testing | 🚧 In progress | Static `/api` contract + Playwright request tests |
 
 ---
 
@@ -2033,10 +2034,208 @@ Phase 3 complete
 
 ---
 
+# Phase 5 — API Testing
+
+**Status:** 🚧 In progress — P5-M1 next  
+**Current focus:** Static API contract under `/api` (no real backend)
+
+### Goal
+
+Add portfolio-quality **Playwright API testing** without introducing a database or auth server. Serve read-only JSON contracts from Vite `public/api/`, optionally consume them from the app, and validate them with `APIRequestContext`.
+
+### Why this shape
+
+- Project constraint: **no backend / no database**
+- Today the shop imports `products.json` / `users.json` directly (no `fetch`)
+- Playwright’s `request` fixture still needs HTTP endpoints to exercise API-style assertions
+- Static files under `public/api/` are a realistic “contract layer” SDETs test in many frontends
+
+### Design principles
+
+- Keep API read-only and deterministic (JSON fixtures)
+- Prefer schema/status/header assertions over UI
+- Tag API suite `@api` and run separately from smoke/e2e
+- Do not add external auth providers or a real database
+
+---
+
+## P5-M1 — Static API Contract and Fixtures
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** Phase 1 data files
+
+### Goal
+
+Expose stable HTTP JSON endpoints for products (and related catalog data) via Vite static files.
+
+### User scenarios
+
+1. Engineer opens `/api/products.json` locally and receives the product catalogue JSON.
+2. Invalid API path returns Vite/static 404 (documented expected behaviour).
+
+### Future Playwright / API test cases
+
+| ID | Scenario |
+|---|---|
+| P5-M1-01 | `GET /api/products.json` returns 200 and JSON content-type |
+| P5-M1-02 | Payload includes expected product fields (`slug`, `name`, `price`, …) |
+| P5-M1-03 | Unknown `/api/...` path is not 200 |
+
+### Accessibility requirements
+
+- N/A (HTTP contract; no UI)
+
+### Stable locator strategy
+
+- N/A — use Playwright `request` / URL paths, not DOM locators
+
+### Edge cases
+
+- Empty catalogue file
+- Malformed JSON must fail CI if committed broken
+- Keep secrets out of public API (demo password stays documentation-only or hashed pattern — prefer not exposing credentials via `/api`)
+
+### Implementation scope
+
+- Add `app/public/api/` JSON fixtures derived from existing app data
+- Document endpoints in `docs/TESTING.md`
+- Do not yet require the React app to fetch (optional in P5-M2)
+
+### Acceptance criteria
+
+- [ ] `/api/products.json` served by Vite in local/CI runs
+- [ ] Contract documented
+- [ ] No real backend process added
+
+---
+
+## P5-M2 — App Data Access via `/api` (Optional Client)
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P5-M1
+
+### Goal
+
+Load catalogue (and safe public metadata) through `fetch('/api/...')` so UI and API share one contract.
+
+### User scenarios
+
+1. Products page still renders the same catalogue after switching to fetch-based loading.
+2. Loading/error states are testable if fetch fails (mocked).
+
+### Future Playwright test cases
+
+| ID | Scenario |
+|---|---|
+| P5-M2-01 | Products page lists items when `/api/products.json` succeeds |
+| P5-M2-02 | Route mock failure shows a clear empty/error state (if implemented) |
+
+### Implementation scope
+
+- Thin `app/src/api/` client
+- Prefer products first; keep auth local (Local Storage) — **do not** publish demo passwords via public API
+- Preserve existing smoke/e2e behaviour
+
+### Acceptance criteria
+
+- [ ] Catalogue loads via HTTP in the running app
+- [ ] Existing `@smoke` / `@e2e` suites still pass
+- [ ] Auth remains Local Storage–based (no API login server)
+
+---
+
+## P5-M3 — Playwright API Test Suite
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P5-M1 (P5-M2 optional)
+
+### Goal
+
+Add a dedicated `@api` suite using Playwright `request` (no browser UI required for core checks).
+
+### User scenarios
+
+1. `npm run test:api` validates catalogue contract in CI without driving the UI.
+2. Failures show clear status/body assertion messages.
+
+### Future Playwright test cases
+
+| ID | Scenario |
+|---|---|
+| P5-M3-01 | Products list status 200 + array length ≥ 1 |
+| P5-M3-02 | Each product has required fields and unique slugs |
+| P5-M3-03 | Featured/home subset (if exposed) matches contract rules |
+| P5-M3-04 | 404 for missing API resource |
+
+### Implementation scope
+
+- `tests/api/` specs tagged `@api`
+- npm script `test:api`
+- Optional Playwright project with `request` only (or reuse default project)
+- CI job or matrix entry for API tests
+
+### Acceptance criteria
+
+- [ ] `npm run test:api` documented and green locally
+- [ ] CI runs API tests
+- [ ] Assertions cover status, content-type, and schema basics
+
+---
+
+## P5-M4 — API Docs Polish and Negative Coverage
+
+**Status:** ⏳ Not started  
+**Completed:** —  
+**Dependencies:** P5-M3
+
+### Goal
+
+Polish docs, expand negative/contract edge cases, and mark Phase 5 complete.
+
+### Implementation scope
+
+- README / TESTING API section
+- Roadmap completion summary
+- Extra negatives (invalid JSON handling only if applicable; header checks)
+
+### Acceptance criteria
+
+- [ ] Documented one-command API test flow
+- [ ] Phase 5 milestones marked complete where delivered
+
+---
+
+## Phase 5 — Milestone Dependency Graph
+
+```text
+Phase 4 complete
+ └── P5-M1 Static API Contract and Fixtures
+      ├── P5-M2 App Data Access via /api (optional client)
+      └── P5-M3 Playwright API Test Suite
+           └── P5-M4 API Docs Polish and Negative Coverage
+```
+
+---
+
+## Phase 5 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P5-M1 — Static API Contract and Fixtures | ⏳ Not started | — |
+| P5-M2 — App Data Access via `/api` | ⏳ Not started | — |
+| P5-M3 — Playwright API Test Suite | ⏳ Not started | — |
+| P5-M4 — API Docs Polish and Negative Coverage | ⏳ Not started | — |
+
+---
+
 ## Document History
 
 | Date | Change |
 |---|---|
+| 2026-07-20 | Phase 5 defined — API testing via static `/api` contract + Playwright request suite |
 | 2026-07-20 | P4-M2 completed — flaky test detection CLI; Phase 4 complete |
 | 2026-07-20 | P4-M1 completed — checkout Place order navigates before cart clear |
 | 2026-07-20 | Phase 4 defined — P4-M1 checkout navigation flake, P4-M2 flaky detection |

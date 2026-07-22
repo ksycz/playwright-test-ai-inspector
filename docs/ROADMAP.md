@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 5 — API Testing (P5-M1 next).
+**Current focus:** Phase 5 — API Testing (P5-M2 next).
 
 ---
 
@@ -2036,8 +2036,8 @@ Phase 3 complete
 
 # Phase 5 — API Testing
 
-**Status:** 🚧 In progress — P5-M1 next  
-**Current focus:** Static API contract under `/api` (no real backend)
+**Status:** 🚧 In progress — P5-M1 complete; P5-M2 next  
+**Current focus:** Optional app fetch client for `/api` catalogue
 
 ### Goal
 
@@ -2061,8 +2061,8 @@ Add portfolio-quality **Playwright API testing** without introducing a database 
 
 ## P5-M1 — Static API Contract and Fixtures
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-20  
 **Dependencies:** Phase 1 data files
 
 ### Goal
@@ -2104,9 +2104,22 @@ Expose stable HTTP JSON endpoints for products (and related catalog data) via Vi
 
 ### Acceptance criteria
 
-- [ ] `/api/products.json` served by Vite in local/CI runs
-- [ ] Contract documented
-- [ ] No real backend process added
+- [x] `/api/products.json` served by Vite in local/CI runs
+- [x] Contract documented
+- [x] No real backend process added
+
+### Implementation notes
+
+Summary:
+
+- Added `app/public/api/products.json` and `featured-products.json` (static Vite assets).
+- Documented contract in `app/public/api/README.md` and `docs/TESTING.md`.
+- Auth/users intentionally omitted from public API.
+
+Architectural decisions:
+
+- Static files keep the “no backend” constraint while enabling Playwright `request` testing.
+- Catalogue remains duplicated with `src/data/products.json` until P5-M2 unifies fetch-based access.
 
 ---
 
@@ -2224,7 +2237,7 @@ Phase 4 complete
 
 | Milestone | Status | Completed |
 |---|---|---|
-| P5-M1 — Static API Contract and Fixtures | ⏳ Not started | — |
+| P5-M1 — Static API Contract and Fixtures | ✅ Completed | 2026-07-20 |
 | P5-M2 — App Data Access via `/api` | ⏳ Not started | — |
 | P5-M3 — Playwright API Test Suite | ⏳ Not started | — |
 | P5-M4 — API Docs Polish and Negative Coverage | ⏳ Not started | — |
@@ -2235,6 +2248,7 @@ Phase 4 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-20 | P5-M1 completed — static `/api` product JSON fixtures + Vite 404 middleware |
 | 2026-07-20 | Phase 5 defined — API testing via static `/api` contract + Playwright request suite |
 | 2026-07-20 | P4-M2 completed — flaky test detection CLI; Phase 4 complete |
 | 2026-07-20 | P4-M1 completed — checkout Place order navigates before cart clear |

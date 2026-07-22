@@ -55,9 +55,22 @@ Playwright prints the exact trace path in the terminal when a retry captures one
 4. For interactive debugging during development: `npm run test:ui` or `npm run test:headed`
 5. Check `error-context.md` inside the failing test's `test-results/` folder for a DOM snapshot summary
 
-These artifact paths are stable for future Phase 3 AI Failure Analyzer integration.
+These artifact paths are stable for Phase 3 AI Failure Analyzer integration.
 
 Use `npm run report` to open the latest HTML report.
+
+## Static API contract (Phase 5)
+
+Read-only JSON served from `app/public/api/` by Vite (no backend):
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/products.json` | Full catalogue |
+| `GET /api/featured-products.json` | Featured products only |
+
+- Contract notes: `app/public/api/README.md`
+- Demo auth credentials are **not** exposed under `/api`
+- Playwright API suite lands in P5-M3 (`npm run test:api`)
 
 ## Page Object Model
 

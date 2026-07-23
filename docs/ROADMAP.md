@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 5 — API Testing (P5-M4 next).
+**Current focus:** —
 
 ---
 
@@ -46,7 +46,7 @@ After every completed milestone, update:
 | **2** | Playwright Testing Framework | ✅ Completed | POM, fixtures, suites, CI |
 | **3** | AI Test Inspector | ✅ Completed | Failure analyzer CLI + optional LLM |
 | **4** | Reliability & Flaky Detection | ✅ Completed | Checkout flake fix + flaky detection CLI |
-| **5** | API Testing | 🚧 In progress | Static `/api` contract + Playwright request tests |
+| **5** | API Testing | ✅ Completed | Static `/api` contract + Playwright `@api` suite |
 
 ---
 
@@ -2036,8 +2036,9 @@ Phase 3 complete
 
 # Phase 5 — API Testing
 
-**Status:** 🚧 In progress — P5-M1–M3 complete; P5-M4 next  
-**Current focus:** API docs polish and negative coverage
+**Status:** ✅ Completed  
+**Completed:** 2026-07-23  
+**Current focus:** —
 
 ### Goal
 
@@ -2226,24 +2227,72 @@ Architectural decisions:
 
 ## P5-M4 — API Docs Polish and Negative Coverage
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-23  
 **Dependencies:** P5-M3
 
 ### Goal
 
 Polish docs, expand negative/contract edge cases, and mark Phase 5 complete.
 
+### User scenarios
+
+1. Engineer runs `npm run test:api` from docs and validates the catalogue contract.
+2. Nested missing `/api` paths still return JSON 404 (not SPA HTML).
+3. POST/PUT-style calls to `/api` are rejected as read-only.
+4. Shopper sees a clear error and can retry when catalogue fetch fails.
+
+### Playwright / API test cases
+
+| ID | Scenario |
+|---|---|
+| P5-M4-01 | Nested missing API path returns JSON 404 with path |
+| P5-M4-02 | API 404 body is JSON, not SPA HTML |
+| P5-M4-03 | POST to products API returns JSON 405 |
+| P5-M4-04 | Products page shows alert when catalogue fetch fails |
+| P5-M4-05 | Try again reloads catalogue after a failed fetch |
+
+### Accessibility requirements
+
+- Catalogue error uses `role="alert"` and a clearly named **Try again** button
+- Loading state remains `role="status"`
+
+### Stable locator strategy
+
+- API: Playwright `request` + URL paths / status / headers / JSON body
+- UI: `getByRole('alert')`, `getByRole('button', { name: 'Try again' })`, product `article` by name
+
+### Edge cases
+
+- React StrictMode double-fetch during retry tests (fail until retry is clicked)
+- Vite static middleware previously returned 200 for POST — now JSON 405
+
 ### Implementation scope
 
-- README / TESTING API section
+- README / TESTING API section with one-command flow
 - Roadmap completion summary
-- Extra negatives (invalid JSON handling only if applicable; header checks)
+- Extra negatives (404 HTML guard, nested path, method rejection)
+- Smoke coverage for fetch failure UI
 
 ### Acceptance criteria
 
-- [ ] Documented one-command API test flow
-- [ ] Phase 5 milestones marked complete where delivered
+- [x] Documented one-command API test flow
+- [x] Phase 5 milestones marked complete where delivered
+
+### Implementation notes
+
+Summary:
+
+- Documented `npm run test:api` in `docs/TESTING.md`, `app/public/api/README.md`, and README.
+- Extended `@api` negatives: nested 404, non-HTML body, POST → 405.
+- Vite middleware rejects non-GET/HEAD `/api` with JSON 405 + `Allow`.
+- Added smoke specs for catalogue fetch failure + Try again recovery.
+- Marked Phase 5 complete.
+
+Architectural decisions:
+
+- Treat `/api` as a read-only contract in middleware (not only in docs).
+- Keep fetch-failure coverage in `@smoke` so CI UI matrix exercises `ProductsGate`.
 
 ---
 
@@ -2266,7 +2315,14 @@ Phase 4 complete
 | P5-M1 — Static API Contract and Fixtures | ✅ Completed | 2026-07-20 |
 | P5-M2 — App Data Access via `/api` | ✅ Completed | 2026-07-23 |
 | P5-M3 — Playwright API Test Suite | ✅ Completed | 2026-07-23 |
-| P5-M4 — API Docs Polish and Negative Coverage | ⏳ Not started | — |
+| P5-M4 — API Docs Polish and Negative Coverage | ✅ Completed | 2026-07-23 |
+
+### Phase 5 — Completion Summary
+
+- **P5-M1** — Static `/api` JSON fixtures + JSON 404 middleware
+- **P5-M2** — App loads catalogue via `fetch` (`ProductsProvider`)
+- **P5-M3** — Playwright `@api` suite + CI matrix
+- **P5-M4** — Docs polish, 405/404 negatives, catalogue error UI smoke
 
 ---
 
@@ -2274,6 +2330,7 @@ Phase 4 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-23 | P5-M4 completed — API docs polish, negatives, Phase 5 complete |
 | 2026-07-23 | P5-M2 + P5-M3 completed — app fetch client + Playwright `@api` suite/CI |
 | 2026-07-20 | P5-M1 completed — static `/api` product JSON fixtures + Vite 404 middleware |
 | 2026-07-20 | Phase 5 defined — API testing via static `/api` contract + Playwright request suite |

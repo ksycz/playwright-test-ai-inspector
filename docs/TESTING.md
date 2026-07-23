@@ -69,11 +69,26 @@ Read-only JSON served from `app/public/api/` by Vite (no backend):
 | `GET /api/products.json` | Full catalogue |
 | `GET /api/featured-products.json` | Featured products only |
 
-- Contract notes: `app/public/api/README.md`
-- Demo auth credentials are **not** exposed under `/api`
-- React app loads the catalogue via `fetch('/api/products.json')` (`ProductsProvider`)
-- Playwright API suite: `npm run test:api` (`tests/api/`, tag `@api`) — status, content-type, schema, featured subset, JSON 404 for missing paths
-- CI matrix includes the `api` suite alongside smoke and e2e
+### One-command API tests
+
+```bash
+npm run test:api
+```
+
+Runs Playwright specs tagged `@api` (`tests/api/`). The Playwright `webServer` starts the Vite app so `/api` is reachable; assertions use the `request` fixture (no UI).
+
+Coverage includes:
+
+- Status `200` + `application/json` content-type
+- Required product fields, non-negative prices, unique slugs
+- Featured subset aligned with catalogue `featured: true`
+- Missing `/api/*` paths → JSON `404` (not SPA HTML)
+- Non-GET methods on `/api/*` → JSON `405` with `Allow: GET, HEAD`
+
+Contract notes: `app/public/api/README.md`.  
+Demo auth credentials are **not** exposed under `/api`.  
+The React app loads the catalogue via `fetch('/api/products.json')` (`ProductsProvider`).  
+CI matrix includes the `api` suite alongside smoke and e2e.
 
 ## Page Object Model
 

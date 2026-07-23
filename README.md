@@ -95,9 +95,9 @@ docs/           Project documentation
 
 ✅ Phase 4 complete — P4-M1 checkout flake fix + P4-M2 flaky test detection.
 
-🚧 Phase 5 in progress — P5-M1–M3 complete; P5-M4 (docs polish) next.
+✅ Phase 5 complete — P5-M1 through P5-M4 (static `/api`, app fetch client, `@api` suite, docs/negatives).
 
-**Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 4 api (`@api`) + 3 fixture examples = 72 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
+**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 3 fixture examples = 77 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
 ---
 
@@ -381,7 +381,7 @@ Each milestone includes:
 
 - [x] Flaky test detection
 
-- [x] API testing with Playwright *(Phase 5 — P5-M1–M3; P5-M4 docs polish next)*
+- [x] API testing with Playwright *(Phase 5 — complete)*
 
 - [ ] Visual regression testing
 

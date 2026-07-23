@@ -13,24 +13,38 @@ Base URL locally: `http://localhost:5173` (same as the demo app).
 
 ## Product object fields
 
-- `slug` (string, unique)
-- `name` (string)
+- `slug` (string, unique, non-empty)
+- `name` (string, non-empty)
 - `category` (string)
 - `shortDescription` (string)
 - `fullDescription` (string)
-- `price` (number)
-- `image` (string, public path)
+- `price` (number, ≥ 0)
+- `image` (string, public path starting with `/`)
 - `featured` (boolean, optional)
 
 ## Out of scope
 
 - Authentication / users API (demo auth stays Local Storage; credentials are not published under `/api`)
-- Mutations (POST/PUT/DELETE)
+- Mutations (POST/PUT/DELETE) — non-GET/HEAD methods return **405** JSON (`Method not allowed`)
 - Database or external services
 
-## Missing paths
+## Error responses
 
-Unknown `/api/...` URLs return **404** with a small JSON body (`{ "error": "Not found", "path": "..." }`), not the React SPA HTML. This is enforced by a Vite middleware in `app/vite.config.ts`.
+| Status | When | Body shape |
+|---|---|---|
+| `404` | Unknown `/api/...` path | `{ "error": "Not found", "path": "..." }` |
+| `405` | Non-GET/HEAD method on `/api/...` | `{ "error": "Method not allowed", "path": "...", "method": "..." }` (`Allow: GET, HEAD`) |
+
+Missing paths return JSON, not the React SPA HTML. Enforced by Vite middleware in `app/vite.config.ts`.
+
+## How to validate
+
+```bash
+# From repository root (starts Vite via Playwright webServer)
+npm run test:api
+```
+
+See also `docs/TESTING.md` → Static API contract.
 
 ## Keeping data in sync
 

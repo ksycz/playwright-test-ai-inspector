@@ -34,5 +34,6 @@ Unknown `/api/...` URLs return **404** with a small JSON body (`{ "error": "Not 
 
 ## Keeping data in sync
 
-Until Phase 5-M2 unifies the app client, catalogue JSON also lives in `app/src/data/products.json`.  
-When editing products, update **both** files (or regenerate `public/api/*.json` from `src/data/products.json`).
+The HTTP contract under `public/api/` is the source of truth for catalogue API tests.  
+The React app loads products via `fetch('/api/products.json')` (`ProductsProvider`).  
+`app/src/data/products.json` remains available as a seed/reference copy — keep it aligned when editing catalogue data.

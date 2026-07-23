@@ -15,6 +15,7 @@
     "test": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test",
     "test:smoke": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --grep @smoke",
     "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --grep @e2e --pass-with-no-tests",
+    "test:api": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --grep @api",
     "test:ui": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --ui",
     "test:headed": "PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers playwright test --headed",
     "test:ai": "node --experimental-strip-types --test ai/**/*.test.mts",

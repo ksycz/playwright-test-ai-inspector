@@ -95,9 +95,9 @@ docs/           Project documentation
 
 ✅ Phase 4 complete — P4-M1 checkout flake fix + P4-M2 flaky test detection.
 
-🚧 Phase 5 in progress — P5-M1 complete; P5-M2 (app fetch client) next.
+🚧 Phase 5 in progress — P5-M1–M3 complete; P5-M4 (docs polish) next.
 
-**Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 3 fixture examples = 68 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
+**Test suites:** 59 smoke (`@smoke`) + 6 e2e (`@e2e`) + 4 api (`@api`) + 3 fixture examples = 72 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
 ---
 
@@ -155,6 +155,7 @@ nvm use
 npm test
 npm run test:smoke
 npm run test:e2e
+npm run test:api
 npm run test:ui
 npm run test:headed
 npm run report
@@ -179,7 +180,7 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Workflow:** `.github/workflows/playwright.yml`
 - **Node:** 22 (from `.nvmrc`)
 - **Browsers:** project-local Chromium in `.playwright-browsers/`
-- **Suites:** `test:smoke` and `test:e2e` run in parallel matrix jobs
+- **Suites:** `test:smoke`, `test:e2e`, and `test:api` run in parallel matrix jobs
 - **On failure:** `playwright-report/` and `test-results/` are uploaded as downloadable artifacts
 
 Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
@@ -380,7 +381,7 @@ Each milestone includes:
 
 - [x] Flaky test detection
 
-- [ ] API testing with Playwright *(Phase 5 — in progress)*
+- [x] API testing with Playwright *(Phase 5 — P5-M1–M3; P5-M4 docs polish next)*
 
 - [ ] Visual regression testing
 

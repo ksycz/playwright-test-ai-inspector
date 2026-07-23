@@ -5,6 +5,7 @@ This document captures the baseline Playwright framework structure introduced in
 ## Folder structure
 
 - `tests/smoke/` - current smoke regression suite from Phase 1
+- `tests/api/` - Playwright `request` contract suite (`@api`, Phase 5)
 - `tests/pages/` - Page Object Model classes (Phase 2+)
 - `tests/fixtures/` - reusable fixture composition (Phase 2+)
 - `tests/data/` - centralized test data and constants (Phase 2+)
@@ -49,7 +50,7 @@ Playwright prints the exact trace path in the terminal when a retry captures one
 
 ### Debugging workflow
 
-1. Run the suite: `npm test`, `npm run test:smoke`, or `npm run test:e2e`
+1. Run the suite: `npm test`, `npm run test:smoke`, `npm run test:e2e`, or `npm run test:api`
 2. On failure, inspect the HTML report: `npm run report`
 3. For step-by-step replay, open the trace zip from `test-results/`: `npm run trace -- <path-to-trace.zip>`
 4. For interactive debugging during development: `npm run test:ui` or `npm run test:headed`
@@ -70,7 +71,9 @@ Read-only JSON served from `app/public/api/` by Vite (no backend):
 
 - Contract notes: `app/public/api/README.md`
 - Demo auth credentials are **not** exposed under `/api`
-- Playwright API suite lands in P5-M3 (`npm run test:api`)
+- React app loads the catalogue via `fetch('/api/products.json')` (`ProductsProvider`)
+- Playwright API suite: `npm run test:api` (`tests/api/`, tag `@api`) — status, content-type, schema, featured subset, JSON 404 for missing paths
+- CI matrix includes the `api` suite alongside smoke and e2e
 
 ## Page Object Model
 

@@ -1,16 +1,18 @@
 import { useSearchParams } from 'react-router-dom';
+import ProductsGate from '@/components/ProductsGate';
 import ProductGrid from '@/components/ProductGrid';
 import { useCart } from '@/context/CartContext';
-import { getFeaturedProducts } from '@/utils/products';
+import { useProducts } from '@/context/ProductsContext';
 
 export default function HomePage() {
   const { addItem } = useCart();
+  const { getFeaturedProducts } = useProducts();
   const [searchParams] = useSearchParams();
   const forceEmptyFeatured = searchParams.get('featured') === 'none';
   const featuredProducts = forceEmptyFeatured ? [] : getFeaturedProducts();
 
   return (
-    <>
+    <ProductsGate heading="Welcome to Demo Shop">
       <section className="hero-panel">
         <h1 className="page-heading">Welcome to Demo Shop</h1>
         <p className="page-intro max-w-2xl">
@@ -32,6 +34,6 @@ export default function HomePage() {
           </div>
         )}
       </section>
-    </>
+    </ProductsGate>
   );
 }

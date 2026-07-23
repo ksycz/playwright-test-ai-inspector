@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 5 — API Testing (P5-M2 next).
+**Current focus:** Phase 5 — API Testing (P5-M4 next).
 
 ---
 
@@ -2036,18 +2036,18 @@ Phase 3 complete
 
 # Phase 5 — API Testing
 
-**Status:** 🚧 In progress — P5-M1 complete; P5-M2 next  
-**Current focus:** Optional app fetch client for `/api` catalogue
+**Status:** 🚧 In progress — P5-M1–M3 complete; P5-M4 next  
+**Current focus:** API docs polish and negative coverage
 
 ### Goal
 
-Add portfolio-quality **Playwright API testing** without introducing a database or auth server. Serve read-only JSON contracts from Vite `public/api/`, optionally consume them from the app, and validate them with `APIRequestContext`.
+Add portfolio-quality **Playwright API testing** without introducing a database or auth server. Serve read-only JSON contracts from Vite `public/api/`, consume them from the app, and validate them with `APIRequestContext`.
 
 ### Why this shape
 
 - Project constraint: **no backend / no database**
-- Today the shop imports `products.json` / `users.json` directly (no `fetch`)
-- Playwright’s `request` fixture still needs HTTP endpoints to exercise API-style assertions
+- Catalogue is served over HTTP (`/api/*.json`) and loaded by the React app via `fetch`
+- Playwright’s `request` fixture exercises the same contract without driving the UI
 - Static files under `public/api/` are a realistic “contract layer” SDETs test in many frontends
 
 ### Design principles
@@ -2119,14 +2119,14 @@ Summary:
 Architectural decisions:
 
 - Static files keep the “no backend” constraint while enabling Playwright `request` testing.
-- Catalogue remains duplicated with `src/data/products.json` until P5-M2 unifies fetch-based access.
+- Catalogue seed remains in `src/data/products.json` for tests/reference; runtime source of truth is `public/api/`.
 
 ---
 
 ## P5-M2 — App Data Access via `/api` (Optional Client)
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-23  
 **Dependencies:** P5-M1
 
 ### Goal
@@ -2153,16 +2153,30 @@ Load catalogue (and safe public metadata) through `fetch('/api/...')` so UI and 
 
 ### Acceptance criteria
 
-- [ ] Catalogue loads via HTTP in the running app
-- [ ] Existing `@smoke` / `@e2e` suites still pass
-- [ ] Auth remains Local Storage–based (no API login server)
+- [x] Catalogue loads via HTTP in the running app
+- [x] Existing `@smoke` / `@e2e` suites still pass
+- [x] Auth remains Local Storage–based (no API login server)
+
+### Implementation notes
+
+Summary:
+
+- Added `app/src/api/productsApi.ts` with shape validation for catalogue responses.
+- `ProductsProvider` + `ProductsGate` load `/api/products.json`, expose loading (`role="status"`) and error (`role="alert"` + Try again).
+- Home, products, and product detail pages consume context instead of sync JSON imports.
+- Auth stays Local Storage–only; no users endpoint under `/api`.
+
+Architectural decisions:
+
+- One HTTP contract for UI and `@api` tests.
+- Featured products derived from catalogue `featured` flags (query `?featured=none` still forces empty featured UI for smoke).
 
 ---
 
 ## P5-M3 — Playwright API Test Suite
 
-**Status:** ⏳ Not started  
-**Completed:** —  
+**Status:** ✅ Completed  
+**Completed:** 2026-07-23  
 **Dependencies:** P5-M1 (P5-M2 optional)
 
 ### Goal
@@ -2192,9 +2206,21 @@ Add a dedicated `@api` suite using Playwright `request` (no browser UI required 
 
 ### Acceptance criteria
 
-- [ ] `npm run test:api` documented and green locally
-- [ ] CI runs API tests
-- [ ] Assertions cover status, content-type, and schema basics
+- [x] `npm run test:api` documented and green locally
+- [x] CI runs API tests
+- [x] Assertions cover status, content-type, and schema basics
+
+### Implementation notes
+
+Summary:
+
+- Added `tests/api/products-api.spec.ts` (`@api`) covering status, content-type, schema, featured subset, and JSON 404.
+- `npm run test:api` and CI matrix suite `api` alongside smoke/e2e.
+
+Architectural decisions:
+
+- Reuse default Playwright project + `request` fixture (webServer still starts Vite so `/api` is reachable).
+- Keep API suite tag-filtered so UI suites stay focused.
 
 ---
 
@@ -2238,8 +2264,8 @@ Phase 4 complete
 | Milestone | Status | Completed |
 |---|---|---|
 | P5-M1 — Static API Contract and Fixtures | ✅ Completed | 2026-07-20 |
-| P5-M2 — App Data Access via `/api` | ⏳ Not started | — |
-| P5-M3 — Playwright API Test Suite | ⏳ Not started | — |
+| P5-M2 — App Data Access via `/api` | ✅ Completed | 2026-07-23 |
+| P5-M3 — Playwright API Test Suite | ✅ Completed | 2026-07-23 |
 | P5-M4 — API Docs Polish and Negative Coverage | ⏳ Not started | — |
 
 ---
@@ -2248,6 +2274,7 @@ Phase 4 complete
 
 | Date | Change |
 |---|---|
+| 2026-07-23 | P5-M2 + P5-M3 completed — app fetch client + Playwright `@api` suite/CI |
 | 2026-07-20 | P5-M1 completed — static `/api` product JSON fixtures + Vite 404 middleware |
 | 2026-07-20 | Phase 5 defined — API testing via static `/api` contract + Playwright request suite |
 | 2026-07-20 | P4-M2 completed — flaky test detection CLI; Phase 4 complete |

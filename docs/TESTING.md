@@ -6,6 +6,7 @@ This document captures the baseline Playwright framework structure introduced in
 
 - `tests/smoke/` - current smoke regression suite from Phase 1
 - `tests/api/` - Playwright `request` contract suite (`@api`, Phase 5)
+- `tests/visual/` - screenshot baselines suite (`@visual`, Phase 6)
 - `tests/pages/` - Page Object Model classes (Phase 2+)
 - `tests/fixtures/` - reusable fixture composition (Phase 2+)
 - `tests/data/` - centralized test data and constants (Phase 2+)
@@ -50,7 +51,7 @@ Playwright prints the exact trace path in the terminal when a retry captures one
 
 ### Debugging workflow
 
-1. Run the suite: `npm test`, `npm run test:smoke`, `npm run test:e2e`, or `npm run test:api`
+1. Run the suite: `npm test`, `npm run test:smoke`, `npm run test:e2e`, `npm run test:api`, or `npm run test:visual`
 2. On failure, inspect the HTML report: `npm run report`
 3. For step-by-step replay, open the trace zip from `test-results/`: `npm run trace -- <path-to-trace.zip>`
 4. For interactive debugging during development: `npm run test:ui` or `npm run test:headed`
@@ -59,6 +60,42 @@ Playwright prints the exact trace path in the terminal when a retry captures one
 These artifact paths are stable for Phase 3 AI Failure Analyzer integration.
 
 Use `npm run report` to open the latest HTML report.
+
+## Visual regression (Phase 6)
+
+Native Playwright screenshot assertions (`toHaveScreenshot`) — no external visual service.
+
+### One-command visual tests
+
+```bash
+npm run test:visual
+```
+
+Runs specs tagged `@visual` (`tests/visual/`). Fixed viewport `1280x720`, animations disabled, modest `maxDiffPixelRatio` for font AA drift.
+
+Baselines live next to the spec:
+
+`tests/visual/pages.spec.ts-snapshots/*.png`
+
+### Updating baselines
+
+Only after an intentional UI change:
+
+```bash
+npm run test:visual -- --update-snapshots
+```
+
+Review the PNG diffs in git before committing.
+
+**CI note:** Baselines are shared across OS (path omits platform). Prefer regenerating inside the Playwright Docker image that matches CI if Darwin vs Linux antialiasing causes noise:
+
+```bash
+docker run --rm -it -v "$PWD":/work -w /work -e CI=true \
+  mcr.microsoft.com/playwright:v1.57.0-jammy \
+  /bin/bash -c "npm ci && npm install --prefix app && npx playwright test --grep @visual --update-snapshots"
+```
+
+Coverage: home, products, product detail, login, empty cart, cart with item, checkout form.
 
 ## Static API contract (Phase 5)
 
@@ -88,7 +125,7 @@ Coverage includes:
 Contract notes: `app/public/api/README.md`.  
 Demo auth credentials are **not** exposed under `/api`.  
 The React app loads the catalogue via `fetch('/api/products.json')` (`ProductsProvider`).  
-CI matrix includes the `api` suite alongside smoke and e2e.
+CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 
 ## Page Object Model
 
@@ -126,6 +163,8 @@ CI matrix includes the `api` suite alongside smoke and e2e.
 - `npm test` - full Playwright suite
 - `npm run test:smoke` - tests tagged with `@smoke`
 - `npm run test:e2e` - tests tagged with `@e2e`
+- `npm run test:api` - tests tagged with `@api`
+- `npm run test:visual` - screenshot baselines tagged with `@visual`
 - `npm run report` - open HTML report from `playwright-report/`
 - `npm run trace` - open a trace zip (`npm run trace -- <path>`)
 - `npm run analyze:failure -- <folder>` - collect Playwright failure artifacts into JSON

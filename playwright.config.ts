@@ -9,6 +9,11 @@ import { defineConfig, devices } from '@playwright/test';
  * Trace strategy: on-first-retry (captures traces when CI retries a flaky/failed test).
  * Screenshot/video: only retained on failure to keep local runs lightweight.
  * Flaky analysis: npm run analyze:flaky (reads test-results/playwright-results.json)
+ *
+ * Visual regression (Phase 6):
+ * - Tagged @visual suite via `npm run test:visual`
+ * - Baselines committed next to specs (*-snapshots/)
+ * - Animations disabled; modest maxDiffPixelRatio for CI vs local font AA
  */
 export default defineConfig({
   testDir: './tests',
@@ -22,6 +27,16 @@ export default defineConfig({
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ['json', { outputFile: 'test-results/playwright-results.json' }],
   ],
+  // One baseline set per project (omit OS platform from path).
+  snapshotPathTemplate:
+    '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}',
+  expect: {
+    toHaveScreenshot: {
+      animations: 'disabled',
+      caret: 'hide',
+      maxDiffPixelRatio: 0.05,
+    },
+  },
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',

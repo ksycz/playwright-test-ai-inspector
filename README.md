@@ -97,7 +97,9 @@ docs/           Project documentation
 
 ✅ Phase 5 complete — P5-M1 through P5-M4 (static `/api`, app fetch client, `@api` suite, docs/negatives).
 
-**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 3 fixture examples = 77 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
+✅ Phase 6 complete — P6-M1 through P6-M3 (Playwright `@visual` screenshot baselines + CI).
+
+**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 7 visual (`@visual`) + 3 fixture examples = 84 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
 
 ---
 
@@ -156,6 +158,7 @@ npm test
 npm run test:smoke
 npm run test:e2e
 npm run test:api
+npm run test:visual
 npm run test:ui
 npm run test:headed
 npm run report
@@ -180,7 +183,7 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Workflow:** `.github/workflows/playwright.yml`
 - **Node:** 22 (from `.nvmrc`)
 - **Browsers:** project-local Chromium in `.playwright-browsers/`
-- **Suites:** `test:smoke`, `test:e2e`, and `test:api` run in parallel matrix jobs
+- **Suites:** `test:smoke`, `test:e2e`, `test:api`, and `test:visual` run in parallel matrix jobs
 - **On failure:** `playwright-report/` and `test-results/` are uploaded as downloadable artifacts
 
 Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
@@ -383,7 +386,7 @@ Each milestone includes:
 
 - [x] API testing with Playwright *(Phase 5 — complete)*
 
-- [ ] Visual regression testing
+- [x] Visual regression testing *(Phase 6 — complete)*
 
 - [ ] AI-generated Pull Request summaries
 

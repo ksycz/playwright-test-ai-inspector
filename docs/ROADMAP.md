@@ -47,6 +47,7 @@ After every completed milestone, update:
 | **3** | AI Test Inspector | ✅ Completed | Failure analyzer CLI + optional LLM |
 | **4** | Reliability & Flaky Detection | ✅ Completed | Checkout flake fix + flaky detection CLI |
 | **5** | API Testing | ✅ Completed | Static `/api` contract + Playwright `@api` suite |
+| **6** | Visual Regression | ✅ Completed | Playwright `toHaveScreenshot` + `@visual` suite |
 
 ---
 
@@ -2326,10 +2327,158 @@ Phase 4 complete
 
 ---
 
+# Phase 6 — Visual Regression
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-08  
+**Current focus:** —
+
+### Goal
+
+Add portfolio-quality **visual regression** using Playwright’s built-in screenshot assertions (no external visual SaaS).
+
+### Design principles
+
+- Native `toHaveScreenshot` only (no Percy/Argos/Chromatic)
+- Tag suite `@visual` and run separately from smoke/e2e/api
+- Commit baselines to git for deterministic CI
+- Chromium desktop only (`1280x720`) to limit baseline sprawl
+- Disable animations; wait for catalogue-ready UI before capture
+- Skip dynamic order-confirmation pages (or mask later)
+
+---
+
+## P6-M1 — Visual harness + first baselines
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-08  
+**Dependencies:** Phase 5
+
+### Goal
+
+Wire visual config, scripts, docs, and first home/products baselines.
+
+### User scenarios
+
+1. Engineer runs `npm run test:visual` and compares against committed baselines.
+2. Home and products pages are captured after catalogue content is visible.
+
+### Playwright test cases
+
+| ID | Scenario |
+|---|---|
+| P6-M1-01 | Home page full-page snapshot matches baseline |
+| P6-M1-02 | Products catalogue snapshot matches baseline |
+
+### Accessibility / locators
+
+- Navigate/wait with POM + `getByRole`; screenshot is the assertion
+
+### Edge cases
+
+- Loading flash before `/api/products.json` resolves
+- Animation/hover noise
+
+### Acceptance criteria
+
+- [x] `tests/visual/` + `test:visual`
+- [x] Screenshot config (`animations: 'disabled'`, diff tolerance)
+- [x] Documented update workflow
+
+### Implementation notes
+
+- `expect.toHaveScreenshot` defaults in `playwright.config.ts`
+- Fixed viewport via `test.use` in visual specs
+- Snapshot path omits OS platform segment so one baseline set is shared; diffs tuned with `maxDiffPixelRatio`
+
+---
+
+## P6-M2 — Core marketing/auth surfaces
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-08  
+**Dependencies:** P6-M1
+
+### Goal
+
+Cover product detail, login, and empty cart.
+
+### Playwright test cases
+
+| ID | Scenario |
+|---|---|
+| P6-M2-01 | Product detail (sample slug) snapshot |
+| P6-M2-02 | Login page snapshot |
+| P6-M2-03 | Empty cart snapshot |
+
+### Acceptance criteria
+
+- [x] Three additional `@visual` snapshots using existing POM/data
+
+---
+
+## P6-M3 — Stateful flows + CI
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-08  
+**Dependencies:** P6-M2
+
+### Goal
+
+Cart-with-item and checkout snapshots; CI matrix; Phase 6 complete.
+
+### Playwright test cases
+
+| ID | Scenario |
+|---|---|
+| P6-M3-01 | Cart with sample product snapshot |
+| P6-M3-02 | Checkout form (logged in, cart seeded) snapshot |
+
+### Acceptance criteria
+
+- [x] Stateful visual specs
+- [x] CI `visual` matrix entry
+- [x] README / roadmap Phase 6 complete
+
+### Implementation notes
+
+- Reuse `loginViaUi` + `addSampleProductToCart` helpers
+- Baselines generated for Chromium; update with `npm run test:visual -- --update-snapshots` when UI intentionally changes
+
+---
+
+## Phase 6 — Milestone Dependency Graph
+
+```text
+Phase 5 complete
+ └── P6-M1 Visual harness + first baselines
+      └── P6-M2 Core marketing/auth surfaces
+           └── P6-M3 Stateful flows + CI
+```
+
+---
+
+## Phase 6 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P6-M1 — Visual harness + first baselines | ✅ Completed | 2026-08-08 |
+| P6-M2 — Core marketing/auth surfaces | ✅ Completed | 2026-08-08 |
+| P6-M3 — Stateful flows + CI | ✅ Completed | 2026-08-08 |
+
+### Phase 6 — Completion Summary
+
+- **P6-M1** — `@visual` harness, home/products baselines, docs
+- **P6-M2** — Detail, login, empty cart snapshots
+- **P6-M3** — Cart/checkout snapshots + CI matrix
+
+---
+
 ## Document History
 
 | Date | Change |
 |---|---|
+| 2026-08-08 | Phase 6 completed — Playwright visual regression (`@visual`) |
 | 2026-07-23 | P5-M4 completed — API docs polish, negatives, Phase 5 complete |
 | 2026-07-23 | P5-M2 + P5-M3 completed — app fetch client + Playwright `@api` suite/CI |
 | 2026-07-20 | P5-M1 completed — static `/api` product JSON fixtures + Vite 404 middleware |

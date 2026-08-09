@@ -170,7 +170,9 @@ CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 - `npm run analyze:failure -- <folder>` - collect Playwright failure artifacts into JSON
 - `npm run analyze:report -- <folder>` - write Markdown and/or HTML investigation reports (`--format md|html|both`, default `ai-reports/`)
 - `npm run analyze:flaky -- [results.json]` - flag flaky vs hard-fail tests from Playwright JSON report
-- `npm run test:ai` - unit tests for AI modules (failure analyzer + flaky detector)
+- `npm run analyze:trends -- --record [results.json]` - append suite summary to JSONL history
+- `npm run analyze:trends -- [--history <file>]` - Markdown failure trend report
+- `npm run test:ai` - unit tests for AI modules (failure analyzer, flaky detector, failure trends)
 
 ## Continuous Integration
 
@@ -189,9 +191,10 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 2. Unzip and locate the failed test folder (contains `error-context.md`, screenshots, etc.)
 3. Run: `npm run analyze:report -- <folder> --format both`
 4. Optionally run: `npm run analyze:flaky -- <unzipped>/playwright-results.json`
-5. Open `ai-reports/<folder>.html` locally
+5. Optionally record + report trends: `npm run analyze:trends -- --record <unzipped>/playwright-results.json` then `npm run analyze:trends`
+6. Open `ai-reports/<folder>.html` locally
 
-Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md), [`ai/flaky-detector/README.md`](../ai/flaky-detector/README.md). Sample report: [`docs/samples/failure-investigation-report.md`](./samples/failure-investigation-report.md).
+Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md), [`ai/flaky-detector/README.md`](../ai/flaky-detector/README.md), [`ai/failure-trends/README.md`](../ai/failure-trends/README.md). Sample report: [`docs/samples/failure-investigation-report.md`](./samples/failure-investigation-report.md).
 
 ## AI Failure Analyzer
 
@@ -208,6 +211,14 @@ Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md), [`
 - Code lives in `ai/flaky-detector/`
 - Reads Playwright JSON (`status: flaky | unexpected | expected | skipped`)
 - `npm run analyze:flaky` defaults to `test-results/playwright-results.json`
+
+## Historical Failure Trends
+
+- Code lives in `ai/failure-trends/`
+- Appends run summaries to `ai-reports/history/runs.jsonl` (`--record`)
+- Report mode aggregates top failing tests, flaky hotspots, and category totals
+- Demo: `npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl`
+- Details: [`ai/failure-trends/README.md`](../ai/failure-trends/README.md)
 
 ## Naming
 

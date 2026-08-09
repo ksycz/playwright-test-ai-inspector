@@ -23,6 +23,7 @@
     "analyze:failure": "node --experimental-strip-types ai/failure-analyzer/cli.mts",
     "analyze:report": "node --experimental-strip-types ai/failure-analyzer/report-cli.mts",
     "analyze:flaky": "node --experimental-strip-types ai/flaky-detector/cli.mts",
+    "analyze:trends": "node --experimental-strip-types ai/failure-trends/cli.mts",
     "report": "playwright show-report playwright-report",
     "trace": "playwright show-trace"
   },

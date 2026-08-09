@@ -48,6 +48,7 @@ After every completed milestone, update:
 | **4** | Reliability & Flaky Detection | ✅ Completed | Checkout flake fix + flaky detection CLI |
 | **5** | API Testing | ✅ Completed | Static `/api` contract + Playwright `@api` suite |
 | **6** | Visual Regression | ✅ Completed | Playwright `toHaveScreenshot` + `@visual` suite |
+| **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
 
 ---
 
@@ -2474,10 +2475,130 @@ Phase 5 complete
 
 ---
 
+# Phase 7 — Historical Failure Trends
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-09  
+**Current focus:** —
+
+### Goal
+
+Track suite outcomes over time with an offline JSONL history and Markdown trend reports (top failing tests, flaky hotspots, category totals).
+
+### Design principles
+
+- No database / no GitHub API dependency
+- Append-only JSONL under gitignored `ai-reports/history/`
+- Reuse flaky-detector Playwright JSON parsing
+- Light category tagging via existing failure-analyzer heuristics
+- Committed fixtures so demos work without a long local history
+
+---
+
+## P7-M1 — History store + record CLI
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-09  
+**Dependencies:** Phase 4 (flaky detector)
+
+### Goal
+
+Append one run snapshot per Playwright JSON report to JSONL history.
+
+### User scenarios
+
+1. Engineer records a suite after Playwright writes `playwright-results.json`.
+2. Multiple records append without corrupting prior lines.
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P7-M1-01 | Record builds valid JSONL from fixture Playwright JSON |
+| P7-M1-02 | Second record appends a new line |
+
+### Acceptance criteria
+
+- [x] `recordRunFromReport` / `npm run analyze:trends -- --record`
+- [x] Default history `ai-reports/history/runs.jsonl`
+- [x] Unit tests green
+
+---
+
+## P7-M2 — Trend report
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-09  
+**Dependencies:** P7-M1
+
+### Goal
+
+Aggregate history into a Markdown trend report.
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P7-M2-01 | Report ranks recurring unexpected tests |
+| P7-M2-02 | Report shows flaky hotspots / category totals |
+| P7-M2-03 | Empty history → clear empty report |
+
+### Acceptance criteria
+
+- [x] `npm run analyze:trends` writes `ai-reports/trends.md`
+- [x] Fixture demo history committed
+
+---
+
+## P7-M3 — Docs + polish
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-09  
+**Dependencies:** P7-M2
+
+### Goal
+
+Document the module and mark Phase 7 complete.
+
+### Acceptance criteria
+
+- [x] Module README + root README / roadmap updates
+- [x] Future Enhancements checklist updated
+
+---
+
+## Phase 7 — Milestone Dependency Graph
+
+```text
+Phase 4 flaky detector
+ └── P7-M1 History store + record CLI
+      └── P7-M2 Trend report
+           └── P7-M3 Docs + polish
+```
+
+---
+
+## Phase 7 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P7-M1 — History store + record CLI | ✅ Completed | 2026-08-09 |
+| P7-M2 — Trend report | ✅ Completed | 2026-08-09 |
+| P7-M3 — Docs + polish | ✅ Completed | 2026-08-09 |
+
+### Phase 7 — Completion Summary
+
+- **P7-M1** — JSONL append from Playwright JSON (`analyze:trends --record`)
+- **P7-M2** — Markdown trends (top fails, flaky hotspots, categories)
+- **P7-M3** — Docs and Phase 7 marked complete
+
+---
+
 ## Document History
 
 | Date | Change |
 |---|---|
+| 2026-08-09 | Phase 7 completed — historical failure trends CLI (JSONL + Markdown) |
 | 2026-08-08 | Phase 6 completed — Playwright visual regression (`@visual`) |
 | 2026-07-23 | P5-M4 completed — API docs polish, negatives, Phase 5 complete |
 | 2026-07-23 | P5-M2 + P5-M3 completed — app fetch client + Playwright `@api` suite/CI |

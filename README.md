@@ -99,7 +99,9 @@ docs/           Project documentation
 
 ✅ Phase 6 complete — P6-M1 through P6-M3 (Playwright `@visual` screenshot baselines + CI).
 
-**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 7 visual (`@visual`) + 3 fixture examples = 84 Playwright tests; plus `npm run test:ai` for analyzer unit tests.
+✅ Phase 7 complete — P7-M1 through P7-M3 (JSONL run history + Markdown failure trend reports).
+
+**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 7 visual (`@visual`) + 3 fixture examples = 84 Playwright tests; plus `npm run test:ai` for analyzer / flaky / trends unit tests.
 
 ---
 
@@ -255,12 +257,24 @@ npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
 Distinguishes **flaky** (failed then passed on retry) from **hard failures** (failed all attempts).  
 Module docs: [`ai/flaky-detector/README.md`](ai/flaky-detector/README.md).
 
+### Historical Failure Trends
+
+Append suite summaries to JSONL history, then render a Markdown trend report:
+
+```bash
+npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
+npm run analyze:trends -- --record
+npm run analyze:trends
+```
+
+Shows top failing tests, flaky hotspots, and light failure-category totals over time.  
+Module docs: [`ai/failure-trends/README.md`](ai/failure-trends/README.md).
+
 ### Future AI Modules
 
 - AI Test Execution Summary
 - Locator Change Suggestions
 - Pull Request Test Summaries
-- Historical Failure Trends
 - Visual Regression Insights
 
 ---
@@ -388,9 +402,9 @@ Each milestone includes:
 
 - [x] Visual regression testing *(Phase 6 — complete)*
 
-- [ ] AI-generated Pull Request summaries
+- [x] Historical failure trend analysis *(Phase 7 — complete)*
 
-- [ ] Historical failure trend analysis
+- [ ] AI-generated Pull Request summaries
 
 ---
 

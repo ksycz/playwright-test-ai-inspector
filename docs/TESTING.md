@@ -71,7 +71,7 @@ Native Playwright screenshot assertions (`toHaveScreenshot`) — no external vis
 npm run test:visual
 ```
 
-Runs specs tagged `@visual` (`tests/visual/`). Fixed viewport `1280x720`, animations disabled, modest `maxDiffPixelRatio` for font AA drift.
+Runs specs tagged `@visual` (`tests/visual/`). Fixed viewport `1280x720` (viewport shots, not full-page — avoids OS page-height drift), animations disabled, `maxDiffPixelRatio: 0.1` for font AA.
 
 Baselines live next to the spec:
 

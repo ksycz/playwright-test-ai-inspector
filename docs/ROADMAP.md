@@ -49,6 +49,7 @@ After every completed milestone, update:
 | **5** | API Testing | ✅ Completed | Static `/api` contract + Playwright `@api` suite |
 | **6** | Visual Regression | ✅ Completed | Playwright `toHaveScreenshot` + `@visual` suite |
 | **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
+| **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
 
 ---
 
@@ -2594,10 +2595,79 @@ Phase 4 flaky detector
 
 ---
 
+# Phase 8 — AI Run / PR Summaries
+
+**Status:** ✅ Completed  
+**Completed:** 2026-08-10  
+**Current focus:** —
+
+### Goal
+
+Produce interview-friendly **Markdown run summaries** for failing/passing `@smoke` / `@e2e` / `@api` / `@visual` suites, reusable locally and as sticky PR comments. Reuse flaky detector + failure classifier (no LLM required).
+
+### Design principles
+
+- Offline-first CLI (`npm run analyze:summary`)
+- Multi-suite input via `--suite <name> <json>`
+- Compact Markdown suitable for GitHub PR comments
+- CI uploads JSON always; PR job posts/updates one sticky comment
+
+### User scenarios
+
+1. Engineer summarizes one or more local Playwright JSON reports into Markdown.
+2. On a PR, CI posts a single updated summary comment after matrix jobs finish.
+3. Hard failures include classifier categories (timeout/assertion/…).
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P8-M1-01 | Hard-fail suite summary includes classifier category |
+| P8-M1-02 | Multi-suite merge surfaces flaky overall status |
+| P8-M1-03 | All-pass suite → overall `passed` |
+| P8-M1-04 | Empty input → empty overall status |
+
+### Acceptance criteria
+
+- [x] `ai/run-summary/` module + unit tests
+- [x] `npm run analyze:summary`
+- [x] CI JSON artifacts + PR summary comment job
+- [x] Docs / README checklist
+
+---
+
+## Phase 8 — Milestone Dependency Graph
+
+```text
+Phase 3 classifier + Phase 4 flaky detector
+ └── P8-M1 Run summary Markdown CLI
+      └── P8-M2 CI PR comment integration
+           └── P8-M3 Docs polish
+```
+
+---
+
+## Phase 8 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P8-M1 — Run summary Markdown CLI | ✅ Completed | 2026-08-10 |
+| P8-M2 — CI PR comment integration | ✅ Completed | 2026-08-10 |
+| P8-M3 — Docs polish | ✅ Completed | 2026-08-10 |
+
+### Phase 8 — Completion Summary
+
+- **P8-M1** — `analyze:summary` multi-suite Markdown builder
+- **P8-M2** — Always-upload JSON artifacts + sticky PR comment job
+- **P8-M3** — Module README + roadmap/README updates
+
+---
+
 ## Document History
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | Phase 8 completed — AI run/PR summary CLI + sticky PR comments |
 | 2026-08-09 | Phase 7 completed — historical failure trends CLI (JSONL + Markdown) |
 | 2026-08-08 | Phase 6 completed — Playwright visual regression (`@visual`) |
 | 2026-07-23 | P5-M4 completed — API docs polish, negatives, Phase 5 complete |

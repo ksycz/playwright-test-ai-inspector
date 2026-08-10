@@ -172,7 +172,8 @@ CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 - `npm run analyze:flaky -- [results.json]` - flag flaky vs hard-fail tests from Playwright JSON report
 - `npm run analyze:trends -- --record [results.json]` - append suite summary to JSONL history
 - `npm run analyze:trends -- [--history <file>]` - Markdown failure trend report
-- `npm run test:ai` - unit tests for AI modules (failure analyzer, flaky detector, failure trends)
+- `npm run analyze:summary -- --suite <name> <json> [...]` - multi-suite PR/run Markdown summary
+- `npm run test:ai` - unit tests for AI modules (failure analyzer, flaky detector, failure trends, run summary)
 
 ## Continuous Integration
 
@@ -219,6 +220,13 @@ Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md), [`
 - Report mode aggregates top failing tests, flaky hotspots, and category totals
 - Demo: `npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl`
 - Details: [`ai/failure-trends/README.md`](../ai/failure-trends/README.md)
+
+## AI Run / PR Summaries
+
+- Code lives in `ai/run-summary/`
+- Multi-suite Markdown via `npm run analyze:summary -- --suite <name> <json>`
+- CI uploads `playwright-json-<suite>` always and posts a sticky PR comment on `pull_request`
+- Details: [`ai/run-summary/README.md`](../ai/run-summary/README.md)
 
 ## Naming
 

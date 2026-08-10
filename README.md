@@ -101,7 +101,9 @@ docs/           Project documentation
 
 ✅ Phase 7 complete — P7-M1 through P7-M3 (JSONL run history + Markdown failure trend reports).
 
-**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 7 visual (`@visual`) + 3 fixture examples = 84 Playwright tests; plus `npm run test:ai` for analyzer / flaky / trends unit tests.
+✅ Phase 8 complete — P8-M1 through P8-M3 (multi-suite run summary Markdown + sticky PR comments).
+
+**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 7 visual (`@visual`) + 3 fixture examples = 84 Playwright tests; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
 
 ---
 
@@ -270,11 +272,22 @@ npm run analyze:trends
 Shows top failing tests, flaky hotspots, and light failure-category totals over time.  
 Module docs: [`ai/failure-trends/README.md`](ai/failure-trends/README.md).
 
+### AI Run / PR Summaries
+
+Build a PR-comment-friendly Markdown summary from one or more Playwright JSON reports:
+
+```bash
+npm run analyze:summary -- \
+  --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
+  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+```
+
+On pull requests, CI posts (and updates) a sticky summary comment after the matrix suites finish.  
+Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md).
+
 ### Future AI Modules
 
-- AI Test Execution Summary
 - Locator Change Suggestions
-- Pull Request Test Summaries
 - Visual Regression Insights
 
 ---
@@ -404,7 +417,7 @@ Each milestone includes:
 
 - [x] Historical failure trend analysis *(Phase 7 — complete)*
 
-- [ ] AI-generated Pull Request summaries
+- [x] AI-generated Pull Request summaries *(Phase 8 — complete)*
 
 ---
 

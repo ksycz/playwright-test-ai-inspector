@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** —
+**Current focus:** — (Phases 1–8 complete; keep docs aligned for portfolio demos)
 
 ---
 
@@ -2667,6 +2667,7 @@ Phase 3 classifier + Phase 4 flaky detector
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | Docs sync — ARCHITECTURE/APP_SPEC/TESTING/LESSONS/AI_GUIDELINES aligned to Phases 1–8 |
 | 2026-08-10 | Docs polish — README 5-minute demo, architecture diagram, trace walkthrough |
 | 2026-08-10 | Phase 8 completed — AI run/PR summary CLI + sticky PR comments |
 | 2026-08-09 | Phase 7 completed — historical failure trends CLI (JSONL + Markdown) |

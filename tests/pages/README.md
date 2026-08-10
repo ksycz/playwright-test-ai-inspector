@@ -21,4 +21,4 @@ All locators should live in page objects, not in spec files.
 - `OrderConfirmationPage` — order confirmation
 - `NotFoundPage` — app-level 404 page
 
-Import from `../pages` in smoke specs.
+Import from `../pages` (or `tests/pages`) in smoke, e2e, and visual specs.

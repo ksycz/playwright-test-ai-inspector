@@ -1,21 +1,22 @@
 # Testing Framework Conventions
 
-This document captures the baseline Playwright framework structure introduced in Phase 2.
+Playwright framework conventions for this repository (Phases 2–8).
 
 ## Folder structure
 
-- `tests/smoke/` - current smoke regression suite from Phase 1
-- `tests/api/` - Playwright `request` contract suite (`@api`, Phase 5)
-- `tests/visual/` - screenshot baselines suite (`@visual`, Phase 6)
-- `tests/pages/` - Page Object Model classes (Phase 2+)
-- `tests/fixtures/` - reusable fixture composition (Phase 2+)
-- `tests/data/` - centralized test data and constants (Phase 2+)
+- `tests/smoke/` — smoke regression suite (`@smoke`)
+- `tests/e2e/` — end-to-end journeys (`@e2e`)
+- `tests/api/` — Playwright `request` contract suite (`@api`)
+- `tests/visual/` — screenshot baselines (`@visual`)
+- `tests/pages/` — Page Object Model classes
+- `tests/fixtures/` — reusable fixture composition
+- `tests/data/` — centralized test data and constants
 
 ## Locator strategy
 
 - Prefer semantic locators: `getByRole`, `getByLabelText`, and visible user-facing text
 - Use `data-testid` only when semantic roles and names are insufficient
-- Keep locator definitions in page objects once POM migration begins
+- Keep locator definitions in page objects
 
 ## Artifacts and reporting
 
@@ -57,7 +58,7 @@ Playwright prints the exact trace path in the terminal when a retry captures one
 4. For interactive debugging during development: `npm run test:ui` or `npm run test:headed`
 5. Check `error-context.md` inside the failing test's `test-results/` folder for a DOM snapshot summary
 
-These artifact paths are stable for Phase 3 AI Failure Analyzer integration.
+These artifact paths are consumed by the AI Failure Analyzer and related CLIs.
 
 Use `npm run report` to open the latest HTML report.
 
@@ -180,11 +181,13 @@ CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 GitHub Actions workflow: `.github/workflows/playwright.yml`
 
 - Triggers on `push` to `main` and on `pull_request`
-- Matrix jobs run `test:smoke` and `test:e2e` in parallel with `CI=true`
+- Matrix jobs run `test:smoke`, `test:e2e`, `test:api`, and `test:visual` in parallel with `CI=true`
 - Uses Node 22 from `.nvmrc` and project-local browsers via `PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers`
-- On failure, uploads `playwright-report/` and `test-results/` as artifacts (14-day retention)
-- A separate job runs `npm run test:ai` (analyzer unit tests; no browsers required)
-- JSON reporter writes `test-results/playwright-results.json` (included in failure artifacts) for `npm run analyze:flaky`
+- Always uploads `playwright-json-<suite>` (`playwright-results.json`) for AI run summaries
+- On failure, also uploads `playwright-report/` and full `test-results/` (14-day retention)
+- PR job posts/updates a sticky AI run summary comment
+- A separate job runs `npm run test:ai` (AI module unit tests; no browsers required)
+- JSON reporter writes `test-results/playwright-results.json` for `analyze:flaky` / `analyze:trends` / `analyze:summary`
 
 ### Analyze downloaded CI artifacts
 
@@ -195,7 +198,7 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 5. Optionally record + report trends: `npm run analyze:trends -- --record <unzipped>/playwright-results.json` then `npm run analyze:trends`
 6. Open `ai-reports/<folder>.html` locally
 
-Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md), [`ai/flaky-detector/README.md`](../ai/flaky-detector/README.md), [`ai/failure-trends/README.md`](../ai/failure-trends/README.md). Sample report: [`docs/samples/failure-investigation-report.md`](./samples/failure-investigation-report.md).
+Details: [`ai/failure-analyzer/README.md`](../ai/failure-analyzer/README.md), [`ai/flaky-detector/README.md`](../ai/flaky-detector/README.md), [`ai/failure-trends/README.md`](../ai/failure-trends/README.md), [`ai/run-summary/README.md`](../ai/run-summary/README.md). Sample report: [`docs/samples/failure-investigation-report.md`](./samples/failure-investigation-report.md).
 
 ## AI Failure Analyzer
 

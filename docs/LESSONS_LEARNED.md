@@ -4,6 +4,31 @@ A running log of technical discoveries and learning notes from this project.
 
 ---
 
+## Current state (2026-08)
+
+Phases **1–8 are complete**. Use this as the “today” map; older entries below remain as learning history.
+
+| Area | Where / how |
+|---|---|
+| Demo shop | `app/` — React + Vite; catalogue via `fetch('/api/products.json')` |
+| Static API | `app/public/api/` — JSON 404/405 middleware in `app/vite.config.ts` |
+| Suites | `tests/smoke`, `tests/e2e`, `tests/api`, `tests/visual` (+ fixtures examples) |
+| AI CLIs | `ai/failure-analyzer`, `flaky-detector`, `failure-trends`, `run-summary` |
+| Demo path | README → **Demo in 5 minutes** |
+| Conventions | [`docs/TESTING.md`](./TESTING.md), [`docs/ARCHITECTURE.md`](./ARCHITECTURE.md) |
+| Progress log | [`docs/ROADMAP.md`](./ROADMAP.md) |
+
+Quick commands:
+
+```bash
+npm run setup
+npm run test:smoke
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json
+```
+
+---
+
 ## 2026-07-06 — Playwright setup in this repository
 
 ### Repository layout
@@ -34,7 +59,7 @@ playwright-test-ai-inspector/
 └── playwright-report/        # HTML report (gitignored)
 ```
 
-**Smoke tests** (`tests/smoke/`) are fast checks that the app basically works. Later suites (`e2e/`, `auth/`, `cart/`) will be added in Phase 2.
+**Smoke tests** (`tests/smoke/`) are fast checks that the app basically works. Phase 2 later added POM, fixtures, `@e2e` journeys, and CI (see Current state above).
 
 ---
 
@@ -76,7 +101,7 @@ export default defineConfig({
 | `retries` / `workers` | Local: 0 retries, multiple workers. CI: 2 retries, 1 worker |
 | `reporter: 'html'` | Open with `npm run report` after a run |
 | `baseURL` | `page.goto('/')` resolves to `http://localhost:5173/` (like Cypress `baseUrl`) |
-| `trace: 'on-first-retry'` | Saves a detailed trace on retry — useful for debugging and future AI Failure Analyzer |
+| `trace: 'on-first-retry'` | Saves a detailed trace on retry — useful for debugging and the AI Failure Analyzer |
 | `projects` | One browser/viewport combo per project; add firefox, mobile, etc. later |
 | `webServer` | Starts the app before tests; `reuseExistingServer` reuses a running dev server locally |
 
@@ -125,7 +150,7 @@ test.describe('P1-M1 — Project Foundation', () => {
 | `cy.title().should('eq', ...)` | `await expect(page).toHaveTitle('Demo Shop')` |
 | `cy.get('[data-testid]')` | `page.getByTestId(...)` — only when roles are not enough |
 
-**`{ page }` fixture** — Playwright injects a browser tab. Similar to Cypress's `cy`, but explicit and async. More fixtures (`context`, custom `loggedInPage`) come in Phase 2.
+**`{ page }` fixture** — Playwright injects a browser tab. Similar to Cypress's `cy`, but explicit and async. Custom fixtures (`loggedInPage`, `cartWithItem`) were added in Phase 2.
 
 **`getByRole`** — maps to accessibility roles. Stable and aligned with project rules. Prefer over CSS selectors.
 
@@ -171,7 +196,7 @@ test.describe('P1-M1 — Project Foundation', () => {
 | `playwright-report/` | HTML report from `reporter: 'html'` |
 | `.playwright-browsers/` | Downloaded Chromium (~265 MB) |
 
-These will feed the future **AI Failure Analyzer** (traces, screenshots, stack traces).
+These feed the **AI Failure Analyzer** and related CLIs (traces, screenshots, stack traces / error context).
 
 ---
 
@@ -202,6 +227,6 @@ npm run test:ui
 
 ---
 
-### Not built yet (by design)
+### Snapshot note (historical)
 
-Phase 2 will add Page Object Model, auth fixtures, centralized test data, more suites, and CI. P1-M1 keeps tests inline in the spec file to learn Playwright basics first.
+At P1-M1, tests lived inline in the spec file to learn Playwright basics first. Phase 2 introduced Page Object Model, auth/cart fixtures, centralized test data, tagged suites, and CI. See **Current state** at the top of this file.

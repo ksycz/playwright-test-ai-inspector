@@ -54,7 +54,7 @@ If `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set, suggestions are attempted aut
 
 When GitHub Actions uploads `test-results/` on failure:
 
-1. Open the failed workflow → **Artifacts** → download `test-results-smoke` or `test-results-e2e`
+1. Open the failed workflow → **Artifacts** → download `test-results-<suite>` (e.g. `test-results-smoke`, `test-results-api`, `test-results-visual`)
 2. Unzip locally (folders mirror Playwright's `test-results/<test>-chromium/` layout)
 3. Run:
 

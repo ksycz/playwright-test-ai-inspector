@@ -2,13 +2,15 @@
 
 This project demonstrates:
 
-- Playwright
-- AI-assisted test automation
+- Playwright (smoke, e2e, API, visual)
+- AI-assisted test automation (offline CLIs + optional LLM)
 - Modern React
 - Clean architecture
 - Portfolio-quality code
 
 The objective is learning, not shipping a production application.
+
+Start here for a live walkthrough: repository root [`README.md`](../README.md) → **Demo in 5 minutes**.
 
 ---
 

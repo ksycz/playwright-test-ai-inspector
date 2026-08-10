@@ -47,15 +47,17 @@ The application is intended for:
 
 ## Data
 
-- Local JSON files
-- Local Storage
+- Local JSON seed files under `app/src/data/` (reference / test imports)
+- Static HTTP catalogue under `app/public/api/` (runtime source of truth; Vite-served)
+- Local Storage (auth session, cart)
 
 ## Authentication
 
 - Fake authentication only
 - No backend
 - No database
-- No external APIs
+- No external authentication providers
+- Demo credentials are **not** published under `/api`
 
 ---
 
@@ -113,7 +115,7 @@ Each product should contain:
 - price
 - Add to Cart button
 
-Products should be loaded from a local JSON file.
+Products should be loaded from the static catalogue API (`GET /api/products.json`) in the running app. Keep `app/src/data/products.json` aligned as a seed/reference copy for tests.
 
 ---
 
@@ -283,30 +285,23 @@ The application should support automated tests for:
 
 # AI Integration Goals
 
-The application will later support AI-assisted testing experiments.
+The demo shop is a stable substrate for AI-assisted testing tools under `ai/`.
 
-The first planned module is:
+## Delivered modules
 
-## AI Failure Analyzer
+| Module | Purpose |
+|---|---|
+| Failure Analyzer | Collect Playwright artifacts → classify → Markdown/HTML reports (optional LLM) |
+| Flaky Test Detector | Flaky vs hard-fail from Playwright JSON |
+| Historical Failure Trends | JSONL history + trend Markdown |
+| Run / PR Summaries | Multi-suite Markdown + sticky PR comments |
 
-The analyzer will process Playwright artifacts such as:
+## Still optional / future ideas
 
-- traces
-- screenshots
-- stack traces
-- console logs
-- network logs
+- Locator change suggestions
+- Visual regression insights (beyond `@visual` baselines)
 
-and generate structured investigation reports.
-
-Future AI modules may include:
-
-- Flaky Test Detection
-- Locator Change Suggestions
-- AI Test Summaries
-- Pull Request Test Reports
-
-The application should be designed so these modules can be added without changing existing functionality.
+The application should keep evolving so these tools can be added without changing core shop behaviour.
 
 ---
 

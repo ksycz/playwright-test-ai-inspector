@@ -416,13 +416,16 @@ This project follows several engineering principles:
 
 Additional documentation is available in the `docs` directory.
 
-- `PROJECT.md` — project vision and development principles
-- `ARCHITECTURE.md` — architectural decisions
-- `AI_GUIDELINES.md` — guidelines for AI-assisted development
-- `LESSONS_LEARNED.md` — learning notes and technical discoveries
-- `TESTING.md` — Playwright framework conventions and structure
-- `ROADMAP.md` — milestone plan and progress log
-- `samples/failure-investigation-report.md` — sanitized analyzer sample report
+- [`PROJECT.md`](docs/PROJECT.md) — vision and development principles
+- [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architectural decisions (app, tests, AI, CI)
+- [`APP_SPEC.md`](docs/APP_SPEC.md) — demo shop functional specification
+- [`AI_GUIDELINES.md`](docs/AI_GUIDELINES.md) — AI-assisted development guidelines
+- [`LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) — learning notes (current state + history)
+- [`TESTING.md`](docs/TESTING.md) — Playwright conventions, suites, AI CLIs, CI
+- [`ROADMAP.md`](docs/ROADMAP.md) — milestone plan and progress log
+- [`samples/failure-investigation-report.md`](docs/samples/failure-investigation-report.md) — sanitized analyzer sample
+
+Module READMEs: [`ai/failure-analyzer`](ai/failure-analyzer/README.md), [`ai/flaky-detector`](ai/flaky-detector/README.md), [`ai/failure-trends`](ai/failure-trends/README.md), [`ai/run-summary`](ai/run-summary/README.md), [`app/public/api`](app/public/api/README.md).
 
 ---
 
@@ -484,6 +487,10 @@ Each milestone includes:
 
 - [x] Add end-to-end test suite
 
+- [x] Add API contract suite (`@api`)
+
+- [x] Add visual regression suite (`@visual`)
+
 
 
 ### CI/CD
@@ -493,6 +500,8 @@ Each milestone includes:
 - [x] Upload test artifacts
 
 - [x] Publish Playwright reports
+
+- [x] Sticky AI run summary on pull requests
 
 
 
@@ -506,19 +515,19 @@ Each milestone includes:
 
 - [x] AI debugging suggestions
 
+- [x] Flaky test detection
+
+- [x] Historical failure trends
+
+- [x] Run / PR summaries
+
 
 
 ### Future Enhancements
 
-- [x] Flaky test detection
+- [ ] Locator change suggestions
 
-- [x] API testing with Playwright *(Phase 5 — complete)*
-
-- [x] Visual regression testing *(Phase 6 — complete)*
-
-- [x] Historical failure trend analysis *(Phase 7 — complete)*
-
-- [x] AI-generated Pull Request summaries *(Phase 8 — complete)*
+- [ ] Visual regression insights (beyond `@visual` baselines)
 
 ---
 

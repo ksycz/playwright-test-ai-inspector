@@ -2667,6 +2667,7 @@ Phase 3 classifier + Phase 4 flaky detector
 
 | Date | Change |
 |---|---|
+| 2026-08-10 | Docs polish — README 5-minute demo, architecture diagram, trace walkthrough |
 | 2026-08-10 | Phase 8 completed — AI run/PR summary CLI + sticky PR comments |
 | 2026-08-09 | Phase 7 completed — historical failure trends CLI (JSONL + Markdown) |
 | 2026-08-08 | Phase 6 completed — Playwright visual regression (`@visual`) |

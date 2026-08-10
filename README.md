@@ -59,13 +59,13 @@ This repository is developed incrementally and serves as both a learning journey
 
 
 
-### AI (planned)
+### AI tooling
 
-- Failure analysis
-- Failure classification
-- Root cause suggestions
-- AI-generated investigation reports
-- Optional LLM provider integration
+- Failure Analyzer (collect → classify → Markdown/HTML reports; optional LLM)
+- Flaky Test Detector
+- Historical Failure Trends
+- Run / PR Summaries
+- Visual regression (`@visual` screenshots)
 
 ---
 
@@ -74,11 +74,11 @@ This repository is developed incrementally and serves as both a learning journey
 ## Repository Structure
 
 ```text
-app/            Demo e-commerce application
-tests/          Playwright test suite
-ai/             AI tools (Failure Analyzer + Flaky Detector)
-docs/           Project documentation
-.github/        GitHub Actions workflows
+app/            Demo e-commerce application (Vite + React)
+tests/          Playwright suites (@smoke, @e2e, @api, @visual)
+ai/             Offline AI/QA CLIs (analyzer, flaky, trends, run-summary)
+docs/           Specs, testing conventions, roadmap
+.github/        CI matrix + PR summary comments
 ```
 
 ---
@@ -104,6 +104,77 @@ docs/           Project documentation
 ✅ Phase 8 complete — P8-M1 through P8-M3 (multi-suite run summary Markdown + sticky PR comments).
 
 **Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 7 visual (`@visual`) + 3 fixture examples = 84 Playwright tests; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
+
+---
+
+## Demo in 5 minutes
+
+Portfolio walkthrough without reading the whole roadmap:
+
+| Minute | What to show | Command |
+|---|---|---|
+| 0–1 | Install + open the shop | `npm run setup` then `npm run dev` → http://localhost:5173 |
+| 1–2 | Smoke suite (POM + tags) | `npm run test:smoke` |
+| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` then open `ai-reports/sample-failure.html` |
+| 3–4 | Flaky + trends + PR-style summary | See commands below |
+| 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
+
+```bash
+# Flaky detector (fixture — no Playwright run needed)
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+
+# Historical trends (fixture history)
+npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
+
+# Multi-suite run summary (PR-comment style Markdown)
+npm run analyze:summary -- \
+  --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
+  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+```
+
+Sanitized sample investigation report: [`docs/samples/failure-investigation-report.md`](docs/samples/failure-investigation-report.md).
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph appLayer [Demo Shop]
+    ui[React Vite app]
+    api["Static /api JSON"]
+    ui --> api
+  end
+
+  subgraph testLayer [Playwright]
+    smoke["@smoke"]
+    e2e["@e2e"]
+    apiTests["@api"]
+    visual["@visual"]
+    artifacts[test-results JSON traces screenshots]
+    smoke --> artifacts
+    e2e --> artifacts
+    apiTests --> artifacts
+    visual --> artifacts
+  end
+
+  subgraph aiLayer [AI CLIs offline]
+    analyzer[Failure Analyzer]
+    flaky[Flaky Detector]
+    trends[Failure Trends]
+    summary[Run / PR Summary]
+  end
+
+  ui --> testLayer
+  artifacts --> analyzer
+  artifacts --> flaky
+  flaky --> trends
+  flaky --> summary
+  analyzer --> summary
+  summary --> prComment[PR sticky comment]
+```
+
+**Flow in one sentence:** the shop is a static-front-end test bed; Playwright produces artifacts; offline CLIs turn those artifacts into investigation reports, flaky/trend insights, and PR summaries.
 
 ---
 
@@ -180,6 +251,34 @@ npm run trace -- test-results/<test-folder>/trace.zip
 
 Failure artifacts (screenshots, videos, traces) are written to `test-results/`. See `docs/TESTING.md` for the full debugging workflow.
 
+### Trace walkthrough
+
+Playwright traces are the best “live demo” of debugging quality. This repo captures traces **on first retry** when `CI=true`.
+
+**1. Produce a trace (about 1 minute)**
+
+```bash
+# Retries enabled → failed-then-retried tests write trace.zip
+CI=true npm run test:smoke -- tests/smoke/error-empty-states.spec.ts
+```
+
+If the targeted tests pass cleanly, force a retry path by running under CI against a temporarily broken assertion, or download `test-results-*` from a failed GitHub Actions job (Artifacts).
+
+**2. Open Trace Viewer**
+
+```bash
+# Path is printed in the Playwright output for retried tests
+npm run trace -- test-results/<failed-or-retried-test-folder>/trace.zip
+```
+
+**3. What to narrate in an interview**
+
+- Action timeline + DOM snapshots before/after the failure
+- Network / console as supporting evidence
+- How this pairs with `npm run analyze:report` (classification + next steps) on the same failure folder
+
+Config reminder: `trace: 'on-first-retry'` in `playwright.config.ts` (screenshots/videos only on failure).
+
 ### Continuous Integration
 
 GitHub Actions runs Playwright on every push to `main` and on pull requests:
@@ -189,6 +288,8 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Browsers:** project-local Chromium in `.playwright-browsers/`
 - **Suites:** `test:smoke`, `test:e2e`, `test:api`, and `test:visual` run in parallel matrix jobs
 - **On failure:** `playwright-report/` and `test-results/` are uploaded as downloadable artifacts
+- **Always:** `playwright-json-<suite>` artifacts feed the AI run-summary job
+- **Pull requests:** sticky AI run summary comment after the matrix finishes
 
 Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
 

@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { CartItem, Product } from '@/types/product';
-import { loadCartFromStorage, saveCartToStorage } from '@/utils/cartStorage';
+import { CART_STORAGE_KEY, loadCartFromStorage, saveCartToStorage } from '@/utils/cartStorage';
 
 interface CartContextValue {
   items: CartItem[];
@@ -37,6 +37,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveCartToStorage(items);
   }, [items]);
+
+  useEffect(() => {
+    function handleStorage(event: StorageEvent) {
+      if (event.storageArea && event.storageArea !== localStorage) {
+        return;
+      }
+      if (event.key !== null && event.key !== CART_STORAGE_KEY) {
+        return;
+      }
+      setItems(loadCartFromStorage());
+    }
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const addItem = useCallback((product: Product) => {
     setItems((currentItems) => {

@@ -93,6 +93,8 @@ secret123
 
 ```
 
+**Security note (intentional demo design):** These credentials live in `app/src/data/users.json` and ship in the client JS bundle. Auth is theatrical (Local Storage session `{ username }` only)—anyone can inspect the build or forge a session in DevTools. Passwords are **not** published under `/api`. Do not reuse this pattern for a real backend.
+
 Requirements:
 
 - authentication state stored in Context

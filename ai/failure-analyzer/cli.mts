@@ -1,6 +1,7 @@
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { collectFailureContext } from './collect.mts';
+import { readOptionValue } from '../shared/cliArgs.mts';
 
 function printUsage(): void {
   console.error(`Usage: npm run analyze:failure -- <test-results-folder> [--out <file.json>]
@@ -27,12 +28,13 @@ async function main(argv: string[]): Promise<number> {
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (arg === '--out') {
-      outPath = args[index + 1];
-      if (!outPath) {
-        console.error('Missing value for --out');
+      const parsed = readOptionValue(args, index, '--out');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      outPath = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 
@@ -62,6 +64,7 @@ async function main(argv: string[]): Promise<number> {
 
     if (outPath) {
       const absoluteOut = path.resolve(outPath);
+      await mkdir(path.dirname(absoluteOut), { recursive: true });
       await writeFile(absoluteOut, json, 'utf8');
       console.error(`Wrote failure context to ${absoluteOut}`);
     }

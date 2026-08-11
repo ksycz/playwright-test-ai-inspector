@@ -10,6 +10,7 @@ import {
 } from './report.mts';
 import { resolveProviderFromEnv, suggestRootCause } from './suggest.mts';
 import type { RootCauseSuggestion } from './types.mts';
+import { readOptionValue } from '../shared/cliArgs.mts';
 
 function printUsage(): void {
   console.error(`Usage: npm run analyze:report -- <test-results-folder> [options]
@@ -52,28 +53,29 @@ async function main(argv: string[]): Promise<number> {
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (arg === '--out') {
-      outPath = args[index + 1];
-      if (!outPath) {
-        console.error('Missing value for --out');
+      const parsed = readOptionValue(args, index, '--out');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      outPath = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 
     if (arg === '--format') {
-      const rawFormat = args[index + 1];
-      if (!rawFormat) {
-        console.error('Missing value for --format (expected md, html, or both)');
+      const parsed = readOptionValue(args, index, '--format');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      const parsed = parseReportFormat(rawFormat);
-      if (!parsed) {
-        console.error(`Invalid --format "${rawFormat}" (expected md, html, or both)`);
+      const parsedFormat = parseReportFormat(parsed.value);
+      if (!parsedFormat) {
+        console.error(`Invalid --format "${parsed.value}" (expected md, html, or both)`);
         return 1;
       }
-      format = parsed;
-      index += 1;
+      format = parsedFormat;
+      index = parsed.nextIndex;
       continue;
     }
 

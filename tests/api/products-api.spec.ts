@@ -44,8 +44,8 @@ test.describe('@api Product catalogue API', () => {
       expect(product.shortDescription.length).toBeGreaterThan(0);
       expect(product.fullDescription.length).toBeGreaterThan(0);
       expect(product.image.length).toBeGreaterThan(0);
-      expect(product.image.startsWith('/')).toBeTruthy();
-      expect(typeof product.price).toBe('number');
+      expect(product.image.startsWith('/images/products/')).toBeTruthy();
+      expect(product.image).toMatch(/\.(svg|png|jpe?g|webp)$/i);      expect(typeof product.price).toBe('number');
       expect(Number.isNaN(product.price)).toBeFalsy();
       expect(product.price).toBeGreaterThanOrEqual(0);
     }

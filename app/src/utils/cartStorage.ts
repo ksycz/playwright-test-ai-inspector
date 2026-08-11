@@ -1,4 +1,5 @@
 import type { CartItem, Product } from '@/types/product';
+import { isAllowedProductImagePath } from '@/utils/productImage';
 
 export const CART_STORAGE_KEY = 'cart';
 
@@ -17,7 +18,8 @@ function isValidProduct(value: unknown): value is Product {
     typeof product.fullDescription === 'string' &&
     typeof product.price === 'number' &&
     Number.isFinite(product.price) &&
-    typeof product.image === 'string'
+    typeof product.image === 'string' &&
+    isAllowedProductImagePath(product.image)
   );
 }
 

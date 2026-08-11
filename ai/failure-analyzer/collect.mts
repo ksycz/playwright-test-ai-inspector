@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { resolvePathInsideRoot } from '../shared/pathContainment.mts';
 import { classifyFailure } from './classify.mts';
 import type { FailureArtifacts, FailureContext } from './types.mts';
 
@@ -86,8 +87,10 @@ export async function collectFailureContext(sourcePath: string): Promise<Failure
 
   let errorContextText: string | null = null;
   if (artifacts.errorContextPath) {
-    const errorContextAbsolute = path.join(absoluteSource, artifacts.errorContextPath);
-    errorContextText = await readFile(errorContextAbsolute, 'utf8');
+    const errorContextAbsolute = resolvePathInsideRoot(absoluteSource, artifacts.errorContextPath);
+    if (errorContextAbsolute) {
+      errorContextText = await readFile(errorContextAbsolute, 'utf8');
+    }
   }
 
   const partial = {

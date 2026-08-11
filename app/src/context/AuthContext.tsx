@@ -9,7 +9,7 @@ import {
 } from 'react';
 import type { AuthSession } from '@/types/auth';
 import { validateCredentials } from '@/utils/auth';
-import { loadAuthFromStorage, saveAuthToStorage } from '@/utils/authStorage';
+import { AUTH_STORAGE_KEY, loadAuthFromStorage, saveAuthToStorage } from '@/utils/authStorage';
 
 interface AuthContextValue {
   user: AuthSession | null;
@@ -26,6 +26,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveAuthToStorage(user);
   }, [user]);
+
+  useEffect(() => {
+    function handleStorage(event: StorageEvent) {
+      if (event.storageArea && event.storageArea !== localStorage) {
+        return;
+      }
+      if (event.key !== null && event.key !== AUTH_STORAGE_KEY) {
+        return;
+      }
+      setUser(loadAuthFromStorage());
+    }
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const login = useCallback((username: string, password: string) => {
     const authenticatedUser = validateCredentials(username, password);

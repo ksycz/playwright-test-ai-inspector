@@ -3,6 +3,7 @@ import path from 'node:path';
 import { analyzeTrends } from './history.mts';
 import { recordRunFromReport } from './record.mts';
 import { generateTrendsMarkdown, defaultTrendsOutPath } from './report.mts';
+import { readOptionValue } from '../shared/cliArgs.mts';
 import {
   DEFAULT_HISTORY_PATH,
   DEFAULT_JSON_REPORT,
@@ -51,32 +52,35 @@ async function main(argv: string[]): Promise<number> {
     }
 
     if (arg === '--history') {
-      historyPath = args[index + 1] ?? '';
-      if (!historyPath) {
-        console.error('Missing value for --history');
+      const parsed = readOptionValue(args, index, '--history');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      historyPath = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 
     if (arg === '--out') {
-      outPath = args[index + 1];
-      if (!outPath) {
-        console.error('Missing value for --out');
+      const parsed = readOptionValue(args, index, '--out');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      outPath = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 
     if (arg === '--suite') {
-      suite = args[index + 1];
-      if (!suite) {
-        console.error('Missing value for --suite');
+      const parsed = readOptionValue(args, index, '--suite');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      suite = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 

@@ -19,7 +19,7 @@ Base URL locally: `http://localhost:5173` (same as the demo app).
 - `shortDescription` (string)
 - `fullDescription` (string)
 - `price` (number, ≥ 0)
-- `image` (string, public path starting with `/`)
+- `image` (string, must be `/images/products/<filename>.{svg,png,jpg,jpeg,webp}`)
 - `featured` (boolean, optional)
 
 ## Out of scope

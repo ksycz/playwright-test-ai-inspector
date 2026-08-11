@@ -238,4 +238,23 @@ Received: "/checkout"
     assert.match(report, /could not be read/);
     assert.doesNotMatch(report, /data:image\/png;base64,/);
   });
+
+  it('P3-M3b-08: rejects screenshot paths that escape the failure folder', async () => {
+    const fixtureRoot = path.resolve('ai/failure-analyzer/fixtures/sample-failure');
+    const report = await generateHtmlReport(
+      buildContext({
+        sourcePath: fixtureRoot,
+        artifacts: {
+          screenshots: ['../cli.mts', '../../package.json'],
+          videos: [],
+          traces: [],
+          errorContextPath: null,
+          otherFiles: [],
+        },
+      }),
+    );
+
+    assert.match(report, /Screenshot path escapes the failure folder/);
+    assert.doesNotMatch(report, /data:image\/png;base64,/);
+  });
 });

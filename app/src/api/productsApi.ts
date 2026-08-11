@@ -1,4 +1,5 @@
 import type { Product } from '@/types/product';
+import { isAllowedProductImagePath } from '@/utils/productImage';
 
 function assertProductShape(value: unknown, index: number): asserts value is Product {
   if (!value || typeof value !== 'object') {
@@ -12,6 +13,10 @@ function assertProductShape(value: unknown, index: number): asserts value is Pro
     if (typeof product[key] !== 'string' || (product[key] as string).trim().length === 0) {
       throw new Error(`Product at index ${index} has invalid "${key}"`);
     }
+  }
+
+  if (typeof product.image === 'string' && !isAllowedProductImagePath(product.image)) {
+    throw new Error(`Product at index ${index} has invalid "image"`);
   }
 
   if (typeof product.price !== 'number' || !Number.isFinite(product.price)) {

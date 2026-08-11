@@ -3,6 +3,7 @@ import path from 'node:path';
 import { generateRunSummaryMarkdown, defaultSummaryOutPath } from './report.mts';
 import { summarizeRuns } from './summarize.mts';
 import type { SuiteSummaryInput } from './types.mts';
+import { readOptionValue } from '../shared/cliArgs.mts';
 
 function printUsage(): void {
   console.error(`Usage:
@@ -48,22 +49,24 @@ async function main(argv: string[]): Promise<number> {
     }
 
     if (arg === '--out') {
-      outPath = args[index + 1];
-      if (!outPath) {
-        console.error('Missing value for --out');
+      const parsed = readOptionValue(args, index, '--out');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      outPath = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 
     if (arg === '--title') {
-      title = args[index + 1];
-      if (!title) {
-        console.error('Missing value for --title');
+      const parsed = readOptionValue(args, index, '--title');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      title = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 

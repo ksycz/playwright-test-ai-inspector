@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { resolvePathInsideRoot } from '../shared/pathContainment.mts';
 import type { FailureCategory, FailureContext, RootCauseSuggestion } from './types.mts';
 
 export type ReportFormat = 'md' | 'html' | 'both';
@@ -194,9 +195,18 @@ async function loadEmbeddedScreenshots(context: FailureContext): Promise<Embedde
   const results: EmbeddedScreenshot[] = [];
 
   for (const relativePath of context.artifacts.screenshots) {
-    const absolutePath = path.join(context.sourcePath, relativePath);
+    const absolutePath = resolvePathInsideRoot(context.sourcePath, relativePath);
     const extension = path.extname(relativePath).toLowerCase();
     const mime = SCREENSHOT_MIME[extension];
+
+    if (!absolutePath) {
+      results.push({
+        relativePath,
+        dataUri: null,
+        note: 'Screenshot path escapes the failure folder.',
+      });
+      continue;
+    }
 
     if (!mime) {
       results.push({

@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { analyzeFlakyReport } from './analyze.mts';
 import { defaultFlakyReportPath, generateFlakyMarkdownReport } from './report.mts';
+import { readOptionValue } from '../shared/cliArgs.mts';
 
 const DEFAULT_REPORT = 'test-results/playwright-results.json';
 
@@ -34,12 +35,13 @@ async function main(argv: string[]): Promise<number> {
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     if (arg === '--out') {
-      outPath = args[index + 1];
-      if (!outPath) {
-        console.error('Missing value for --out');
+      const parsed = readOptionValue(args, index, '--out');
+      if (!parsed.ok) {
+        console.error(parsed.error);
         return 1;
       }
-      index += 1;
+      outPath = parsed.value;
+      index = parsed.nextIndex;
       continue;
     }
 

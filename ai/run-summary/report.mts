@@ -8,6 +8,8 @@ function statusEmoji(status: SuiteRunSummary['status'] | RunSummaryReport['overa
       return '❌';
     case 'flaky':
       return '⚠️';
+    case 'skipped':
+      return '⏭️';
     default:
       return '▫️';
   }

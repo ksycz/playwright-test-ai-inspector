@@ -14,7 +14,7 @@ function assertProductShape(value: unknown, index: number): asserts value is Pro
     }
   }
 
-  if (typeof product.price !== 'number' || Number.isNaN(product.price)) {
+  if (typeof product.price !== 'number' || !Number.isFinite(product.price)) {
     throw new Error(`Product at index ${index} has invalid "price"`);
   }
 }

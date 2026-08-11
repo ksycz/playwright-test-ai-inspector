@@ -22,7 +22,7 @@ export interface SuiteRunSummary {
   };
   hardFailures: SummarizedFailure[];
   flakyTests: string[];
-  status: 'passed' | 'failed' | 'flaky' | 'empty';
+  status: 'passed' | 'failed' | 'flaky' | 'empty' | 'skipped';
 }
 
 export interface RunSummaryReport {
@@ -35,7 +35,7 @@ export interface RunSummaryReport {
     flaky: number;
     skipped: number;
   };
-  overallStatus: 'passed' | 'failed' | 'flaky' | 'empty';
+  overallStatus: 'passed' | 'failed' | 'flaky' | 'empty' | 'skipped';
 }
 
 export const DEFAULT_SUMMARY_OUT = 'ai-reports/run-summary.md';

@@ -59,4 +59,14 @@ describe('run-summary', () => {
     assert.equal(report.suites[0]?.hardFailures.length, 1);
     assert.equal(report.totals.unexpected, 1);
   });
+
+  it('P8-M1-06: skipped-only suite reports skipped, not passed', async () => {
+    const skippedOnly = path.join(here, '../flaky-detector/fixtures/skipped-only.json');
+    const report = await summarizeRuns([{ suite: 'smoke', reportPath: skippedOnly }]);
+    assert.equal(report.overallStatus, 'skipped');
+    assert.equal(report.suites[0]?.status, 'skipped');
+    assert.equal(report.totals.expected, 0);
+    assert.equal(report.totals.skipped, 1);
+    assert.match(generateRunSummaryMarkdown(report), /\*\*Overall:\*\* `skipped`/);
+  });
 });

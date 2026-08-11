@@ -2,16 +2,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { defineConfig, type Plugin, type Connect } from 'vite';
 import react from '@vitejs/plugin-react';
+import { isApiRequestPath, resolveApiPublicFile } from './apiPublicPath';
 
 /**
  * `/api/*` contract helpers for the static demo API:
  * - Non-GET methods return JSON 405 (catalogue is read-only)
  * - Missing paths return JSON 404 instead of the SPA index HTML
+ * - Paths that escape `public/` (e.g. `/api/../../package.json`) stay JSON 404
  */
 function apiJsonNotFoundPlugin(): Plugin {
+  const publicRoot = path.resolve(__dirname, 'public');
+
   const middleware: Connect.NextHandleFunction = (req, res, next) => {
     const urlPath = req.url?.split('?')[0] ?? '';
-    if (!urlPath.startsWith('/api/')) {
+    if (!isApiRequestPath(urlPath)) {
       next();
       return;
     }
@@ -25,8 +29,8 @@ function apiJsonNotFoundPlugin(): Plugin {
       return;
     }
 
-    const filePath = path.join(__dirname, 'public', urlPath);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    const filePath = resolveApiPublicFile(publicRoot, urlPath);
+    if (filePath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       next();
       return;
     }

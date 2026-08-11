@@ -25,7 +25,10 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 function calculateSubtotal(items: CartItem[]) {
-  return items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  return items.reduce((total, item) => {
+    const line = item.product.price * item.quantity;
+    return total + (Number.isFinite(line) ? line : 0);
+  }, 0);
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {

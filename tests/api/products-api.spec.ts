@@ -132,4 +132,15 @@ test.describe('@api Product catalogue API', () => {
     expect(body.path).toBe('/api/products.json');
     expect(body.method).toBe('POST');
   });
+
+  test('P5-M4-04: bare /api returns JSON 404', async ({ request }) => {
+    const response = await request.get('/api');
+
+    expect(response.status()).toBe(404);
+    expect(response.headers()['content-type'] ?? '').toMatch(/application\/json/);
+
+    const body = (await response.json()) as { error?: string; path?: string };
+    expect(body.error).toBe('Not found');
+    expect(body.path).toBe('/api');
+  });
 });

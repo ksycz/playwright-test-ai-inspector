@@ -32,10 +32,10 @@ Base URL locally: `http://localhost:5173` (same as the demo app).
 
 | Status | When | Body shape |
 |---|---|---|
-| `404` | Unknown `/api/...` path | `{ "error": "Not found", "path": "..." }` |
-| `405` | Non-GET/HEAD method on `/api/...` | `{ "error": "Method not allowed", "path": "...", "method": "..." }` (`Allow: GET, HEAD`) |
+| `404` | Unknown `/api` or `/api/...` path (including paths that escape `public/api/`) | `{ "error": "Not found", "path": "..." }` |
+| `405` | Non-GET/HEAD method on `/api` or `/api/...` | `{ "error": "Method not allowed", "path": "...", "method": "..." }` (`Allow: GET, HEAD`) |
 
-Missing paths return JSON, not the React SPA HTML. Enforced by Vite middleware in `app/vite.config.ts`.
+Missing paths return JSON, not the React SPA HTML. Enforced by Vite middleware in `app/vite.config.ts` via `app/apiPublicPath.ts` (only files under `public/api/` are eligible).
 
 ## How to validate
 

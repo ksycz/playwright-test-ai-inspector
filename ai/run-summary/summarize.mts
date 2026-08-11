@@ -44,6 +44,9 @@ function deriveSuiteStatus(summary: {
   if (summary.stats.expected === 0 && summary.stats.skipped === 0) {
     return 'empty';
   }
+  if (summary.stats.expected === 0 && summary.stats.skipped > 0) {
+    return 'skipped';
+  }
   return 'passed';
 }
 
@@ -102,8 +105,10 @@ export async function summarizeRuns(
       overallStatus = 'failed';
     } else if (totals.flaky > 0 || suites.some((suite) => suite.flakyTests.length > 0)) {
       overallStatus = 'flaky';
-    } else if (totals.expected > 0 || totals.skipped > 0) {
+    } else if (totals.expected > 0) {
       overallStatus = 'passed';
+    } else if (totals.skipped > 0) {
+      overallStatus = 'skipped';
     }
   }
 

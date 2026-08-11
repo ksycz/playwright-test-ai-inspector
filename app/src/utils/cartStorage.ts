@@ -16,11 +16,12 @@ function isValidProduct(value: unknown): value is Product {
     typeof product.shortDescription === 'string' &&
     typeof product.fullDescription === 'string' &&
     typeof product.price === 'number' &&
+    Number.isFinite(product.price) &&
     typeof product.image === 'string'
   );
 }
 
-function isValidCartItem(value: unknown): value is CartItem {
+export function isValidCartItem(value: unknown): value is CartItem {
   if (typeof value !== 'object' || value === null) {
     return false;
   }

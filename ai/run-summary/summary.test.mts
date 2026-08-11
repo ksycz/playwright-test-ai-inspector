@@ -50,4 +50,13 @@ describe('run-summary', () => {
     assert.equal(report.overallStatus, 'empty');
     assert.match(generateRunSummaryMarkdown(report), /No suite reports/);
   });
+
+  it('P8-M1-05: desynced Playwright stats still mark suite failed', async () => {
+    const desync = path.join(here, '../flaky-detector/fixtures/stats-desync.json');
+    const report = await summarizeRuns([{ suite: 'smoke', reportPath: desync }]);
+    assert.equal(report.overallStatus, 'failed');
+    assert.equal(report.suites[0]?.status, 'failed');
+    assert.equal(report.suites[0]?.hardFailures.length, 1);
+    assert.equal(report.totals.unexpected, 1);
+  });
 });

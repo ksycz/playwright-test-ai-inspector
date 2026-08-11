@@ -54,4 +54,13 @@ describe('P4-M2 flaky test detection', () => {
     assert.match(markdown, /No flaky tests detected/);
     assert.match(markdown, /No hard failures detected/);
   });
+
+  it('P4-M2-05: walked outcomes win when top-level stats under-count failures', async () => {
+    const analysis = await analyzeFlakyReport(path.join(fixturesDir, 'stats-desync.json'));
+
+    assert.equal(analysis.stats.unexpected, 1);
+    assert.equal(analysis.unexpectedTests.length, 1);
+    assert.equal(analysis.stats.expected, 0);
+    assert.equal(analysis.stats.flaky, 0);
+  });
 });

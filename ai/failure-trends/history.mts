@@ -3,24 +3,75 @@ import path from 'node:path';
 import { mergeCategoryCounts } from './record.mts';
 import {
   EMPTY_CATEGORY_COUNTS,
+  type FailureCategoryCount,
+  type RunFailureEntry,
   type RunRecord,
   type TrendSummary,
 } from './types.mts';
 
+const CATEGORY_KEYS: Array<keyof FailureCategoryCount> = [
+  'assertion',
+  'timeout',
+  'locator',
+  'network',
+  'auth',
+  'unknown',
+];
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isStats(value: unknown): value is RunRecord['stats'] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+  const stats = value as Record<string, unknown>;
+  return (
+    isFiniteNumber(stats.expected) &&
+    isFiniteNumber(stats.unexpected) &&
+    isFiniteNumber(stats.flaky) &&
+    isFiniteNumber(stats.skipped)
+  );
+}
+
+function isCategories(value: unknown): value is FailureCategoryCount {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+  const categories = value as Record<string, unknown>;
+  return CATEGORY_KEYS.every((key) => isFiniteNumber(categories[key]));
+}
+
+function isFailureEntry(value: unknown): value is RunFailureEntry {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.fullTitle === 'string' &&
+    typeof entry.file === 'string' &&
+    (entry.lastError === null || typeof entry.lastError === 'string') &&
+    typeof entry.category === 'string' &&
+    CATEGORY_KEYS.includes(entry.category as keyof FailureCategoryCount)
+  );
+}
+
 function isRunRecord(value: unknown): value is RunRecord {
-  if (!value || typeof value !== 'object') {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return false;
   }
   const record = value as Record<string, unknown>;
   return (
     typeof record.recordedAt === 'string' &&
     typeof record.sourcePath === 'string' &&
-    typeof record.stats === 'object' &&
-    record.stats !== null &&
+    (record.suite === null || typeof record.suite === 'string') &&
+    isStats(record.stats) &&
     Array.isArray(record.failures) &&
+    record.failures.every(isFailureEntry) &&
     Array.isArray(record.flaky) &&
-    typeof record.categories === 'object' &&
-    record.categories !== null
+    record.flaky.every((title) => typeof title === 'string') &&
+    isCategories(record.categories)
   );
 }
 

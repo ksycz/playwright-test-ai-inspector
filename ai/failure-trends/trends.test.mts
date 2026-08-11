@@ -106,5 +106,38 @@ describe('failure-trends report', () => {
     const { runs, warnings } = await loadHistory(malformedHistory);
     assert.equal(runs.length, 2);
     assert.ok(warnings.some((warning) => warning.includes('malformed')));
+    assert.ok(warnings.length >= 2);
+  });
+
+  it('skips records with non-numeric stats or categories', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'failure-trends-'));
+    const historyPath = path.join(tempDir, 'bad-shapes.jsonl');
+
+    try {
+      const { writeFile } = await import('node:fs/promises');
+      await writeFile(
+        historyPath,
+        `${JSON.stringify({
+          recordedAt: '2026-08-01T10:00:00.000Z',
+          sourcePath: '/x',
+          suite: null,
+          stats: { expected: 1, unexpected: 0, flaky: 0, skipped: 0 },
+          failures: [],
+          flaky: [],
+          categories: { assertion: 'x', timeout: 0, locator: 0, network: 0, auth: 0, unknown: 0 },
+        })}\n`,
+        'utf8',
+      );
+
+      const { runs, warnings } = await loadHistory(historyPath);
+      assert.equal(runs.length, 0);
+      assert.ok(warnings.some((warning) => /missing required fields/.test(warning)));
+
+      const summary = await analyzeTrends(historyPath);
+      assert.equal(summary.totals.expected, 0);
+      assert.ok(!Number.isNaN(summary.totals.expected));
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
   });
 });

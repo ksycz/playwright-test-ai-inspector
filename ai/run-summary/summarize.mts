@@ -30,11 +30,15 @@ function classifyError(errorText: string | null): string {
   }).category;
 }
 
-function deriveSuiteStatus(summary: Pick<SuiteRunSummary, 'stats'>): SuiteRunSummary['status'] {
-  if (summary.stats.unexpected > 0) {
+function deriveSuiteStatus(summary: {
+  stats: SuiteRunSummary['stats'];
+  hardFailures: SummarizedFailure[];
+  flakyTests: string[];
+}): SuiteRunSummary['status'] {
+  if (summary.hardFailures.length > 0 || summary.stats.unexpected > 0) {
     return 'failed';
   }
-  if (summary.stats.flaky > 0) {
+  if (summary.flakyTests.length > 0 || summary.stats.flaky > 0) {
     return 'flaky';
   }
   if (summary.stats.expected === 0 && summary.stats.skipped === 0) {
@@ -93,9 +97,10 @@ export async function summarizeRuns(
 
   let overallStatus: RunSummaryReport['overallStatus'] = 'empty';
   if (suites.length > 0) {
-    if (totals.unexpected > 0) {
+    const hasHardFailures = suites.some((suite) => suite.hardFailures.length > 0);
+    if (hasHardFailures || totals.unexpected > 0) {
       overallStatus = 'failed';
-    } else if (totals.flaky > 0) {
+    } else if (totals.flaky > 0 || suites.some((suite) => suite.flakyTests.length > 0)) {
       overallStatus = 'flaky';
     } else if (totals.expected > 0 || totals.skipped > 0) {
       overallStatus = 'passed';

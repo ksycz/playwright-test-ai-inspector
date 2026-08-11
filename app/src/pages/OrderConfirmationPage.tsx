@@ -1,5 +1,5 @@
 import { Link, Navigate } from 'react-router-dom';
-import { loadOrderFromStorage } from '@/utils/orderStorage';
+import { clearOrderFromStorage, loadOrderFromStorage } from '@/utils/orderStorage';
 import { formatPrice } from '@/utils/products';
 
 export default function OrderConfirmationPage() {
@@ -43,7 +43,11 @@ export default function OrderConfirmationPage() {
       </section>
 
       <p className="mt-8">
-        <Link to="/products" className="text-link px-3 py-2 text-sm">
+        <Link
+          to="/products"
+          className="text-link px-3 py-2 text-sm"
+          onClick={() => clearOrderFromStorage()}
+        >
           Continue shopping
         </Link>
       </p>

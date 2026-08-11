@@ -148,12 +148,16 @@ export async function analyzeFlakyReport(reportPath: string): Promise<FlakyAnaly
   const outcomes = walkSuites(parsed.suites);
   const flakyTests = outcomes.filter((outcome) => outcome.verdict === 'flaky');
   const unexpectedTests = outcomes.filter((outcome) => outcome.verdict === 'unexpected');
+  const expectedCount = outcomes.filter((outcome) => outcome.verdict === 'expected').length;
+  const skippedCount = outcomes.filter((outcome) => outcome.verdict === 'skipped').length;
 
+  // Always derive stats from walked outcomes so mismatched Playwright `stats`
+  // cannot hide hard failures / flakes from trends and run summaries.
   const stats = {
-    expected: parsed.stats?.expected ?? outcomes.filter((o) => o.verdict === 'expected').length,
-    unexpected: parsed.stats?.unexpected ?? unexpectedTests.length,
-    flaky: parsed.stats?.flaky ?? flakyTests.length,
-    skipped: parsed.stats?.skipped ?? outcomes.filter((o) => o.verdict === 'skipped').length,
+    expected: expectedCount,
+    unexpected: unexpectedTests.length,
+    flaky: flakyTests.length,
+    skipped: skippedCount,
   };
 
   return {

@@ -17,3 +17,6 @@ app/**/*.tsbuildinfo
 .env
 .env.*
 /ai-reports/
+
+# OS
+.DS_Store

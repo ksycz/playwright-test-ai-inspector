@@ -103,20 +103,20 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 8 complete — P8-M1 through P8-M3 (multi-suite run summary Markdown + sticky PR comments).
 
-**Test suites:** 61 smoke (`@smoke`) + 6 e2e (`@e2e`) + 7 api (`@api`) + 7 visual (`@visual`) + 3 fixture examples = 84 Playwright tests; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
+**Test suites:** 85 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
 
 ---
 
 ## Demo in 5 minutes
 
-Portfolio walkthrough without reading the whole roadmap:
+Full interview script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute-by-minute talking points + copy/paste commands).
 
 | Minute | What to show | Command |
 |---|---|---|
 | 0–1 | Install + open the shop | `npm run setup` then `npm run dev` → http://localhost:5173 |
 | 1–2 | Smoke suite (POM + tags) | `npm run test:smoke` |
-| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` then open `ai-reports/sample-failure.html` |
-| 3–4 | Flaky + trends + PR-style summary | See commands below |
+| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` |
+| 3–4 | Flaky + trends + PR-style summary | Commands below |
 | 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
 
 ```bash
@@ -132,7 +132,33 @@ npm run analyze:summary -- \
   --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
 ```
 
-Sanitized sample investigation report: [`docs/samples/failure-investigation-report.md`](docs/samples/failure-investigation-report.md).
+### Portfolio screenshots
+
+<p>
+  <img src="docs/samples/screenshots/failure-report.png" alt="HTML failure investigation report with assertion classification and next steps" width="900" />
+</p>
+
+<p>
+  <img src="docs/samples/screenshots/flaky-report.png" alt="Flaky test analysis showing failed-then-passed retries" width="900" />
+</p>
+
+<p>
+  <img src="docs/samples/screenshots/pr-summary-comment.png" alt="Preview of sticky GitHub PR run summary comment" width="900" />
+</p>
+
+Sample artifacts: [`docs/samples/`](docs/samples/) (HTML, Markdown, and the screenshots above).
+
+### Known limitations
+
+This is a **portfolio / learning** project, not a production shop:
+
+- **No real backend or database** — catalogue is static JSON under `/api`; cart, auth, and orders live in browser storage.
+- **Theatrical auth** — demo credentials ship in the client bundle (`users.json`). Sessions are forgeable in DevTools; passwords are intentionally **not** under `/api`.
+- **Client-trusted cart totals** — fine for Playwright practice; not payment-safe.
+- **Visual baselines** are tuned for CI Chromium viewports; local OS font differences can cause noise.
+- **Optional LLM** (`--llm`) sends failure excerpts to a third party when an API key is set; default tooling is offline.
+
+The engineering value is the **Playwright framework + offline AI CLIs + CI summaries**, not production security or commerce.
 
 ---
 
@@ -416,6 +442,7 @@ This project follows several engineering principles:
 
 Additional documentation is available in the `docs` directory.
 
+- [`DEMO.md`](docs/DEMO.md) — 5-minute interview demo script
 - [`PROJECT.md`](docs/PROJECT.md) — vision and development principles
 - [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architectural decisions (app, tests, AI, CI)
 - [`APP_SPEC.md`](docs/APP_SPEC.md) — demo shop functional specification
@@ -423,7 +450,7 @@ Additional documentation is available in the `docs` directory.
 - [`LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) — learning notes (current state + history)
 - [`TESTING.md`](docs/TESTING.md) — Playwright conventions, suites, AI CLIs, CI
 - [`ROADMAP.md`](docs/ROADMAP.md) — milestone plan and progress log
-- [`samples/failure-investigation-report.md`](docs/samples/failure-investigation-report.md) — sanitized analyzer sample
+- [`samples/`](docs/samples/) — sanitized analyzer samples + README screenshots
 
 Module READMEs: [`ai/failure-analyzer`](ai/failure-analyzer/README.md), [`ai/flaky-detector`](ai/flaky-detector/README.md), [`ai/failure-trends`](ai/failure-trends/README.md), [`ai/run-summary`](ai/run-summary/README.md), [`app/public/api`](app/public/api/README.md).
 

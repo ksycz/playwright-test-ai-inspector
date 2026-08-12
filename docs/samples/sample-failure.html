@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Failure Investigation Report — sample-failure</title>
+  <style>
+    :root {
+      --bg: #e8eef2;
+      --bg-accent: #d4e8e3;
+      --ink: #15202b;
+      --muted: #4d5d68;
+      --line: #b8c5ce;
+      --panel: #f7fafb;
+      --accent: #0b6e63;
+      --accent-soft: #cfe8e3;
+      --code-bg: #e3ebf0;
+      --command-bg: #15202b;
+      --command-ink: #dce8e5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Source Sans 3", "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.55;
+      background:
+        radial-gradient(ellipse 70% 45% at 0% 0%, var(--bg-accent), transparent 50%),
+        linear-gradient(160deg, #f2f6f8 0%, var(--bg) 55%, #dfe9ed 100%);
+      min-height: 100vh;
+    }
+
+    main {
+      max-width: 46rem;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 3.5rem;
+    }
+
+    h1 {
+      font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+      font-weight: 600;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      line-height: 1.2;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .lede {
+      color: var(--muted);
+      margin: 0 0 1.75rem;
+      max-width: 36rem;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      margin: 2rem 0 0.75rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      margin: 1.1rem 0 0.4rem;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 1rem 1.1rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 0.55rem 1rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .summary-grid dt {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .summary-grid dd {
+      margin: 0 0 0.35rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 2px;
+    }
+
+    code, pre {
+      font-family: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+      font-size: 0.86rem;
+    }
+
+    code {
+      background: var(--code-bg);
+      padding: 0.1rem 0.35rem;
+      border-radius: 2px;
+    }
+
+    pre {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    pre.empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    ul, ol {
+      margin: 0.35rem 0 0;
+      padding-left: 1.25rem;
+    }
+
+    li { margin: 0.25rem 0; }
+
+    .muted { color: var(--muted); margin: 0.25rem 0 0; }
+
+    .commands pre {
+      background: var(--command-bg);
+      color: var(--command-ink);
+      border-color: var(--command-bg);
+    }
+
+    .commands pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    figure.screenshot {
+      margin: 0.75rem 0 0;
+      padding: 0.75rem;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+    }
+
+    figure.screenshot img {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    figure.screenshot figcaption {
+      margin-top: 0.55rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    figure.screenshot.missing {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main data-testid="failure-report">
+    <h1>Failure Investigation Report</h1>
+    <p class="lede">Structured findings from the AI Failure Analyzer — classification, artifacts, and suggested next steps.</p>
+
+    <section aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Summary</h2>
+      <div class="panel">
+        <dl class="summary-grid">
+          <div>
+            <dt>Failure folder</dt>
+            <dd><code>sample-failure</code></dd>
+          </div>
+          <div>
+            <dt>Source path</dt>
+            <dd><code>ai/failure-analyzer/fixtures/sample-failure</code></dd>
+          </div>
+          <div>
+            <dt>Collected at</dt>
+            <dd>2026-08-12T14:25:54.996Z</dd>
+          </div>
+          <div>
+            <dt>Category</dt>
+            <dd><span class="badge">assertion</span></dd>
+          </div>
+          <div>
+            <dt>Confidence</dt>
+            <dd>88%</dd>
+          </div>
+          <div>
+            <dt>Classification summary</dt>
+            <dd>Failure looks like an assertion mismatch (expected vs received).</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section aria-labelledby="classification-heading">
+      <h2 id="classification-heading">Classification</h2>
+      <ul>
+  <li><code>assertion:expect assertion mismatch</code></li>
+</ul>
+    </section>
+
+    <section aria-labelledby="artifacts-heading">
+      <h2 id="artifacts-heading">Artifacts</h2>
+      <h3>Screenshots</h3>
+      <figure class="screenshot">
+  <img src="data:image/png;base64,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" alt="Failure screenshot: test-failed-1.png" />
+  <figcaption><code>test-failed-1.png</code></figcaption>
+</figure>
+      <h3>Videos</h3>
+      <ul>
+  <li><code>video.webm</code></li>
+</ul>
+      <h3>Traces</h3>
+      <ul>
+  <li><code>trace.zip</code></li>
+</ul>
+      <h3>Error context</h3>
+      <ul>
+  <li><code>error-context.md</code></li>
+</ul>
+    </section>
+
+    <section aria-labelledby="error-heading">
+      <h2 id="error-heading">Error excerpt</h2>
+      <pre class=""><code>Error: expect(page).toHaveURL(expected) failed
+
+Expected: &quot;http://localhost:5173/order-confirmation&quot;
+Received: &quot;http://localhost:5173/checkout&quot;
+Timeout: 5000ms</code></pre>
+      
+    </section>
+
+    <section aria-labelledby="steps-heading">
+      <h2 id="steps-heading">Suggested next steps</h2>
+      <ol>
+  <li>Compare Expected vs Received values in the error context.</li>
+  <li>Open the failure screenshot and confirm the UI state matches the assertion target.</li>
+  <li>If the assertion is timing-sensitive, wait for a specific UI signal before asserting.</li>
+</ol>
+    </section>
+
+    <section class="commands" aria-labelledby="commands-heading">
+      <h2 id="commands-heading">Debugging commands</h2>
+      <pre><code>npm run report
+npm run trace -- ai/failure-analyzer/fixtures/sample-failure/trace.zip
+npm run analyze:failure -- ai/failure-analyzer/fixtures/sample-failure</code></pre>
+    </section>
+  </main>
+</body>
+</html>

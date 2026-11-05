@@ -66,6 +66,7 @@ This repository is developed incrementally and serves as both a learning journey
 - Historical Failure Trends
 - Run / PR Summaries
 - Visual regression (`@visual` screenshots)
+- Playwright MCP (AI-driven exploration and test generation)
 
 ---
 
@@ -103,7 +104,7 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 8 complete — P8-M1 through P8-M3 (multi-suite run summary Markdown + sticky PR comments).
 
-**Test suites:** 85 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
+**Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
 
 ---
 
@@ -411,6 +412,41 @@ npm run analyze:summary -- \
 
 On pull requests, CI posts (and updates) a sticky summary comment after the matrix suites finish.  
 Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md).
+
+### AI-assisted test generation with Playwright MCP
+
+[Playwright MCP](https://github.com/microsoft/playwright-mcp) lets an AI agent drive a real browser and read the page's accessibility tree. This repo ships the config for it, pinned to one version: [`.mcp.json`](.mcp.json) for Claude Code and [`.cursor/mcp.json`](.cursor/mcp.json) for Cursor. It uses your installed Chrome.
+
+**How I used it**
+
+1. Started the shop with `npm run dev` and asked Claude Code to explore it through the MCP server, comparing what it found with the existing suites.
+2. The agent browsed, logged in, and placed an order, using accessibility snapshots to see the roles and names on each page.
+3. I kept the scenarios that weren't already covered and had them rewritten with this repo's page objects and test data: [`tests/e2e/mcp-explored-journeys.spec.ts`](tests/e2e/mcp-explored-journeys.spec.ts).
+4. I ran the spec repeatedly to check for flakiness before keeping it.
+
+**What it added**
+
+- A two-product total that stays the same from cart through confirmation
+- The cart being kept after logout
+- The order number being kept after reloading the confirmation page
+- Checkout redirecting to the empty cart after an order
+- A failed login still returning to checkout after a successful retry
+- Login ignoring a redirect to another site
+- Checkout rejecting a name containing only spaces
+- Quantity and line subtotal showing at checkout and confirmation
+
+**What needed human review**
+
+- The first generated draft had a wrong assertion: `cart-total` contains only the amount, without the `Total:` label.
+- Repeated runs exposed an intermittent timeout. `getByLabel('Name')` also matched **User**name, so the page object could type into the login form while it was still on screen. The fix is an exact match in [`checkout-page.ts`](tests/pages/checkout-page.ts).
+- Exploration also found behaviour that isn't confirmed as intended, so it's noted here rather than locked in as tests:
+  - Logged-in users still see the form at `/login`.
+  - `/favicon.ico` returns a 404.
+  - The last order is still shown after logging out and back in.
+  - The ZIP code field accepts values like `abc`.
+  - Focus stays on **Place order** after a failed checkout submit.
+
+MCP is a development aid only: CI runs the committed specs and doesn't need an AI agent or the MCP server.
 
 ### Future AI Modules
 

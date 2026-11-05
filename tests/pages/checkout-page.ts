@@ -18,7 +18,8 @@ export class CheckoutPage extends BasePage {
   }
 
   get nameInput() {
-    return this.page.getByLabel('Name');
+    // exact: a substring match also hits "Username" while the login form is still rendered.
+    return this.page.getByLabel('Name', { exact: true });
   }
 
   get emailInput() {

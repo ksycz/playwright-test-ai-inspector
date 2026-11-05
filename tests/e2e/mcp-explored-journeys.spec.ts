@@ -1,5 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
-import { findProductBySlug, sampleProduct, validCheckoutDetails, validUser } from '../data';
+import {
+  findProductBySlug,
+  invalidUser,
+  sampleProduct,
+  validCheckoutDetails,
+  validUser,
+} from '../data';
+import { addSampleProductToCart, loginWithProductInCart } from '../fixtures';
 import { CartPage, CheckoutPage, LoginPage, OrderConfirmationPage, ProductsPage } from '../pages';
 
 /**
@@ -105,5 +112,73 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(page).toHaveURL('/cart');
     await expect(cartPage.emptyHeading).toBeVisible();
     await expect(cartPage.cartLink(0)).toBeVisible();
+  });
+
+  test('failed login still returns to checkout after a successful retry', async ({ page }) => {
+    const cartPage = new CartPage(page);
+    const loginPage = new LoginPage(page);
+    const checkoutPage = new CheckoutPage(page);
+
+    await addSampleProductToCart(page);
+    await cartPage.goto();
+    await cartPage.proceedToCheckout();
+
+    await loginPage.login(invalidUser.username, invalidUser.password);
+    await expect(loginPage.errorAlert).toHaveText('Invalid username or password');
+    await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
+
+    await loginPage.login(validUser.username, validUser.password);
+    await expect(page).toHaveURL('/checkout');
+    await expect(checkoutPage.heading).toBeVisible();
+  });
+
+  test('login ignores a redirect to another site', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await page.goto('/login?redirect=//example.invalid/phish');
+    await loginPage.login(validUser.username, validUser.password);
+
+    await expect(page).toHaveURL('/products');
+    await expect(loginPage.welcomeMessage(validUser.username)).toBeVisible();
+  });
+
+  test('checkout rejects a name containing only spaces', async ({ page }) => {
+    const checkoutPage = new CheckoutPage(page);
+
+    await loginWithProductInCart(page);
+    await checkoutPage.goto();
+    await checkoutPage.fillForm({ ...validCheckoutDetails, name: '   ' });
+    await checkoutPage.placeOrder();
+
+    await expect(checkoutPage.validationError('Name is required')).toBeVisible();
+    await expect(page).toHaveURL('/checkout');
+  });
+
+  test('checkout and confirmation show quantity and line subtotal', async ({ page }) => {
+    const productsPage = new ProductsPage(page);
+    const checkoutPage = new CheckoutPage(page);
+    // Fixed on purpose: 2 x $29.99.
+    const lineSubtotal = '$59.98';
+    const quantityLabel = `${sampleProduct.name} × 2`;
+
+    await loginWithProductInCart(page);
+    await productsPage.goto();
+    await productsPage.addToCart(sampleProduct.name);
+    await expect(productsPage.cartLink(2)).toBeVisible();
+
+    await checkoutPage.goto();
+    const summaryLine = checkoutPage.orderSummaryItem(sampleProduct.name);
+    await expect(summaryLine).toContainText(quantityLabel);
+    await expect(summaryLine).toContainText(lineSubtotal);
+
+    await checkoutPage.fillForm(validCheckoutDetails);
+    await checkoutPage.placeOrder({ waitForConfirmation: true });
+
+    const orderLine = page
+      .getByRole('region', { name: 'Order details' })
+      .getByRole('listitem')
+      .filter({ hasText: sampleProduct.name });
+    await expect(orderLine).toContainText(quantityLabel);
+    await expect(orderLine).toContainText(lineSubtotal);
   });
 });

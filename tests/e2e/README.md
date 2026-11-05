@@ -18,7 +18,7 @@ npm run test:e2e
 | `checkout-guest.spec.ts` | Guest checkout auth guard |
 | `cart-journey.spec.ts` | Cart persistence and quantity management |
 | `returning-customer.spec.ts` | Logged-in customer checkout without auth redirect |
-| `mcp-explored-journeys.spec.ts` | Scenarios found with Playwright MCP: multi-item totals, cart after logout, post-order states |
+| `mcp-explored-journeys.spec.ts` | Scenarios found with Playwright MCP: multi-item totals, quantities, cart after logout, post-order states, login retry and redirect safety, whitespace-only name |
 
 ## Conventions
 

@@ -104,7 +104,7 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 8 complete — P8-M1 through P8-M3 (multi-suite run summary Markdown + sticky PR comments).
 
-**Test suites:** 89 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
+**Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
 
 ---
 
@@ -430,12 +430,21 @@ Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md).
 - The cart being kept after logout
 - The order number being kept after reloading the confirmation page
 - Checkout redirecting to the empty cart after an order
+- A failed login still returning to checkout after a successful retry
+- Login ignoring a redirect to another site
+- Checkout rejecting a name containing only spaces
+- Quantity and line subtotal showing at checkout and confirmation
 
 **What needed human review**
 
 - The first generated draft had a wrong assertion: `cart-total` contains only the amount, without the `Total:` label.
 - Repeated runs exposed an intermittent timeout. `getByLabel('Name')` also matched **User**name, so the page object could type into the login form while it was still on screen. The fix is an exact match in [`checkout-page.ts`](tests/pages/checkout-page.ts).
-- Exploration also showed that logged-in users still see the form at `/login`, and that `/favicon.ico` returns a 404. These are noted here rather than locked in as tests, because neither is confirmed as intended behaviour.
+- Exploration also found behaviour that isn't confirmed as intended, so it's noted here rather than locked in as tests:
+  - Logged-in users still see the form at `/login`.
+  - `/favicon.ico` returns a 404.
+  - The last order is still shown after logging out and back in.
+  - The ZIP code field accepts values like `abc`.
+  - Focus stays on **Place order** after a failed checkout submit.
 
 MCP is a development aid only: CI runs the committed specs and doesn't need an AI agent or the MCP server.
 

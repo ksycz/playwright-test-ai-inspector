@@ -50,7 +50,7 @@ After every completed milestone, update:
 | **6** | Visual Regression | ✅ Completed | Playwright `toHaveScreenshot` + `@visual` suite |
 | **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
-| **9** | Dependency Gate | ⏳ Planned | `npm ci`, `npm audit`, new-package check, Dependabot |
+| **9** | Dependency Gate | ⏳ Planned | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts |
 | **10** | LLM Guardrails | ⏳ Planned | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ⏳ Planned | Mutation testing, convention-aware PR review |
 | **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
@@ -2680,14 +2680,29 @@ Cheap first gate before the AI-specific work: make CI installs reproducible and 
 ### Design principles
 
 - `npm ci` everywhere: the lockfile is the source of truth
-- Only **new** dependencies are checked; version bumps are left to Dependabot + audit
+- Only **new** dependencies are checked; version bumps are left to Renovate + audit
+- One bot for version updates (Renovate), GitHub-native alerts for vulnerabilities (Dependabot alerts); never two bots opening PRs for the same update
 - Clear failure message naming the package and the rule it broke
 
 ### User scenarios
 
 1. A PR adds a package that doesn't exist on npm or was published last week → CI fails with the reason.
 2. A PR introduces a dependency with a known high-severity advisory → audit fails.
-3. Dependabot opens weekly PRs for npm and GitHub Actions; the existing suites validate them.
+3. Renovate opens grouped weekly PRs (npm, GitHub Actions, `.nvmrc`) only for versions older than the waiting period; the existing suites validate them.
+4. A low-risk devDependency patch passes all four CI suites → Renovate auto-merges it.
+5. A vulnerable dependency shows up in the repo's Security tab via a Dependabot alert, even between Renovate runs.
+
+### Why Renovate + Dependabot alerts
+
+Two different jobs, each handled by the tool that does it best:
+
+| Job | Tool | Why this one |
+|---|---|---|
+| Version updates (PRs) | **Renovate** | `minimumReleaseAge` holds back brand-new releases for a few days, the window in which compromised or broken versions are usually caught and pulled, so it complements the new-package age check in P9-M1. It also groups related updates (e.g. all Playwright packages in one PR), auto-merges low-risk updates once CI is green, and picks up `app/package.json`, `.nvmrc` and GitHub Actions versions with no extra setup. The Dependency Dashboard issue gives one view of everything pending. |
+| Vulnerability alerts | **Dependabot alerts** | GitHub-native: alerts are based on the GitHub Advisory Database and appear in the repo's Security tab with no extra service. They work even if Renovate is paused or misconfigured. |
+| Dependabot version updates | ❌ Off | Would duplicate Renovate's PRs for the same packages. |
+
+Trade-off: Renovate needs the Mend Renovate GitHub App installed on the repo (free) and is one more external service. Dependabot alone is zero-setup, but its grouping, release-age and auto-merge options are less mature.
 
 ---
 
@@ -2697,8 +2712,6 @@ Cheap first gate before the AI-specific work: make CI installs reproducible and 
 
 - CI: `npm install` → `npm ci` in all jobs; `npm audit --audit-level=high`
 - `ai/dep-gate/`: diff `package.json` + `app/package.json` against the PR base; for each **new** dependency, check that it exists on the registry, its age (`time.created`), and its weekly downloads; fail below the thresholds
-- Dependabot config for npm + GitHub Actions
-
 ### Test cases
 
 | ID | Scenario |
@@ -2708,18 +2721,44 @@ Cheap first gate before the AI-specific work: make CI installs reproducible and 
 | P9-M1-03 | Package younger than threshold → fail |
 | P9-M1-04 | Version bump of existing dep → not treated as new |
 
-## P9-M2 — Docs
+## P9-M2 — Renovate config + Dependabot alerts
+
+### Implementation scope
+
+- `renovate.json` (each rule commented in the PR / docs):
+  - `config:recommended` + Dependency Dashboard
+  - `minimumReleaseAge` (e.g. 3 days) for npm
+  - group `@playwright/test` and Playwright-related packages; group non-major devDependency updates into one weekly PR
+  - auto-merge devDependency patch/minor updates when all required CI checks pass; majors always need manual review
+  - cover root `package.json`, `app/package.json`, `.nvmrc`, GitHub Actions
+- Install the Mend Renovate GitHub App on the repo (manual step, owner only)
+- Repo settings: Dependabot **alerts** on; Dependabot **version updates** off (no `.github/dependabot.yml`)
+- Validate config in CI with `renovate-config-validator`
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P9-M2-01 | `renovate-config-validator` passes in CI |
+| P9-M2-02 | Onboarding PR / Dependency Dashboard lists both package files, `.nvmrc` and Actions |
+| P9-M2-03 | A Playwright update arrives as one grouped PR |
+| P9-M2-04 | A release younger than `minimumReleaseAge` shows as pending, not as a PR |
+| P9-M2-05 | No Dependabot version-update PRs are opened |
+
+## P9-M3 — Docs
 
 - `docs/TESTING.md`: "CI gates" table started here (gate, trigger, threshold, how to fix); Phase 11 extends it
-- README: dependency gate listed under tooling
+- README: dependency gate and Renovate listed under tooling
+- `docs/TESTING.md`: short "Dependency updates" section summarising the Renovate + Dependabot alerts split
 
 ### Acceptance criteria
 
 - [ ] All CI jobs use `npm ci` (P9-M1)
 - [ ] `npm audit --audit-level=high` in CI (P9-M1)
 - [ ] New-dependency gate with unit tests (P9-M1)
-- [ ] Dependabot for npm + GitHub Actions (P9-M1)
-- [ ] Gate documented (P9-M2)
+- [ ] Renovate config validated in CI; app installed (P9-M2)
+- [ ] Dependabot alerts on, version updates off (P9-M2)
+- [ ] Gate and Renovate rationale documented (P9-M3)
 
 ---
 
@@ -2727,8 +2766,9 @@ Cheap first gate before the AI-specific work: make CI installs reproducible and 
 
 ```text
 Phase 2 CI
- └── P9-M1 CI hygiene + new-dependency gate
-      └── P9-M2 Docs
+ ├── P9-M1 CI hygiene + new-dependency gate
+ └── P9-M2 Renovate config + Dependabot alerts
+      └── P9-M3 Docs
 ```
 
 ## Phase 9 — Progress Summary
@@ -2736,7 +2776,8 @@ Phase 2 CI
 | Milestone | Status | Completed |
 |---|---|---|
 | P9-M1 — CI hygiene + new-dependency gate | ⏳ Planned | — |
-| P9-M2 — Docs | ⏳ Planned | — |
+| P9-M2 — Renovate config + Dependabot alerts | ⏳ Planned | — |
+| P9-M3 — Docs | ⏳ Planned | — |
 
 ---
 

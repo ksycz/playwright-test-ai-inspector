@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** — (Phases 1–8 complete; keep docs aligned for portfolio demos)
+**Current focus:** Phase 9 — P9-M2 (P9-M1 complete; waiting for approval)
 
 ---
 
@@ -50,7 +50,7 @@ After every completed milestone, update:
 | **6** | Visual Regression | ✅ Completed | Playwright `toHaveScreenshot` + `@visual` suite |
 | **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
-| **9** | Dependency Gate | ⏳ Planned | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts |
+| **9** | Dependency Gate | 🚧 In progress | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts |
 | **10** | LLM Guardrails | ⏳ Planned | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ⏳ Planned | Mutation testing, convention-aware PR review |
 | **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
@@ -2669,9 +2669,9 @@ Phase 3 classifier + Phase 4 flaky detector
 
 # Phase 9 — Dependency Gate
 
-**Status:** ⏳ Planned  
+**Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P9-M1
+**Current focus:** P9-M2
 
 ### Goal
 
@@ -2708,6 +2708,10 @@ Trade-off: Renovate needs the Mend Renovate GitHub App installed on the repo (fr
 
 ## P9-M1 — CI hygiene + new-dependency gate
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-06  
+**Dependencies:** Phase 2 CI
+
 ### Implementation scope
 
 - CI: `npm install` → `npm ci` in all jobs; `npm audit --audit-level=high`
@@ -2720,6 +2724,31 @@ Trade-off: Renovate needs the Mend Renovate GitHub App installed on the repo (fr
 | P9-M1-02 | Unknown package (registry 404, mocked) → fail with name |
 | P9-M1-03 | Package younger than threshold → fail |
 | P9-M1-04 | Version bump of existing dep → not treated as new |
+| P9-M1-05 | Weekly downloads below threshold → fail with name |
+
+### Acceptance criteria
+
+- [x] All CI jobs install with `npm ci` (root, and `app/` where the job needs it)
+- [x] `npm audit --audit-level=high` on root and `app/` in CI
+- [x] `ai/dep-gate/` checks only new dependency names (registry, age, weekly downloads)
+- [x] Unit tests P9-M1-01 through P9-M1-05
+
+### Implementation notes
+
+**Summary:** CI no longer runs `npm install`. Playwright, summary, and AI unit jobs use `npm ci`. Pull requests run `npm run analyze:deps`, which diffs `package.json` and `app/package.json` against the PR base and checks each new package on the npm registry. Thresholds are 7 days old and at least 1000 weekly downloads. Existing high-severity advisories in `app/package-lock.json` were updated with `npm audit fix` so the audit gate is green on the current tree.
+
+**Architectural decisions:**
+- The gate compares dependency names, not versions. Version bumps stay with audit and, later, Renovate.
+- Registry access is injected (`lookup`) so unit tests never call npm. The CLI uses the real registry.
+- A package is new when its name is absent from that manifest's `dependencies`, `devDependencies`, and `optionalDependencies` on the base ref.
+- Audit runs on pushes (`ai-unit`) and on pull requests (`dep-gate`). The new-package check runs on pull requests only, because it needs a base ref.
+
+**Deviations:**
+- Added P9-M1-05. The milestone scope requires a weekly-download floor, and the original table only listed existence, age, and version bumps.
+- `npm run setup` is unchanged for local installs. Only CI jobs switched to `npm ci`.
+- `app/package-lock.json` was refreshed so existing high advisories do not fail the new audit step. `app/package.json` ranges were not changed.
+
+**Tests implemented:** P9-M1-01–P9-M1-05 in `ai/dep-gate/gate.test.mts`.
 
 ## P9-M2 — Renovate config + Dependabot alerts
 
@@ -2753,9 +2782,9 @@ Trade-off: Renovate needs the Mend Renovate GitHub App installed on the repo (fr
 
 ### Acceptance criteria
 
-- [ ] All CI jobs use `npm ci` (P9-M1)
-- [ ] `npm audit --audit-level=high` in CI (P9-M1)
-- [ ] New-dependency gate with unit tests (P9-M1)
+- [x] All CI jobs use `npm ci` (P9-M1)
+- [x] `npm audit --audit-level=high` in CI (P9-M1)
+- [x] New-dependency gate with unit tests (P9-M1)
 - [ ] Renovate config validated in CI; app installed (P9-M2)
 - [ ] Dependabot alerts on, version updates off (P9-M2)
 - [ ] Gate and Renovate rationale documented (P9-M3)
@@ -2775,7 +2804,7 @@ Phase 2 CI
 
 | Milestone | Status | Completed |
 |---|---|---|
-| P9-M1 — CI hygiene + new-dependency gate | ⏳ Planned | — |
+| P9-M1 — CI hygiene + new-dependency gate | ✅ Completed | 2026-11-06 |
 | P9-M2 — Renovate config + Dependabot alerts | ⏳ Planned | — |
 | P9-M3 — Docs | ⏳ Planned | — |
 
@@ -3057,6 +3086,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-06 | P9-M1 completed — CI `npm ci` + `npm audit`, new-dependency gate |
 | 2026-11-06 | Phases 9–12 defined — dependency gate, LLM guardrails, quality gates for AI-written code, agentic exploratory testing |
 | 2026-08-10 | Docs sync — ARCHITECTURE/APP_SPEC/TESTING/LESSONS/AI_GUIDELINES aligned to Phases 1–8 |
 | 2026-08-10 | Docs polish — README 5-minute demo, architecture diagram, trace walkthrough |

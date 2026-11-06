@@ -2750,6 +2750,19 @@ Trade-off: Renovate needs the Mend Renovate GitHub App installed on the repo (fr
 
 **Tests implemented:** P9-M1-01–P9-M1-05 in `ai/dep-gate/gate.test.mts`.
 
+### How to test
+
+Same steps as the README section **Dependency gate**.
+
+| What you want to see | Command | Expected |
+|---|---|---|
+| No new packages | `npm run analyze:deps -- --base HEAD` | `Dependency gate passed.` |
+| Unknown package | `npm pkg set dependencies.not-a-real-package-xyz=1.0.0`, then `npm run analyze:deps -- --base HEAD`, then `git checkout -- package.json` | Failure names `not-a-real-package-xyz` and `not found on the npm registry` |
+| Offline cases (404, age, downloads, version bump) | `node --experimental-strip-types --test ai/dep-gate/gate.test.mts` | P9-M1-01 through P9-M1-05 pass |
+| Pull request | Open a PR | Job **New dependency gate** runs `analyze:deps` against the base SHA. `ai-unit` runs `npm audit --audit-level=high` on push and on pull request |
+
+A new package also fails when `time.created` is under 7 days or weekly downloads are under 1000. Changing the version of a package that already exists on the base does not fail this check.
+
 ## P9-M2 — Renovate config + Dependabot alerts
 
 ### Implementation scope
@@ -3086,6 +3099,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-06 | P9-M1 how to test — README and roadmap commands for the dependency gate |
 | 2026-11-06 | P9-M1 completed — CI `npm ci` + `npm audit`, new-dependency gate |
 | 2026-11-06 | Phases 9–12 defined — dependency gate, LLM guardrails, quality gates for AI-written code, agentic exploratory testing |
 | 2026-08-10 | Docs sync — ARCHITECTURE/APP_SPEC/TESTING/LESSONS/AI_GUIDELINES aligned to Phases 1–8 |

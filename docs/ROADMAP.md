@@ -50,7 +50,7 @@ After every completed milestone, update:
 | **6** | Visual Regression | ✅ Completed | Playwright `toHaveScreenshot` + `@visual` suite |
 | **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
-| **9** | Dependency Gate | 🚧 In progress | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts |
+| **9** | Dependency Gate | 🚧 In progress | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts, faster CI |
 | **10** | LLM Guardrails | ⏳ Planned | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ⏳ Planned | Mutation testing, convention-aware PR review |
 | **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
@@ -2801,6 +2801,48 @@ A new package also fails when `time.created` is under 7 days or weekly downloads
 - [ ] Renovate config validated in CI; app installed (P9-M2)
 - [ ] Dependabot alerts on, version updates off (P9-M2)
 - [ ] Gate and Renovate rationale documented (P9-M3)
+- [ ] Playwright matrix reuses a browser install (P9-M4)
+- [ ] CI test workers raised above 1 without new flakes (P9-M4)
+- [ ] Renovate validator and `npm audit` run only where they are needed (P9-M4)
+
+## P9-M4 — Faster CI
+
+**Status:** ⏳ Planned  
+**Dependencies:** P9-M1. The Renovate path filter also needs P9-M2.
+
+### Goal
+
+Shorten the pull-request pipeline without dropping suites, retries, or the dependency gate. The four Playwright jobs currently repeat browser download and OS library install, then run tests one at a time.
+
+### Design principles
+
+- A green run should do the expensive install work once per Playwright version, not once per suite.
+- Retries stay at 2. They cost time only when a test fails, and the flaky detector needs them.
+- Skip work that cannot affect the files in the change.
+
+### Implementation scope
+
+- Reuse the Chromium install across matrix jobs. Prefer the official Playwright image whose tag matches the installed `@playwright/test` version. A cache of `.playwright-browsers` is the alternative, and it still runs `playwright install-deps`.
+- Raise `workers` above 1 when `CI=true`, starting at 2. Watch the smoke suite for new flakes before going higher.
+- Cache both lockfiles in `actions/setup-node` (`package-lock.json` and `app/package-lock.json`).
+- Run `npm audit` in one job. `dep-gate` fetches only the PR base commit, not the full history.
+- Run the Renovate validator only when `renovate.json` changes.
+- Cancel an in-progress run on a pull request when a newer commit is pushed.
+- Skip the Playwright matrix when a pull request does not change `app/`, `tests/`, or the workflow.
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P9-M4-01 | A second suite job does not download Chromium again when the Playwright version is unchanged |
+| P9-M4-02 | Smoke tests pass on CI with `workers` greater than 1 |
+| P9-M4-03 | A pull request that only edits `docs/` does not run the Playwright matrix |
+| P9-M4-04 | A pull request that does not change `renovate.json` does not run the Renovate validator |
+| P9-M4-05 | Pushing a new commit to an open pull request cancels the older run |
+
+### How to judge it
+
+Compare the **Playwright (smoke)** job before and after on a green pull request. Setup time and test time should both drop. The suite list, `retries: 2`, and the dependency gate stay.
 
 ---
 
@@ -2810,7 +2852,8 @@ A new package also fails when `time.created` is under 7 days or weekly downloads
 Phase 2 CI
  ├── P9-M1 CI hygiene + new-dependency gate
  └── P9-M2 Renovate config + Dependabot alerts
-      └── P9-M3 Docs
+      ├── P9-M3 Docs
+      └── P9-M4 Faster CI
 ```
 
 ## Phase 9 — Progress Summary
@@ -2820,6 +2863,7 @@ Phase 2 CI
 | P9-M1 — CI hygiene + new-dependency gate | ✅ Completed | 2026-11-06 |
 | P9-M2 — Renovate config + Dependabot alerts | ⏳ Planned | — |
 | P9-M3 — Docs | ⏳ Planned | — |
+| P9-M4 — Faster CI | ⏳ Planned | — |
 
 ---
 
@@ -3099,6 +3143,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-06 | P9-M4 defined — faster CI: shared browser install, more workers, fewer repeated jobs |
 | 2026-11-06 | P9-M1 how to test — README and roadmap commands for the dependency gate |
 | 2026-11-06 | P9-M1 completed — CI `npm ci` + `npm audit`, new-dependency gate |
 | 2026-11-06 | Phases 9–12 defined — dependency gate, LLM guardrails, quality gates for AI-written code, agentic exploratory testing |

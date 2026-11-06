@@ -27,7 +27,7 @@ Playwright is configured to:
 - capture screenshots only on failure (`screenshot: 'only-on-failure'`)
 - retain video only on failure (`video: 'retain-on-failure'`)
 - capture traces on the first retry (`trace: 'on-first-retry'`)
-- produce both `list` (CI-friendly console output) and `html` reporters
+- print one console line per test (title and duration) plus `html` and JSON reporters
 
 ### Output locations
 

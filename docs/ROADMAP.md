@@ -2870,7 +2870,7 @@ Shorten the pull-request pipeline without dropping suites, retries, or the depen
 - Run `npm audit` in one job. `dep-gate` fetches only the PR base commit, not the full history.
 - Run the Renovate validator only when `renovate.json` changes.
 - Cancel an in-progress run on a pull request when a newer commit is pushed.
-- Skip the Playwright matrix when a pull request does not change `app/`, `tests/`, or the workflow.
+- Skip every test job when a pull request only changes `docs/**` or Markdown files. A push to `main` still runs CI. Implemented in `scripts/should-run-ci.mjs`.
 
 ### Test cases
 
@@ -2878,7 +2878,7 @@ Shorten the pull-request pipeline without dropping suites, retries, or the depen
 |---|---|
 | P9-M4-01 | A second suite job does not download Chromium again when the Playwright version is unchanged |
 | P9-M4-02 | Smoke tests pass on CI with `workers` greater than 1 |
-| P9-M4-03 | A pull request that only edits `docs/` does not run the Playwright matrix |
+| P9-M4-03 | A pull request that only edits `docs/` or Markdown does not run the test jobs |
 | P9-M4-04 | A pull request that does not change `renovate.json` does not run the Renovate validator |
 | P9-M4-05 | Pushing a new commit to an open pull request cancels the older run |
 

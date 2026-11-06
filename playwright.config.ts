@@ -17,6 +17,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  // Reporter unit tests live next to the reporter and use node:test, not Playwright.
+  testIgnore: '**/reporters/**',
   outputDir: 'test-results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

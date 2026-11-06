@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { FullConfig, FullResult, Reporter, Suite, TestCase, TestResult } from '@playwright/test/reporter';
+import type { FullConfig, FullResult, Reporter, Suite, TestCase, TestError, TestResult } from '@playwright/test/reporter';
 import { formatDuration, formatReadableLine, type ReadableStatus } from './readable-line.mts';
 
 /**
@@ -13,6 +13,12 @@ class ReadableReporter implements Reporter {
   private failed = 0;
   private skipped = 0;
   private flaky = 0;
+
+  onError(error: TestError): void {
+    const message = error.message ?? error.value ?? 'Unknown error';
+    process.stderr.write(`${message}\n`);
+    if (error.stack) process.stderr.write(`${error.stack}\n`);
+  }
 
   onBegin(config: FullConfig, suite: Suite): void {
     this.rootDir = config.rootDir;

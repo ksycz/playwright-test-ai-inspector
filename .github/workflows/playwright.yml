@@ -6,8 +6,36 @@ on:
   pull_request:
 
 jobs:
+  changes:
+    name: Changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      run_ci: ${{ steps.decide.outputs.run_ci }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to run CI
+        id: decide
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run_ci=true" >> "$GITHUB_OUTPUT"
+            echo "Push to main: run CI"
+            exit 0
+          fi
+          files="$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD)"
+          decision="$(printf '%s\n' "$files" | node scripts/should-run-ci.mjs)"
+          echo "run_ci=$decision" >> "$GITHUB_OUTPUT"
+          echo "Changed files:"
+          printf '%s\n' "$files"
+          echo "Run CI: $decision"
+
   test:
     name: Playwright (${{ matrix.suite }})
+    needs: changes
+    if: needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -65,8 +93,8 @@ jobs:
 
   run-summary:
     name: AI run summary (PR)
-    needs: test
-    if: always() && github.event_name == 'pull_request'
+    needs: [changes, test]
+    if: always() && github.event_name == 'pull_request' && needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -135,6 +163,8 @@ jobs:
 
   ai-unit:
     name: AI Failure Analyzer unit tests
+    needs: changes
+    if: needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -162,7 +192,8 @@ jobs:
 
   dep-gate:
     name: New dependency gate
-    if: github.event_name == 'pull_request'
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -195,6 +226,8 @@ jobs:
 
   renovate-config:
     name: Renovate config
+    needs: changes
+    if: needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

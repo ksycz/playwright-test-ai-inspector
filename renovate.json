@@ -1,0 +1,38 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "description": "Wait 3 days before an npm update is proposed. A release that is yanked or compromised usually shows up in that window. Applies to root package.json and app/package.json. GitHub Actions and .nvmrc are not delayed.",
+      "matchManagers": ["npm"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Keep @playwright/test, playwright, and playwright-core in one pull request. Major updates stay in their own pull request because separateMajorMinor is on.",
+      "matchPackageNames": ["@playwright/test", "playwright", "playwright-core"],
+      "groupName": "Playwright"
+    },
+    {
+      "description": "Automerge Playwright patch and minor updates after required CI checks pass.",
+      "matchPackageNames": ["@playwright/test", "playwright", "playwright-core"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "description": "Bundle other non-major devDependency updates into one Monday pull request and automerge it after required CI checks pass.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchPackageNames": ["!@playwright/test", "!playwright", "!playwright-core"],
+      "groupName": "non-major devDependencies",
+      "schedule": ["before 6am on monday"],
+      "automerge": true
+    },
+    {
+      "description": "Major updates always need a person to review them.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
+  ]
+}

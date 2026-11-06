@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 9 — P9-M2 (P9-M1 complete; waiting for approval)
+**Current focus:** Phase 9 — P9-M3 (P9-M2 complete; waiting for approval)
 
 ---
 
@@ -2671,7 +2671,7 @@ Phase 3 classifier + Phase 4 flaky detector
 
 **Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P9-M2
+**Current focus:** P9-M3
 
 ### Goal
 
@@ -2765,6 +2765,10 @@ A new package also fails when `time.created` is under 7 days or weekly downloads
 
 ## P9-M2 — Renovate config + Dependabot alerts
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-06  
+**Dependencies:** P9-M1
+
 ### Implementation scope
 
 - `renovate.json` (each rule commented in the PR / docs):
@@ -2787,6 +2791,44 @@ A new package also fails when `time.created` is under 7 days or weekly downloads
 | P9-M2-04 | A release younger than `minimumReleaseAge` shows as pending, not as a PR |
 | P9-M2-05 | No Dependabot version-update PRs are opened |
 
+### Acceptance criteria
+
+- [x] `renovate.json` uses `config:recommended`, the Dependency Dashboard, a 3-day npm wait, a Playwright group, a weekly non-major devDependency group, and automerge only for patch/minor devDependencies
+- [x] `renovate-config-validator` passes locally and is a CI job
+- [x] Mend Renovate app installed (owner, Renovate Only, Scan and Alert)
+- [x] Dependabot alerts on; security updates, grouped security updates, and version updates off
+- [x] No `.github/dependabot.yml`
+
+### How to test
+
+| What you want to see | Command or place | Expected |
+|---|---|---|
+| Config is valid | CI job **Renovate config**, or `npx --yes --package renovate@44.221.5 renovate-config-validator` | `Config validated successfully` |
+| Rules stay in place | `node --experimental-strip-types --test ai/dep-gate/renovate-config.test.mts` | All cases pass |
+| Dashboard lists both package files, `.nvmrc`, and Actions | After this config is on `main`, the Renovate Dependency Dashboard issue | Same four files the onboarding PR already detected |
+| A brand-new npm release is held back | Dependency Dashboard, for 3 days after publish | Shown as pending, not opened as a pull request |
+| No Dependabot version PRs | Pull requests list | No pull request from `dependabot` |
+
+Do not merge onboarding pull request #5. It only contains `config:recommended`. Merging this milestone's `renovate.json` replaces it. Close #5 once that file is on `main`.
+
+### Implementation notes
+
+**Summary:** `renovate.json` keeps Renovate on the recommended preset and states the repo rules in `description` fields. npm updates wait 3 days. `@playwright/test`, `playwright`, and `playwright-core` share one pull request. Other non-major devDependency updates are grouped into one Monday pull request. Patch and minor devDependency updates automerge after required CI checks pass. Major updates do not. CI validates the file with Renovate 44.221.5 on Node 24. The Mend app and the Dependabot settings were turned on by hand.
+
+**Architectural decisions:**
+- `minimumReleaseAge` is an npm package rule, not a global setting, so GitHub Actions and `.nvmrc` are not delayed.
+- Playwright is excluded from the weekly devDependency group with negated `matchPackageNames`, which is the current Renovate form of `excludePackageNames`.
+- `separateMajorMinor` stays at its default, so a Playwright major does not sit in the same pull request as a Playwright minor.
+- Automerge uses Renovate's own merge, which waits for required status checks. It does not use GitHub's auto-merge button.
+- The validator job uses Node 24 because Renovate 44 does not support Node 22. The rest of CI stays on `.nvmrc`.
+
+**Deviations:**
+- Root `package.json`, `app/package.json`, `.nvmrc`, and GitHub Actions are covered by Renovate's default managers. The onboarding PR already detected all four, so the config does not set `enabledManagers`.
+- P9-M2-02, P9-M2-03, and P9-M2-04 can be confirmed only after this file is on `main` and Renovate runs. The local test locks the rules that produce that behavior.
+- The prose "Dependency updates" section in `docs/TESTING.md` remains P9-M3. Each rule is described inside `renovate.json`.
+
+**Tests implemented:** `ai/dep-gate/renovate-config.test.mts`.
+
 ## P9-M3 — Docs
 
 - `docs/TESTING.md`: "CI gates" table started here (gate, trigger, threshold, how to fix); Phase 11 extends it
@@ -2798,8 +2840,8 @@ A new package also fails when `time.created` is under 7 days or weekly downloads
 - [x] All CI jobs use `npm ci` (P9-M1)
 - [x] `npm audit --audit-level=high` in CI (P9-M1)
 - [x] New-dependency gate with unit tests (P9-M1)
-- [ ] Renovate config validated in CI; app installed (P9-M2)
-- [ ] Dependabot alerts on, version updates off (P9-M2)
+- [x] Renovate config validated in CI; app installed (P9-M2)
+- [x] Dependabot alerts on, version updates off (P9-M2)
 - [ ] Gate and Renovate rationale documented (P9-M3)
 
 ---
@@ -2818,7 +2860,7 @@ Phase 2 CI
 | Milestone | Status | Completed |
 |---|---|---|
 | P9-M1 — CI hygiene + new-dependency gate | ✅ Completed | 2026-11-06 |
-| P9-M2 — Renovate config + Dependabot alerts | ⏳ Planned | — |
+| P9-M2 — Renovate config + Dependabot alerts | ✅ Completed | 2026-11-06 |
 | P9-M3 — Docs | ⏳ Planned | — |
 
 ---
@@ -3099,6 +3141,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-06 | P9-M2 completed — Renovate config, validator CI job, Dependabot alerts only |
 | 2026-11-06 | P9-M1 how to test — README and roadmap commands for the dependency gate |
 | 2026-11-06 | P9-M1 completed — CI `npm ci` + `npm audit`, new-dependency gate |
 | 2026-11-06 | Phases 9–12 defined — dependency gate, LLM guardrails, quality gates for AI-written code, agentic exploratory testing |

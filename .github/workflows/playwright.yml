@@ -192,3 +192,19 @@ jobs:
 
       - name: Check new dependencies
         run: npm run analyze:deps -- --base ${{ github.event.pull_request.base.sha }}
+
+  renovate-config:
+    name: Renovate config
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Validate renovate.json
+        run: npx --yes --package renovate@44.221.5 renovate-config-validator

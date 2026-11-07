@@ -56,6 +56,19 @@ When generating optional LLM root-cause suggestions for Playwright failures:
 - Never request, log, or repeat API keys or secrets.
 - Respond with structured JSON only when asked by the analyzer prompt.
 
+## Failure analyzer threat model (Phase 10)
+
+Failure text comes from the page and the error. A model reply is written into Markdown, HTML, and pull-request comments. Each stage below is checked by `npm run test:ai` with fixtures. No API key is required.
+
+| Stage | What can go wrong | What the analyzer does | OWASP |
+|---|---|---|---|
+| Input | The page says "ignore previous instructions", or the error contains a token, email, or URL query | The excerpt is wrapped as data. Bearer tokens, JWTs, `API_KEY=`-style assignments, emails, and URL queries are replaced with `[REDACTED]` | LLM01 Prompt Injection, LLM02 Sensitive Information Disclosure |
+| Prompt | The model treats the excerpt as new instructions | The system prompt says the delimited block is data, not instructions | LLM01 Prompt Injection |
+| Output | The reply is huge, the wrong shape, or has extra fields | The reply is dropped. The heuristic classification remains | LLM05 Improper Output Handling |
+| Sink | A suggestion or failure title becomes an image, a link, or HTML in a report or pull-request comment | Accepted text is labelled "AI suggestion — unverified" and escaped for Markdown and HTML | LLM05 Improper Output Handling |
+
+An invalid model reply fails closed: the report still shows the heuristic category. The redaction note states how many values were removed and does not print them.
+
 ---
 
 ## Flaky / Trends / Run Summaries (Phases 4, 7, 8)

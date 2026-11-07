@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 10 — P10-M4 (P10-M3 complete; waiting for approval)
+**Current focus:** Phase 11 — Quality Gates for AI-Written Code (Phase 10 complete; waiting for approval)
 
 ---
 
@@ -51,7 +51,7 @@ After every completed milestone, update:
 | **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
 | **9** | Dependency Gate | ✅ Completed | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts, faster CI |
-| **10** | LLM Guardrails | 🚧 In progress | OWASP LLM Top 10: prompt injection, output handling, input redaction |
+| **10** | LLM Guardrails | ✅ Completed | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ⏳ Planned | Mutation testing, convention-aware PR review |
 | **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
 
@@ -2916,9 +2916,9 @@ Phase 2 CI
 
 # Phase 10 — LLM Guardrails
 
-**Status:** 🚧 In progress  
-**Completed:** —  
-**Current focus:** P10-M4
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07  
+**Current focus:** —
 
 ### Goal
 
@@ -3007,6 +3007,9 @@ Treat the optional LLM step in the Failure Analyzer as untrusted, following the 
 
 ## P10-M4 — Docs
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
+
 - `docs/AI_GUIDELINES.md`: threat model table (input → prompt → output → sink) with OWASP IDs
 - Analyzer README: "Guardrails" section + demo command on the injection fixture
 - `docs/DEMO.md`: optional 1-minute "attack the analyzer" segment
@@ -3016,8 +3019,8 @@ Treat the optional LLM step in the Failure Analyzer as untrusted, following the 
 - [x] Injection fixture + tests (P10-M1)
 - [x] Strict output schema + Markdown escaping (P10-M2)
 - [x] Redaction before any provider call (P10-M3)
-- [ ] Threat model documented with OWASP mapping (P10-M4)
-- [ ] `npm run test:ai` green, no API key required
+- [x] Threat model documented with OWASP mapping (P10-M4)
+- [x] `npm run test:ai` green, no API key required
 
 ---
 
@@ -3038,7 +3041,7 @@ Phase 3 failure analyzer (optional LLM)
 | P10-M1 — Adversarial fixtures | ✅ Completed | 2026-11-07 |
 | P10-M2 — Output contract hardening | ✅ Completed | 2026-11-07 |
 | P10-M3 — Input redaction | ✅ Completed | 2026-11-07 |
-| P10-M4 — Docs | ⏳ Planned | — |
+| P10-M4 — Docs | ✅ Completed | 2026-11-07 |
 
 ---
 
@@ -3199,6 +3202,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-07 | P10-M4 completed — threat model for analyzer input, prompt, output, and report sinks |
 | 2026-11-07 | P10-M3 completed — redact secrets before a model request and note the count in the report |
 | 2026-11-07 | P10-M2 completed — reject malformed model replies and escape the rest in Markdown and HTML |
 | 2026-11-07 | P10-M1 completed — untrusted failure context is delimited in the analyzer prompt |

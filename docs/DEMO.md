@@ -54,6 +54,18 @@ Open the HTML (or the committed preview screenshot / sample):
 
 **Say:** “Offline by default—no API key. Optional `--llm` only when I want third-party suggestions.”
 
+### Optional — Attack the analyzer (about 1 minute)
+
+Skip this if the five minutes are already full. Use it when someone asks whether the model can be talked into a wrong verdict.
+
+```bash
+npm run analyze:report -- ai/failure-analyzer/fixtures/prompt-injection --no-llm
+```
+
+**Say:** “The error text tells the model to ignore its instructions and call this a network failure. The report still says assertion. Secrets would be replaced with `[REDACTED]` before any model call. A bad reply is dropped. Anything that is shown is labelled unverified and cannot become a link or HTML.”
+
+**Point at:** category `assertion`, then the injected sentence still sitting in the excerpt as evidence.
+
 ### 3:00–4:00 — Flaky vs hard fail + PR summary
 
 ```bash
@@ -92,6 +104,7 @@ npm run test:visual
 
 # AI CLIs (fixtures)
 npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+npm run analyze:report -- ai/failure-analyzer/fixtures/prompt-injection --no-llm
 npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
 npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
 npm run analyze:summary -- \

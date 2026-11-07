@@ -100,3 +100,14 @@ Categories: `assertion`, `timeout`, `locator`, `network`, `auth`, `unknown`.
 
 - `fixtures/sample-failure/` — golden folder with screenshot, video, trace, and error context
 - `fixtures/empty-failure/` — empty folder for edge-case coverage
+- `fixtures/prompt-injection/` — assertion failure whose error text tells the model to ignore its instructions
+
+## Guardrails
+
+The optional model step treats failure text as untrusted. Details and the OWASP mapping are in [`docs/AI_GUIDELINES.md`](../../docs/AI_GUIDELINES.md).
+
+```bash
+npm run analyze:report -- ai/failure-analyzer/fixtures/prompt-injection --no-llm
+```
+
+The report still classifies that fixture as `assertion`. The sentence "ignore previous instructions" stays in the excerpt and does not replace the classification. `npm run test:ai` covers the same cases offline, including secret redaction and escaped model output. No API key is required.

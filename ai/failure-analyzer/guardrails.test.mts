@@ -5,7 +5,8 @@ import { classifyFailure } from './classify.mts';
 import { generateHtmlReport, generateMarkdownReport } from './report.mts';
 import { generateRunSummaryMarkdown } from '../run-summary/report.mts';
 import type { RunSummaryReport } from '../run-summary/types.mts';
-import { buildRootCausePrompt, parseSuggestionPayload, SYSTEM_PROMPT } from './suggest.mts';
+import { redactSecrets } from '../shared/redact.mts';
+import { buildRootCausePrompt, createOpenAiProvider, parseSuggestionPayload, SYSTEM_PROMPT } from './suggest.mts';
 import type { FailureContext, LlmProvider } from './types.mts';
 
 const START = '<<<UNTRUSTED_FAILURE_CONTEXT>>>';
@@ -219,5 +220,94 @@ describe('P10-M2 output contract', () => {
     assert.match(markdown, /attacker\.example/);
     assert.doesNotMatch(markdown, /!\[[^\]]*\]\(/);
     assert.doesNotMatch(markdown, /<img/i);
+  });
+});
+
+const SECRET_JWT = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.signaturevalue';
+const SECRET_BEARER = 'sk-live-secret-token';
+const SECRET_API_KEY = 'super-secret-value';
+const SECRET_EMAIL = 'ada@example.com';
+const SECRET_QUERY = 'token=abc123';
+
+const secretError = `Error: expect(page).toHaveURL(expected) failed
+Expected: "/order-confirmation"
+Received: "/checkout"
+Authorization: Bearer ${SECRET_BEARER}
+token: ${SECRET_JWT}
+API_KEY=${SECRET_API_KEY}
+Contact ${SECRET_EMAIL}
+Reset at https://shop.example/reset?${SECRET_QUERY}
+The password field stayed empty.`;
+
+describe('P10-M3 input redaction', () => {
+  it('P10-M3-01: JWT, Bearer, and API_KEY values are replaced', () => {
+    const redacted = redactSecrets(secretError);
+
+    assert.match(redacted.text, /Bearer \[REDACTED\]/);
+    assert.match(redacted.text, /API_KEY=\[REDACTED\]/);
+    assert.match(redacted.text, /\[REDACTED\]/);
+    assert.doesNotMatch(redacted.text, new RegExp(SECRET_JWT));
+    assert.doesNotMatch(redacted.text, new RegExp(SECRET_BEARER));
+    assert.doesNotMatch(redacted.text, new RegExp(SECRET_API_KEY));
+    assert.doesNotMatch(redacted.text, new RegExp(SECRET_EMAIL));
+    assert.doesNotMatch(redacted.text, new RegExp(SECRET_QUERY));
+    assert.ok(redacted.count >= 5);
+
+    const report = generateMarkdownReport(contextFrom(secretError));
+    assert.match(report, new RegExp(`Redacted ${redacted.count} secret-like values`));
+    assert.doesNotMatch(report, new RegExp(SECRET_API_KEY));
+    assert.doesNotMatch(report, new RegExp(SECRET_BEARER));
+    assert.match(report, /Expected: "\/order-confirmation"/);
+  });
+
+  it('P10-M3-02: the provider request body does not contain fixture secrets', async () => {
+    let body = '';
+    const provider = createOpenAiProvider('sk-test', {
+      fetchImpl: async (_url, init) => {
+        body = String(init?.body ?? '');
+        return new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    summary: 'URL assertion failed.',
+                    hypotheses: ['Navigation did not finish.', 'The route is wrong.'],
+                    caveats: ['Check the screenshot.'],
+                  }),
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      },
+    });
+
+    await provider.suggestRootCause(contextFrom(secretError));
+
+    assert.doesNotMatch(body, new RegExp(SECRET_JWT));
+    assert.doesNotMatch(body, new RegExp(SECRET_BEARER));
+    assert.doesNotMatch(body, new RegExp(SECRET_API_KEY));
+    assert.doesNotMatch(body, new RegExp(SECRET_EMAIL));
+    assert.doesNotMatch(body, new RegExp(SECRET_QUERY));
+    assert.match(body, /\[REDACTED\]/);
+    assert.match(body, /Expected: \\"\/order-confirmation\\"/);
+  });
+
+  it('P10-M3-03: non-secret error text is unchanged', () => {
+    const plain = `Expected: "/order-confirmation"
+Received: "/checkout"
+The password field stayed empty.
+https://localhost:5173/checkout`;
+    const redacted = redactSecrets(plain);
+
+    assert.equal(redacted.count, 0);
+    assert.equal(redacted.text, plain);
+
+    const prompt = buildRootCausePrompt(contextFrom(plain));
+    assert.match(prompt, /The password field stayed empty/);
+    assert.match(prompt, /https:\/\/localhost:5173\/checkout/);
+    assert.doesNotMatch(prompt, /\[REDACTED\]/);
   });
 });

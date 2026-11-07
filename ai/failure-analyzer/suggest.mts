@@ -1,3 +1,4 @@
+import { redactSecrets } from '../shared/redact.mts';
 import type { FailureContext, LlmProvider, RootCauseSuggestion } from './types.mts';
 
 export type FetchLike = typeof fetch;
@@ -33,12 +34,14 @@ function excerptForPrompt(text: string | null): string {
     /(?:^|\n)#{1,6}\s*Error\s*\n([\s\S]*?)(?=\n#{1,6}\s|$)/i,
   );
   const body = (errorSection?.[1] ?? trimmed).trim().replace(/^#{1,6}\s+/gm, '');
-  return body
-    .slice(0, 2000)
-    .split(CONTEXT_END)
-    .join('[removed end delimiter]')
-    .split(CONTEXT_START)
-    .join('[removed start delimiter]');
+  return redactSecrets(
+    body
+      .slice(0, 2000)
+      .split(CONTEXT_END)
+      .join('[removed end delimiter]')
+      .split(CONTEXT_START)
+      .join('[removed start delimiter]'),
+  ).text;
 }
 
 export function buildRootCausePrompt(context: FailureContext): string {

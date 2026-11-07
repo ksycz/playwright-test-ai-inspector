@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 10 — P10-M3 (P10-M2 complete; waiting for approval)
+**Current focus:** Phase 10 — P10-M4 (P10-M3 complete; waiting for approval)
 
 ---
 
@@ -2918,7 +2918,7 @@ Phase 2 CI
 
 **Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P10-M3
+**Current focus:** P10-M4
 
 ### Goal
 
@@ -2989,6 +2989,9 @@ Treat the optional LLM step in the Failure Analyzer as untrusted, following the 
 
 ## P10-M3 — Input redaction (LLM02 Sensitive Information Disclosure)
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
+
 ### Implementation scope
 
 - `ai/shared/redact.mts`: redact bearer tokens, JWTs, `KEY=value` secrets, emails and URL query strings before building the prompt
@@ -3012,7 +3015,7 @@ Treat the optional LLM step in the Failure Analyzer as untrusted, following the 
 
 - [x] Injection fixture + tests (P10-M1)
 - [x] Strict output schema + Markdown escaping (P10-M2)
-- [ ] Redaction before any provider call (P10-M3)
+- [x] Redaction before any provider call (P10-M3)
 - [ ] Threat model documented with OWASP mapping (P10-M4)
 - [ ] `npm run test:ai` green, no API key required
 
@@ -3034,7 +3037,7 @@ Phase 3 failure analyzer (optional LLM)
 |---|---|---|
 | P10-M1 — Adversarial fixtures | ✅ Completed | 2026-11-07 |
 | P10-M2 — Output contract hardening | ✅ Completed | 2026-11-07 |
-| P10-M3 — Input redaction | ⏳ Planned | — |
+| P10-M3 — Input redaction | ✅ Completed | 2026-11-07 |
 | P10-M4 — Docs | ⏳ Planned | — |
 
 ---
@@ -3196,6 +3199,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-07 | P10-M3 completed — redact secrets before a model request and note the count in the report |
 | 2026-11-07 | P10-M2 completed — reject malformed model replies and escape the rest in Markdown and HTML |
 | 2026-11-07 | P10-M1 completed — untrusted failure context is delimited in the analyzer prompt |
 | 2026-11-07 | P9-M4 completed — Playwright image, 2 workers, path filters, cancel in-progress |

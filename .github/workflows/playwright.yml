@@ -22,7 +22,7 @@ jobs:
       run_review: ${{ steps.decide.outputs.run_review }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -66,7 +66,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Read installed Playwright version
         id: version
@@ -89,7 +89,7 @@ jobs:
         suite: [smoke, e2e, api, visual]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -144,7 +144,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -183,7 +183,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -261,7 +261,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -293,7 +293,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Fetch PR base
         run: git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.sha }}
@@ -318,7 +318,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -336,7 +336,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v5

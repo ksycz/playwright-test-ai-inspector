@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 11 — P11-M3 (P11-M1 and P11-M2 complete; waiting for approval)
+**Current focus:** Phase 12 — Agentic Exploratory Testing (Phase 11 complete; waiting for approval)
 
 ---
 
@@ -52,7 +52,7 @@ After every completed milestone, update:
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
 | **9** | Dependency Gate | ✅ Completed | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts, faster CI |
 | **10** | LLM Guardrails | ✅ Completed | OWASP LLM Top 10: prompt injection, output handling, input redaction |
-| **11** | Quality Gates for AI-Written Code | 🚧 In progress | Mutation testing, convention-aware PR review |
+| **11** | Quality Gates for AI-Written Code | ✅ Completed | Mutation testing, convention-aware PR review, gate list |
 | **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
 
 ---
@@ -3047,9 +3047,9 @@ Phase 3 failure analyzer (optional LLM)
 
 # Phase 11 — Quality Gates for AI-Written Code
 
-**Status:** 🚧 In progress  
-**Completed:** —  
-**Current focus:** P11-M3
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07  
+**Current focus:** —
 
 ### Goal
 
@@ -3117,6 +3117,9 @@ Mutating every `ai/**/*.mts` file with the command runner produced 2,276 mutants
 
 ## P11-M3 — Docs
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
+
 - `docs/TESTING.md`: extend the "CI gates" table from Phase 9 (gate, trigger, threshold, how to fix)
 - README: gates added to the AI tooling list and demo
 
@@ -3124,7 +3127,7 @@ Mutating every `ai/**/*.mts` file with the command runner produced 2,276 mutants
 
 - [x] Stryker baseline + break threshold (P11-M1)
 - [x] Heuristic + optional LLM review in PR comment (P11-M2)
-- [ ] Gates documented (P11-M3)
+- [x] Gates documented (P11-M3)
 
 ---
 
@@ -3143,7 +3146,7 @@ Phase 9 dependency gate + Phase 10 guardrails
 |---|---|---|
 | P11-M1 — Mutation testing | ✅ Completed | 2026-11-07 |
 | P11-M2 — Convention-aware PR review | ✅ Completed | 2026-11-07 |
-| P11-M3 — Docs | ⏳ Planned | — |
+| P11-M3 — Docs | ✅ Completed | 2026-11-07 |
 
 ---
 
@@ -3214,6 +3217,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-07 | P11-M3 completed — CI gates table and README cover mutation testing and the test review |
 | 2026-11-07 | P11-M2 completed — heuristic test-convention review on pull requests, optional model notes |
 | 2026-11-07 | P11-M1 completed — mutation testing on logic modules via the TAP runner, break at 47 |
 | 2026-11-07 | P10-M4 completed — threat model for analyzer input, prompt, output, and report sinks |

@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 11 — P11-M2 (P11-M1 complete; waiting for approval)
+**Current focus:** Phase 11 — P11-M3 (P11-M1 and P11-M2 complete; waiting for approval)
 
 ---
 
@@ -3049,7 +3049,7 @@ Phase 3 failure analyzer (optional LLM)
 
 **Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P11-M2
+**Current focus:** P11-M3
 
 ### Goal
 
@@ -3096,6 +3096,9 @@ Mutating every `ai/**/*.mts` file with the command runner produced 2,276 mutants
 
 ## P11-M2 — Convention-aware PR review of test code (LLM-as-a-judge)
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
+
 ### Implementation scope
 
 - `ai/pr-review/`: collect the PR diff for `tests/**`
@@ -3120,7 +3123,7 @@ Mutating every `ai/**/*.mts` file with the command runner produced 2,276 mutants
 ### Acceptance criteria
 
 - [x] Stryker baseline + break threshold (P11-M1)
-- [ ] Heuristic + optional LLM review in PR comment (P11-M2)
+- [x] Heuristic + optional LLM review in PR comment (P11-M2)
 - [ ] Gates documented (P11-M3)
 
 ---
@@ -3139,7 +3142,7 @@ Phase 9 dependency gate + Phase 10 guardrails
 | Milestone | Status | Completed |
 |---|---|---|
 | P11-M1 — Mutation testing | ✅ Completed | 2026-11-07 |
-| P11-M2 — Convention-aware PR review | ⏳ Planned | — |
+| P11-M2 — Convention-aware PR review | ✅ Completed | 2026-11-07 |
 | P11-M3 — Docs | ⏳ Planned | — |
 
 ---
@@ -3211,6 +3214,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-07 | P11-M2 completed — heuristic test-convention review on pull requests, optional model notes |
 | 2026-11-07 | P11-M1 completed — mutation testing on logic modules via the TAP runner, break at 47 |
 | 2026-11-07 | P10-M4 completed — threat model for analyzer input, prompt, output, and report sinks |
 | 2026-11-07 | P10-M3 completed — redact secrets before a model request and note the count in the report |

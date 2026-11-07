@@ -106,7 +106,7 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 8 complete — P8-M1 through P8-M3 (multi-suite run summary Markdown + sticky PR comments).
 
-🚧 Phase 9 in progress — P9-M1 dependency gate (`npm ci`, `npm audit`, new-package check). P9-M2 is Renovate.
+✅ Phase 9 complete — dependency gate, Renovate, and a shorter CI run (shared Chromium image, 2 workers).
 
 **Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
 
@@ -334,7 +334,7 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Pull requests:** sticky AI run summary comment after the matrix finishes, plus the new-dependency gate against the PR base (see below)
 - **Install:** `npm ci` (root, and `app/` where the job needs it), not `npm install`
 - **Audit:** `npm audit --audit-level=high` for the root and app lockfiles
-- **Docs-only pull requests:** a change that only touches `docs/` or Markdown skips the test jobs. The gates and the Renovate versus Dependabot split are in [`docs/TESTING.md`](docs/TESTING.md).
+- **Docs-only pull requests:** a change that only touches `docs/` or Markdown skips the test jobs. Suite jobs use the Playwright container image that matches the installed `@playwright/test` version, and they run with 2 workers. The gates and the Renovate versus Dependabot split are in [`docs/TESTING.md`](docs/TESTING.md).
 
 Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
 

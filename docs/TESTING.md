@@ -182,8 +182,8 @@ CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 GitHub Actions workflow: `.github/workflows/playwright.yml`
 
 - Triggers on `push` to `main` and on `pull_request`
-- Matrix jobs run `test:smoke`, `test:e2e`, `test:api`, and `test:visual` in parallel with `CI=true`
-- Uses Node 22 from `.nvmrc` and project-local browsers via `PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers`
+- Matrix jobs run `test:smoke`, `test:e2e`, `test:api`, and `test:visual` in parallel with `CI=true` and 2 workers
+- Uses Node 22 from `.nvmrc`. The suite jobs run in the Playwright container image that matches the installed `@playwright/test` version, so Chromium is already there. Local runs still use `.playwright-browsers`.
 - Always uploads `playwright-json-<suite>` (`playwright-results.json`) for AI run summaries
 - On failure, also uploads `playwright-report/` and full `test-results/` (14-day retention)
 - PR job posts/updates a sticky AI run summary comment
@@ -198,9 +198,9 @@ Phase 11 will add rows to this table. Thresholds below are the ones enforced tod
 | Gate | When it runs | Threshold | How to fix a failure |
 |---|---|---|---|
 | `npm ci` | Every job that installs dependencies | `package-lock.json` matches `package.json` for the root and for `app/` | Run `npm install` in the directory you changed and commit the lockfile |
-| `npm audit --audit-level=high` | `ai-unit` and `dep-gate` | No high-severity advisory in the root or app lockfile | Upgrade the affected package, or run `npm audit fix` when the fix stays inside the existing version range |
+| `npm audit --audit-level=high` | `ai-unit` | No high-severity advisory in the root or app lockfile | Upgrade the affected package, or run `npm audit fix` when the fix stays inside the existing version range |
 | New dependency gate | Pull requests | A **new** package name must exist on npm, be at least 7 days old, and have at least 1000 weekly downloads | Depend on a package that already clears those bars. A version bump of a package already in the base is not checked here |
-| Renovate config | Jobs that run CI (skipped for docs-only pull requests) | `renovate.json` passes `renovate-config-validator` | Fix the JSON. Locally: `npx --yes --package renovate@44.221.5 renovate-config-validator` |
+| Renovate config | Pull requests and pushes that change `renovate.json` | `renovate.json` passes `renovate-config-validator` | Fix the JSON. Locally: `npx --yes --package renovate@44.221.5 renovate-config-validator` |
 
 The new-dependency gate names the package and the rule in the log. See the README section **Dependency gate** for a local pass and a local failure.
 

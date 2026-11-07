@@ -67,6 +67,7 @@ This repository is developed incrementally and serves as both a learning journey
 - Flaky Test Detector
 - Historical Failure Trends
 - Run / PR Summaries
+- Mutation testing (`npm run test:mutation`)
 - Test convention review (`npm run analyze:review`)
 - Visual regression (`@visual` screenshots)
 - Playwright MCP (AI-driven exploration and test generation)
@@ -111,7 +112,7 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 10 complete — failure text is untrusted data, model replies must match a short schema, and secrets are removed before a provider call.
 
-🚧 Phase 11 in progress — mutation testing on the analyzer logic modules, and a convention review on the sticky comment when a pull request changes tests. The review does not block the merge. Next is the written gate list.
+✅ Phase 11 complete — mutation testing on the analyzer logic modules, and a convention review on the sticky comment when a pull request changes tests. The review does not block the merge.
 
 **Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
 
@@ -140,7 +141,15 @@ npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.js
 npm run analyze:summary -- \
   --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
   --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+
+# Mutation score on the logic modules (about a minute). CI fails below 47.
+npm run test:mutation
+
+# Convention review of a saved test diff. Findings do not fail the command.
+npm run analyze:review -- --diff path/to/tests.diff --no-llm
 ```
+
+CI runs mutation when a pull request changes `ai/` (and once a night). It appends the convention review to the sticky comment when a pull request changes `tests/`. The gate list is in [`docs/TESTING.md`](docs/TESTING.md).
 
 ### Portfolio screenshots
 
@@ -476,8 +485,8 @@ npm run analyze:summary -- \
   --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
 ```
 
-On pull requests, CI posts (and updates) a sticky summary comment after the matrix suites finish.  
-Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md).
+On pull requests, CI posts (and updates) a sticky summary comment after the matrix suites finish. When the pull request also changes tests, the same comment includes the convention review.  
+Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md) and [`ai/pr-review/README.md`](ai/pr-review/README.md).
 
 ### AI-assisted test generation with Playwright MCP
 

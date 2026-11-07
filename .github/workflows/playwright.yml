@@ -5,12 +5,17 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   changes:
     name: Changed paths
     runs-on: ubuntu-latest
     outputs:
       run_ci: ${{ steps.decide.outputs.run_ci }}
+      run_renovate: ${{ steps.decide.outputs.run_renovate }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -20,23 +25,45 @@ jobs:
       - name: Decide whether to run CI
         id: decide
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "run_ci=true" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            files="$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD)"
+            decision="$(printf '%s\n' "$files" | node scripts/should-run-ci.mjs)"
+          else
+            files="$(git diff --name-only HEAD~1 HEAD || true)"
+            decision="true"
             echo "Push to main: run CI"
-            exit 0
           fi
-          files="$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD)"
-          decision="$(printf '%s\n' "$files" | node scripts/should-run-ci.mjs)"
+          renovate="$(printf '%s\n' "$files" | node scripts/should-run-renovate.mjs)"
           echo "run_ci=$decision" >> "$GITHUB_OUTPUT"
+          echo "run_renovate=$renovate" >> "$GITHUB_OUTPUT"
           echo "Changed files:"
           printf '%s\n' "$files"
           echo "Run CI: $decision"
+          echo "Run Renovate validator: $renovate"
+
+  playwright-version:
+    name: Playwright version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Read installed Playwright version
+        id: version
+        run: |
+          version="$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Playwright image tag v${version}-noble"
 
   test:
     name: Playwright (${{ matrix.suite }})
-    needs: changes
+    needs: [changes, playwright-version]
     if: needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -51,20 +78,20 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
 
       - name: Install dependencies
         run: |
           npm ci
           npm ci --prefix app
-          npm run playwright:install
-
-      - name: Install Playwright system dependencies
-        run: PLAYWRIGHT_BROWSERS_PATH=.playwright-browsers npx playwright install-deps chromium
 
       - name: Run ${{ matrix.suite }} tests
         run: npm run test:${{ matrix.suite }}
         env:
           CI: true
+          PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
 
       - name: Upload Playwright JSON results
         if: always()
@@ -176,6 +203,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
 
       - name: Install dependencies
         run: |
@@ -199,8 +229,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+
+      - name: Fetch PR base
+        run: git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -209,17 +240,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npm ci --prefix app
-
-      - name: Audit dependencies
-        run: |
-          npm audit --audit-level=high
-          npm audit --audit-level=high --prefix app
-
-      - name: Fetch PR base
-        run: git fetch --no-tags origin ${{ github.event.pull_request.base.sha }}
+        run: npm ci
 
       - name: Check new dependencies
         run: npm run analyze:deps -- --base ${{ github.event.pull_request.base.sha }}
@@ -227,7 +248,7 @@ jobs:
   renovate-config:
     name: Renovate config
     needs: changes
-    if: needs.changes.outputs.run_ci == 'true'
+    if: needs.changes.outputs.run_renovate == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

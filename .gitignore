@@ -18,6 +18,9 @@ app/**/*.tsbuildinfo
 .env
 .env.*
 /ai-reports/
+/reports/
+.stryker-tmp/
+scripts/mutation-spike/*-report.json
 
 # OS
 .DS_Store

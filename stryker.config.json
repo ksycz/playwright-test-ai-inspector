@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "tap",
+  "coverageAnalysis": "perTest",
+  "ignoreStatic": true,
+  "incremental": true,
+  "tap": {
+    "testFiles": [
+      "ai/**/*.test.mts",
+      "app/**/*.test.mts",
+      "tests/reporters/**/*.test.mts",
+      "scripts/**/*.test.mts"
+    ],
+    "nodeArgs": [
+      "--experimental-strip-types",
+      "--test-reporter=tap",
+      "-r",
+      "{{hookFile}}",
+      "{{testFile}}"
+    ]
+  },
+  "mutate": [
+    "ai/shared/redact.mts",
+    "ai/shared/markdown.mts",
+    "ai/shared/pathContainment.mts",
+    "ai/shared/cliArgs.mts",
+    "ai/dep-gate/gate.mts",
+    "ai/failure-analyzer/classify.mts",
+    "ai/failure-analyzer/suggest.mts",
+    "ai/flaky-detector/analyze.mts"
+  ],
+  "reporters": ["html", "clear-text", "progress"],
+  "htmlReporter": {
+    "fileName": "reports/mutation/index.html"
+  },
+  "ignorePatterns": [".cursor", ".playwright-browsers", "playwright-report", "test-results", "ai-reports", "reports", "notes"],
+  "thresholds": {
+    "high": 80,
+    "low": 70,
+    "break": 47
+  }
+}

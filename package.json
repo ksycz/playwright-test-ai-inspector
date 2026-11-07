@@ -26,6 +26,7 @@
     "analyze:trends": "node --experimental-strip-types ai/failure-trends/cli.mts",
     "analyze:summary": "node --experimental-strip-types ai/run-summary/cli.mts",
     "analyze:deps": "node --experimental-strip-types ai/dep-gate/cli.mts",
+    "analyze:review": "node --experimental-strip-types ai/pr-review/cli.mts",
     "report": "playwright show-report playwright-report",
     "trace": "playwright show-trace"
   },

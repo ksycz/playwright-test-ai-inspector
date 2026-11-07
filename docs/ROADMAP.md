@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 11 — Quality Gates for AI-Written Code (Phase 10 complete; waiting for approval)
+**Current focus:** Phase 11 — P11-M3 (P11-M2 complete; waiting for approval)
 
 ---
 
@@ -52,7 +52,7 @@ After every completed milestone, update:
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
 | **9** | Dependency Gate | ✅ Completed | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts, faster CI |
 | **10** | LLM Guardrails | ✅ Completed | OWASP LLM Top 10: prompt injection, output handling, input redaction |
-| **11** | Quality Gates for AI-Written Code | ⏳ Planned | Mutation testing, convention-aware PR review |
+| **11** | Quality Gates for AI-Written Code | 🚧 In progress | Mutation testing, convention-aware PR review |
 | **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
 
 ---
@@ -3047,9 +3047,9 @@ Phase 3 failure analyzer (optional LLM)
 
 # Phase 11 — Quality Gates for AI-Written Code
 
-**Status:** ⏳ Planned  
+**Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** —
+**Current focus:** P11-M3
 
 ### Goal
 
@@ -3087,6 +3087,9 @@ Add CI gates that catch the typical failure modes of AI-assisted development (on
 
 ## P11-M2 — Convention-aware PR review of test code (LLM-as-a-judge)
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
+
 ### Implementation scope
 
 - `ai/pr-review/`: collect the PR diff for `tests/**`
@@ -3111,7 +3114,7 @@ Add CI gates that catch the typical failure modes of AI-assisted development (on
 ### Acceptance criteria
 
 - [ ] Stryker baseline + break threshold (P11-M1)
-- [ ] Heuristic + optional LLM review in PR comment (P11-M2)
+- [x] Heuristic + optional LLM review in PR comment (P11-M2)
 - [ ] Gates documented (P11-M3)
 
 ---
@@ -3130,7 +3133,7 @@ Phase 9 dependency gate + Phase 10 guardrails
 | Milestone | Status | Completed |
 |---|---|---|
 | P11-M1 — Mutation testing | ⏳ Planned | — |
-| P11-M2 — Convention-aware PR review | ⏳ Planned | — |
+| P11-M2 — Convention-aware PR review | ✅ Completed | 2026-11-07 |
 | P11-M3 — Docs | ⏳ Planned | — |
 
 ---
@@ -3202,6 +3205,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-07 | P11-M2 completed — heuristic test-convention review on pull requests, optional model notes |
 | 2026-11-07 | P10-M4 completed — threat model for analyzer input, prompt, output, and report sinks |
 | 2026-11-07 | P10-M3 completed — redact secrets before a model request and note the count in the report |
 | 2026-11-07 | P10-M2 completed — reject malformed model replies and escape the rest in Markdown and HTML |

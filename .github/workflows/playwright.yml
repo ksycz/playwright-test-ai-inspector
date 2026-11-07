@@ -16,6 +16,7 @@ jobs:
     outputs:
       run_ci: ${{ steps.decide.outputs.run_ci }}
       run_renovate: ${{ steps.decide.outputs.run_renovate }}
+      run_review: ${{ steps.decide.outputs.run_review }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -34,12 +35,15 @@ jobs:
             echo "Push to main: run CI"
           fi
           renovate="$(printf '%s\n' "$files" | node scripts/should-run-renovate.mjs)"
+          review="$(printf '%s\n' "$files" | node scripts/should-run-review.mjs)"
           echo "run_ci=$decision" >> "$GITHUB_OUTPUT"
           echo "run_renovate=$renovate" >> "$GITHUB_OUTPUT"
+          echo "run_review=$review" >> "$GITHUB_OUTPUT"
           echo "Changed files:"
           printf '%s\n' "$files"
           echo "Run CI: $decision"
           echo "Run Renovate validator: $renovate"
+          echo "Run test review: $review"
 
   playwright-version:
     name: Playwright version
@@ -118,9 +122,45 @@ jobs:
           path: test-results/
           retention-days: 14
 
+  test-review:
+    name: Test convention review
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.run_review == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Review the test diff
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          git diff --unified=3 ${{ github.event.pull_request.base.sha }} HEAD -- tests > /tmp/tests.diff
+          npm run analyze:review -- --diff /tmp/tests.diff --out ai-reports/pr-review.md
+
+      - name: Upload test review
+        uses: actions/upload-artifact@v5
+        with:
+          name: pr-review
+          path: ai-reports/pr-review.md
+          if-no-files-found: error
+          retention-days: 14
+
   run-summary:
     name: AI run summary (PR)
-    needs: [changes, test]
+    needs: [changes, test, test-review]
     if: always() && github.event_name == 'pull_request' && needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -147,6 +187,13 @@ jobs:
           path: artifacts
           merge-multiple: false
 
+      - name: Download test review
+        continue-on-error: true
+        uses: actions/download-artifact@v5
+        with:
+          name: pr-review
+          path: ai-reports
+
       - name: Build Markdown summary
         id: summary
         env:
@@ -172,6 +219,10 @@ jobs:
             echo "$MARKER"
             echo
             cat ai-reports/run-summary.md
+            if [ -f ai-reports/pr-review.md ]; then
+              echo
+              cat ai-reports/pr-review.md
+            fi
           } > /tmp/pr-run-summary.md
 
           PR_NUMBER='${{ github.event.pull_request.number }}'

@@ -1,3 +1,4 @@
+import { escapeMarkdown } from '../shared/markdown.mts';
 import type { RunSummaryReport, SuiteRunSummary } from './types.mts';
 
 function statusEmoji(status: SuiteRunSummary['status'] | RunSummaryReport['overallStatus']): string {
@@ -17,7 +18,7 @@ function statusEmoji(status: SuiteRunSummary['status'] | RunSummaryReport['overa
 
 function formatSuiteSection(suite: SuiteRunSummary): string {
   const lines: string[] = [
-    `### ${statusEmoji(suite.status)} \`${suite.suite}\``,
+    `### ${statusEmoji(suite.status)} \`${escapeMarkdown(suite.suite)}\``,
     '',
     `| Metric | Count |`,
     `|---|---|`,
@@ -31,9 +32,9 @@ function formatSuiteSection(suite: SuiteRunSummary): string {
   if (suite.hardFailures.length > 0) {
     lines.push('**Hard failures**', '');
     for (const failure of suite.hardFailures) {
-      const error = failure.lastError ? ` — \`${failure.lastError}\`` : '';
-      lines.push(`- **${failure.category}:** ${failure.fullTitle}${error}`);
-      lines.push(`  - file: \`${failure.file}\``);
+      const error = failure.lastError ? ` — \`${escapeMarkdown(failure.lastError)}\`` : '';
+      lines.push(`- **${escapeMarkdown(failure.category)}:** ${escapeMarkdown(failure.fullTitle)}${error}`);
+      lines.push(`  - file: \`${escapeMarkdown(failure.file)}\``);
     }
     lines.push('');
   }
@@ -41,7 +42,7 @@ function formatSuiteSection(suite: SuiteRunSummary): string {
   if (suite.flakyTests.length > 0) {
     lines.push('**Flaky tests**', '');
     for (const title of suite.flakyTests) {
-      lines.push(`- ${title}`);
+      lines.push(`- ${escapeMarkdown(title)}`);
     }
     lines.push('');
   }

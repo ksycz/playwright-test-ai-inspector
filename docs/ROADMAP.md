@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 11 — P11-M3 (P11-M2 complete; waiting for approval)
+**Current focus:** Phase 11 — P11-M3 (P11-M1 and P11-M2 complete; waiting for approval)
 
 ---
 
@@ -3059,7 +3059,7 @@ Add CI gates that catch the typical failure modes of AI-assisted development (on
 
 - Each gate is a separate CI job with a clear pass/fail reason in the PR summary comment
 - LLM review is optional: a heuristic layer always runs, the LLM layer only runs when a key is present (it is skipped on fork PRs, which get no secrets)
-- Expensive gates (mutation testing) run on a path filter or nightly, not on every PR
+- Expensive gates run on a path filter, not on every pull request. Mutation testing stays on the logic modules and uses per-test coverage so it finishes in minutes. Report templates and CLIs are not part of this gate.
 
 ### User scenarios
 
@@ -3070,20 +3070,29 @@ Add CI gates that catch the typical failure modes of AI-assisted development (on
 
 ## P11-M1 — Mutation testing (Stryker)
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
+
+### Why the first plan was too slow
+
+Mutating every `ai/**/*.mts` file with the command runner produced 2,276 mutants. That runner only sees the process exit code, so each mutant re-ran the whole unit suite. A baseline was still unfinished after ten minutes. That cannot be a pull-request check.
+
 ### Implementation scope
 
-- Spike: Stryker on `ai/**/*.mts` using the **command runner** (`npm run test:ai`), because there is no dedicated `node:test` runner
-- `npm run test:mutation`; HTML report uploaded as an artifact
-- `thresholds.break` set from the first baseline (e.g. baseline − 5%), then raised
-- CI: path filter on `ai/**` + nightly schedule
+- `@stryker-mutator/tap-runner` with Node's test runner (`--experimental-strip-types`, TAP reporter) and `coverageAnalysis: "perTest"`. A mutant runs the test file that covers it, not the whole suite. The TAP runner counts one test file as one test.
+- Mutate the logic modules only: `redact.mts`, `markdown.mts`, `pathContainment.mts`, `cliArgs.mts`, `gate.mts`, `classify.mts`, `suggest.mts`, `analyze.mts`. Do not mutate report templates or CLI entrypoints. Those files are mostly strings, and string mutants dominated the slow run.
+- `ignoreStatic: true`, which requires per-test coverage. Incremental results in CI.
+- `npm run test:mutation`. HTML report uploaded as an artifact.
+- `thresholds.break` is 47. The first measured score on 2026-11-07 was 52.51 across 657 mutants in 45 seconds.
+- CI runs this job when a pull request changes `ai/` (not Markdown) or `stryker.config.json`. A nightly run uses the same fast set. It does not run the Playwright matrix.
 
 ### Test cases
 
 | ID | Scenario |
 |---|---|
-| P11-M1-01 | Baseline run completes; score recorded in docs |
+| P11-M1-01 | Baseline run completes in minutes; score and break threshold recorded in docs |
 | P11-M1-02 | Deliberately weakened assertion → surviving mutant reported |
-| P11-M1-03 | Score below `break` → job fails |
+| P11-M1-03 | Score below `break` → the Stryker process exits non-zero |
 
 ## P11-M2 — Convention-aware PR review of test code (LLM-as-a-judge)
 
@@ -3113,7 +3122,7 @@ Add CI gates that catch the typical failure modes of AI-assisted development (on
 
 ### Acceptance criteria
 
-- [ ] Stryker baseline + break threshold (P11-M1)
+- [x] Stryker baseline + break threshold (P11-M1)
 - [x] Heuristic + optional LLM review in PR comment (P11-M2)
 - [ ] Gates documented (P11-M3)
 
@@ -3132,7 +3141,7 @@ Phase 9 dependency gate + Phase 10 guardrails
 
 | Milestone | Status | Completed |
 |---|---|---|
-| P11-M1 — Mutation testing | ⏳ Planned | — |
+| P11-M1 — Mutation testing | ✅ Completed | 2026-11-07 |
 | P11-M2 — Convention-aware PR review | ✅ Completed | 2026-11-07 |
 | P11-M3 — Docs | ⏳ Planned | — |
 
@@ -3206,6 +3215,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 | Date | Change |
 |---|---|
 | 2026-11-07 | P11-M2 completed — heuristic test-convention review on pull requests, optional model notes |
+| 2026-11-07 | P11-M1 completed — mutation testing on logic modules via the TAP runner, break at 47 |
 | 2026-11-07 | P10-M4 completed — threat model for analyzer input, prompt, output, and report sinks |
 | 2026-11-07 | P10-M3 completed — redact secrets before a model request and note the count in the report |
 | 2026-11-07 | P10-M2 completed — reject malformed model replies and escape the rest in Markdown and HTML |

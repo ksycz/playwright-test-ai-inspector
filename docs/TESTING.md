@@ -201,6 +201,9 @@ Phase 11 will add rows to this table. Thresholds below are the ones enforced tod
 | `npm audit --audit-level=high` | `ai-unit` | No high-severity advisory in the root or app lockfile | Upgrade the affected package, or run `npm audit fix` when the fix stays inside the existing version range |
 | New dependency gate | Pull requests | A **new** package name must exist on npm, be at least 7 days old, and have at least 1000 weekly downloads | Depend on a package that already clears those bars. A version bump of a package already in the base is not checked here |
 | Renovate config | Pull requests and pushes that change `renovate.json` | `renovate.json` passes `renovate-config-validator` | Fix the JSON. Locally: `npx --yes --package renovate@44.221.5 renovate-config-validator` |
+| Mutation score | Pull requests that change `ai/` (not Markdown) or `stryker.config.json`, and a nightly run | Score on the logic modules at least 47. Baseline on 2026-11-07 was 52.51 (657 mutants, 45 seconds) | A surviving mutant means a test still passed after the code changed. Strengthen the assertion that covers that line. Report: `reports/mutation/index.html` |
+
+The mutation gate covers `redact.mts`, `markdown.mts`, `pathContainment.mts`, `cliArgs.mts`, `gate.mts`, `classify.mts`, `suggest.mts`, and `analyze.mts`. It uses the TAP runner so a mutant runs the test file that covers it. Report templates and CLI entrypoints are outside this gate. Locally: `npm run test:mutation`.
 
 The new-dependency gate names the package and the rule in the log. See the README section **Dependency gate** for a local pass and a local failure.
 

@@ -56,7 +56,7 @@ describe('P3-M4 optional LLM root-cause suggestions', () => {
     assert.equal(suggestion, null);
 
     const report = generateMarkdownReport(buildContext());
-    assert.doesNotMatch(report, /AI root-cause suggestions/);
+    assert.doesNotMatch(report, /AI suggestion — unverified/);
   });
 
   it('P3-M4-02: mock provider suggestions appear in Markdown and HTML reports', async () => {
@@ -72,10 +72,10 @@ describe('P3-M4 optional LLM root-cause suggestions', () => {
     const html = await generateHtmlReport(buildContext(), { suggestion });
 
     assert.equal(suggestion?.provider, 'mock');
-    assert.match(markdown, /## AI root-cause suggestions/);
+    assert.match(markdown, /## AI suggestion — unverified/);
     assert.match(markdown, /Checkout likely did not navigate/);
     assert.match(markdown, /Place order handler did not complete/);
-    assert.match(html, /id="ai-heading">AI root-cause suggestions</);
+    assert.match(html, /id="ai-heading">AI suggestion — unverified</);
     assert.match(html, /Checkout likely did not navigate/);
   });
 
@@ -131,13 +131,13 @@ describe('P3-M4 optional LLM root-cause suggestions', () => {
     assert.deepEqual(
       parseSuggestionPayload(
         'mock',
-        '{"summary":"ok","hypotheses":["one"],"caveats":[]}',
+        '{"summary":"ok","hypotheses":["one","two"],"caveats":["check the trace"]}',
       ),
       {
         provider: 'mock',
         summary: 'ok',
-        hypotheses: ['one'],
-        caveats: ['LLM suggestions are probabilistic — verify against the screenshot and trace.'],
+        hypotheses: ['one', 'two'],
+        caveats: ['check the trace'],
       },
     );
   });

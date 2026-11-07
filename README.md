@@ -108,6 +108,8 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 9 complete — dependency gate, Renovate, and a shorter CI run (shared Chromium image, 2 workers).
 
+🚧 Phase 10 in progress — failure text is untrusted data, and model replies must match a short schema before they are shown as plain text. Next is P10-M3, redacting secrets before a provider call.
+
 **Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
 
 ---

@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { escapeMarkdown } from '../shared/markdown.mts';
 import { resolvePathInsideRoot } from '../shared/pathContainment.mts';
 import type { FailureCategory, FailureContext, RootCauseSuggestion } from './types.mts';
 
@@ -122,17 +123,14 @@ function markdownSuggestionSection(suggestion: RootCauseSuggestion | null | unde
     return '';
   }
 
-  const hypotheses = numberedList(suggestion.hypotheses);
-  const caveats =
-    suggestion.caveats.length > 0
-      ? suggestion.caveats.map((item) => `- ${item}`).join('\n')
-      : '- None';
+  const hypotheses = numberedList(suggestion.hypotheses.map(escapeMarkdown));
+  const caveats = suggestion.caveats.map((item) => `- ${escapeMarkdown(item)}`).join('\n');
 
   return `
-## AI root-cause suggestions
+## AI suggestion — unverified
 
-- **Provider:** \`${suggestion.provider}\`
-- **Summary:** ${suggestion.summary}
+- **Provider:** \`${escapeMarkdown(suggestion.provider)}\`
+- **Summary:** ${escapeMarkdown(suggestion.summary)}
 
 ### Hypotheses
 
@@ -156,7 +154,7 @@ function htmlSuggestionSection(suggestion: RootCauseSuggestion | null | undefine
 
   return `
     <section aria-labelledby="ai-heading">
-      <h2 id="ai-heading">AI root-cause suggestions</h2>
+      <h2 id="ai-heading">AI suggestion — unverified</h2>
       <div class="panel">
         <dl class="summary-grid">
           <div>

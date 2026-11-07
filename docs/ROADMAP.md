@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 10 — LLM Guardrails (Phase 9 complete; waiting for approval)
+**Current focus:** Phase 10 — P10-M3 (P10-M2 complete; waiting for approval)
 
 ---
 
@@ -51,7 +51,7 @@ After every completed milestone, update:
 | **7** | Historical Failure Trends | ✅ Completed | JSONL run history + Markdown trend reports |
 | **8** | AI Run / PR Summaries | ✅ Completed | Multi-suite Markdown summary + PR comments |
 | **9** | Dependency Gate | ✅ Completed | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts, faster CI |
-| **10** | LLM Guardrails | ⏳ Planned | OWASP LLM Top 10: prompt injection, output handling, input redaction |
+| **10** | LLM Guardrails | 🚧 In progress | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ⏳ Planned | Mutation testing, convention-aware PR review |
 | **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
 
@@ -2916,9 +2916,9 @@ Phase 2 CI
 
 # Phase 10 — LLM Guardrails
 
-**Status:** ⏳ Planned  
+**Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** —
+**Current focus:** P10-M3
 
 ### Goal
 
@@ -2950,6 +2950,9 @@ Treat the optional LLM step in the Failure Analyzer as untrusted, following the 
 
 ## P10-M1 — Adversarial fixtures (LLM01 Prompt Injection)
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
+
 ### Implementation scope
 
 - `ai/failure-analyzer/fixtures/prompt-injection/` — `error-context.md` with injected instructions (plain, hidden in a Markdown comment, in a fake "assistant" turn)
@@ -2965,6 +2968,9 @@ Treat the optional LLM step in the Failure Analyzer as untrusted, following the 
 | P10-M1-03 | Injected fixture + "obedient" fake provider → report still shows heuristic classification first |
 
 ## P10-M2 — Output contract hardening (LLM05 Improper Output Handling)
+
+**Status:** ✅ Completed  
+**Completed:** 2026-11-07
 
 ### Implementation scope
 
@@ -3004,8 +3010,8 @@ Treat the optional LLM step in the Failure Analyzer as untrusted, following the 
 
 ### Acceptance criteria
 
-- [ ] Injection fixture + tests (P10-M1)
-- [ ] Strict output schema + Markdown escaping (P10-M2)
+- [x] Injection fixture + tests (P10-M1)
+- [x] Strict output schema + Markdown escaping (P10-M2)
 - [ ] Redaction before any provider call (P10-M3)
 - [ ] Threat model documented with OWASP mapping (P10-M4)
 - [ ] `npm run test:ai` green, no API key required
@@ -3026,8 +3032,8 @@ Phase 3 failure analyzer (optional LLM)
 
 | Milestone | Status | Completed |
 |---|---|---|
-| P10-M1 — Adversarial fixtures | ⏳ Planned | — |
-| P10-M2 — Output contract hardening | ⏳ Planned | — |
+| P10-M1 — Adversarial fixtures | ✅ Completed | 2026-11-07 |
+| P10-M2 — Output contract hardening | ✅ Completed | 2026-11-07 |
 | P10-M3 — Input redaction | ⏳ Planned | — |
 | P10-M4 — Docs | ⏳ Planned | — |
 
@@ -3190,6 +3196,8 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-07 | P10-M2 completed — reject malformed model replies and escape the rest in Markdown and HTML |
+| 2026-11-07 | P10-M1 completed — untrusted failure context is delimited in the analyzer prompt |
 | 2026-11-07 | P9-M4 completed — Playwright image, 2 workers, path filters, cancel in-progress |
 | 2026-11-06 | P9-M3 completed — CI gates table and Renovate versus Dependabot docs |
 | 2026-11-06 | P9-M4 defined — faster CI: shared browser install, more workers, fewer repeated jobs |

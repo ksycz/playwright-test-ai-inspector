@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { escapeMarkdown } from '../shared/markdown.mts';
+import { redactSecrets } from '../shared/redact.mts';
 import { resolvePathInsideRoot } from '../shared/pathContainment.mts';
 import type { FailureCategory, FailureContext, RootCauseSuggestion } from './types.mts';
 
@@ -66,12 +67,24 @@ export function prepareErrorExcerptText(text: string): string {
   return body.replace(/^#{1,6}\s+/gm, '');
 }
 
+function redactionNote(text: string | null): string {
+  if (!text || text.trim().length === 0) {
+    return '';
+  }
+  const count = redactSecrets(prepareErrorExcerptText(text)).count;
+  if (count === 0) {
+    return '';
+  }
+  const noun = count === 1 ? 'value' : 'values';
+  return `\n\nRedacted ${count} secret-like ${noun}. The values are not included.`;
+}
+
 function truncateErrorText(text: string | null, maxLength = 1200): string {
   if (!text || text.trim().length === 0) {
     return '_No error context text available._';
   }
 
-  const prepared = prepareErrorExcerptText(text);
+  const prepared = redactSecrets(prepareErrorExcerptText(text)).text;
   if (prepared.length <= maxLength) {
     return prepared;
   }
@@ -88,7 +101,7 @@ function truncatePlainErrorText(text: string | null, maxLength = 1200): {
     return { text: 'No error context text available.', truncated: false, empty: true };
   }
 
-  const prepared = prepareErrorExcerptText(text);
+  const prepared = redactSecrets(prepareErrorExcerptText(text)).text;
   if (prepared.length <= maxLength) {
     return { text: prepared, truncated: false, empty: false };
   }
@@ -320,6 +333,7 @@ ${artifacts.errorContextPath ? `- \`${artifacts.errorContextPath}\`` : '- None'}
 \`\`\`text
 ${truncateErrorText(context.errorContextText)}
 \`\`\`
+${redactionNote(context.errorContextText)}
 
 ## Suggested next steps
 
@@ -601,6 +615,7 @@ export async function generateHtmlReport(
       <h2 id="error-heading">Error excerpt</h2>
       <pre class="${excerpt.empty ? 'empty' : ''}"><code>${escapeHtml(excerpt.text)}</code></pre>
       ${truncatedNote}
+      ${excerpt.empty ? '' : redactionNote(context.errorContextText).trim() ? `<p>${escapeHtml(redactionNote(context.errorContextText).trim())}</p>` : ''}
     </section>
 
     <section aria-labelledby="steps-heading">

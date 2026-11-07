@@ -110,6 +110,8 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 10 complete — failure text is untrusted data, model replies must match a short schema, and secrets are removed before a provider call.
 
+🚧 Phase 11 in progress — mutation testing on the analyzer logic modules. A weak assertion fails the gate. Next is a review of new test code.
+
 **Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
 
 ---

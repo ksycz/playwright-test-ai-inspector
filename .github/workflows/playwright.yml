@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: '0 3 * * *'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,6 +18,7 @@ jobs:
     outputs:
       run_ci: ${{ steps.decide.outputs.run_ci }}
       run_renovate: ${{ steps.decide.outputs.run_renovate }}
+      run_mutation: ${{ steps.decide.outputs.run_mutation }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -25,6 +28,13 @@ jobs:
       - name: Decide whether to run CI
         id: decide
         run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "run_ci=false" >> "$GITHUB_OUTPUT"
+            echo "run_renovate=false" >> "$GITHUB_OUTPUT"
+            echo "run_mutation=true" >> "$GITHUB_OUTPUT"
+            echo "Nightly: mutation only"
+            exit 0
+          fi
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             files="$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD)"
             decision="$(printf '%s\n' "$files" | node scripts/should-run-ci.mjs)"
@@ -34,12 +44,15 @@ jobs:
             echo "Push to main: run CI"
           fi
           renovate="$(printf '%s\n' "$files" | node scripts/should-run-renovate.mjs)"
+          mutation="$(printf '%s\n' "$files" | node scripts/should-run-mutation.mjs)"
           echo "run_ci=$decision" >> "$GITHUB_OUTPUT"
           echo "run_renovate=$renovate" >> "$GITHUB_OUTPUT"
+          echo "run_mutation=$mutation" >> "$GITHUB_OUTPUT"
           echo "Changed files:"
           printf '%s\n' "$files"
           echo "Run CI: $decision"
           echo "Run Renovate validator: $renovate"
+          echo "Run mutation: $mutation"
 
   playwright-version:
     name: Playwright version
@@ -262,3 +275,34 @@ jobs:
 
       - name: Validate renovate.json
         run: npx --yes --package renovate@44.221.5 renovate-config-validator
+
+  mutation:
+    name: Mutation testing
+    needs: changes
+    if: needs.changes.outputs.run_mutation == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run mutation tests
+        run: npm run test:mutation
+
+      - name: Upload mutation report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: mutation-report
+          path: reports/mutation/
+          if-no-files-found: warn
+          retention-days: 14

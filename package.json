@@ -19,7 +19,8 @@
     "test:visual": "sh scripts/playwright.sh test --grep @visual",
     "test:ui": "sh scripts/playwright.sh test --ui",
     "test:headed": "sh scripts/playwright.sh test --headed",
-    "test:ai": "node --experimental-strip-types --test ai/**/*.test.mts app/**/*.test.mts tests/reporters/**/*.test.mts scripts/**/*.test.mts",
+    "test:ai": "node --experimental-strip-types --test ai/**/*.test.mts app/**/*.test.mts tests/reporters/**/*.test.mts scripts/**/*.test.mts scripts/mutation-spike/survivor.check.mts",
+    "test:mutation": "stryker run",
     "analyze:failure": "node --experimental-strip-types ai/failure-analyzer/cli.mts",
     "analyze:report": "node --experimental-strip-types ai/failure-analyzer/report-cli.mts",
     "analyze:flaky": "node --experimental-strip-types ai/flaky-detector/cli.mts",
@@ -31,6 +32,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/tap-runner": "^10.1.1",
     "@types/node": "^24.10.1"
   }
 }

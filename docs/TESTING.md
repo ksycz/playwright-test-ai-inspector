@@ -1,6 +1,6 @@
 # Testing Framework Conventions
 
-Playwright framework conventions for this repository (Phases 2–8).
+Playwright framework conventions for this repository (Phases 2–9).
 
 ## Folder structure
 
@@ -174,7 +174,8 @@ CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 - `npm run analyze:trends -- --record [results.json]` - append suite summary to JSONL history
 - `npm run analyze:trends -- [--history <file>]` - Markdown failure trend report
 - `npm run analyze:summary -- --suite <name> <json> [...]` - multi-suite PR/run Markdown summary
-- `npm run test:ai` - unit tests for AI modules (failure analyzer, flaky detector, failure trends, run summary)
+- `npm run test:ai` - unit tests for AI modules, the dependency gate, and the docs-only CI rule
+- `npm run analyze:deps -- --base <git-ref>` - check newly added npm packages against the registry
 
 ## Continuous Integration
 
@@ -188,6 +189,32 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - PR job posts/updates a sticky AI run summary comment
 - A separate job runs `npm run test:ai` (AI module unit tests; no browsers required)
 - JSON reporter writes `test-results/playwright-results.json` for `analyze:flaky` / `analyze:trends` / `analyze:summary`
+- A pull request that only changes `docs/` or Markdown files skips the test jobs. A push to `main` still runs them.
+
+### CI gates
+
+Phase 11 will add rows to this table. Thresholds below are the ones enforced today.
+
+| Gate | When it runs | Threshold | How to fix a failure |
+|---|---|---|---|
+| `npm ci` | Every job that installs dependencies | `package-lock.json` matches `package.json` for the root and for `app/` | Run `npm install` in the directory you changed and commit the lockfile |
+| `npm audit --audit-level=high` | `ai-unit` and `dep-gate` | No high-severity advisory in the root or app lockfile | Upgrade the affected package, or run `npm audit fix` when the fix stays inside the existing version range |
+| New dependency gate | Pull requests | A **new** package name must exist on npm, be at least 7 days old, and have at least 1000 weekly downloads | Depend on a package that already clears those bars. A version bump of a package already in the base is not checked here |
+| Renovate config | Jobs that run CI (skipped for docs-only pull requests) | `renovate.json` passes `renovate-config-validator` | Fix the JSON. Locally: `npx --yes --package renovate@44.221.5 renovate-config-validator` |
+
+The new-dependency gate names the package and the rule in the log. See the README section **Dependency gate** for a local pass and a local failure.
+
+### Dependency updates
+
+Version updates and vulnerability alerts are split on purpose. Two bots should not open pull requests for the same package.
+
+| Job | Tool | What you see |
+|---|---|---|
+| Version updates | **Renovate** | Pull requests for npm, GitHub Actions, and `.nvmrc`. npm releases wait 3 days. `@playwright/test`, `playwright`, and `playwright-core` share one pull request. Other non-major devDependency updates are grouped into one Monday pull request and can automerge after CI passes. Major updates stay for review. |
+| Vulnerability alerts | **Dependabot alerts** | Entries on the repository Security tab. Dependabot does not open version-update or security-update pull requests. |
+| Dependabot version updates | Off | There is no `.github/dependabot.yml`. |
+
+Renovate's rules live in `renovate.json`. The Dependency Dashboard issue lists what is pending, including an npm release that is still inside the 3-day wait.
 
 ### Analyze downloaded CI artifacts
 

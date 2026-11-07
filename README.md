@@ -56,6 +56,8 @@ This repository is developed incrementally and serves as both a learning journey
 - Screenshots & Videos
 - Page Object Model
 - Fixtures
+- Dependency gate (`npm run analyze:deps`)
+- Renovate for version updates, Dependabot alerts for vulnerabilities
 
 
 
@@ -332,6 +334,7 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Pull requests:** sticky AI run summary comment after the matrix finishes, plus the new-dependency gate against the PR base (see below)
 - **Install:** `npm ci` (root, and `app/` where the job needs it), not `npm install`
 - **Audit:** `npm audit --audit-level=high` for the root and app lockfiles
+- **Docs-only pull requests:** a change that only touches `docs/` or Markdown skips the test jobs. The gates and the Renovate versus Dependabot split are in [`docs/TESTING.md`](docs/TESTING.md).
 
 Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
 
@@ -627,6 +630,8 @@ Each milestone includes:
 - [x] Install from the lockfile and fail high-severity audits
 
 - [x] Reject new packages that are missing, younger than 7 days, or below 1000 weekly downloads
+
+- [x] Renovate opens version updates; Dependabot alerts stay on and Dependabot version updates stay off
 
 
 

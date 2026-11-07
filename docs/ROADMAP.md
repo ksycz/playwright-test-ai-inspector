@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 9 — P9-M3 (P9-M2 complete; waiting for approval)
+**Current focus:** Phase 9 — P9-M4 (P9-M3 complete; waiting for approval)
 
 ---
 
@@ -2671,7 +2671,7 @@ Phase 3 classifier + Phase 4 flaky detector
 
 **Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P9-M3
+**Current focus:** P9-M4
 
 ### Goal
 
@@ -2831,6 +2831,10 @@ Do not merge onboarding pull request #5. It only contains `config:recommended`. 
 
 ## P9-M3 — Docs
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-06  
+**Dependencies:** P9-M1, P9-M2
+
 - `docs/TESTING.md`: "CI gates" table started here (gate, trigger, threshold, how to fix); Phase 11 extends it
 - README: dependency gate and Renovate listed under tooling
 - `docs/TESTING.md`: short "Dependency updates" section summarising the Renovate + Dependabot alerts split
@@ -2842,7 +2846,7 @@ Do not merge onboarding pull request #5. It only contains `config:recommended`. 
 - [x] New-dependency gate with unit tests (P9-M1)
 - [x] Renovate config validated in CI; app installed (P9-M2)
 - [x] Dependabot alerts on, version updates off (P9-M2)
-- [ ] Gate and Renovate rationale documented (P9-M3)
+- [x] Gate and Renovate rationale documented (P9-M3)
 - [ ] Playwright matrix reuses a browser install (P9-M4)
 - [ ] CI test workers raised above 1 without new flakes (P9-M4)
 - [ ] Renovate validator and `npm audit` run only where they are needed (P9-M4)
@@ -2904,7 +2908,7 @@ Phase 2 CI
 |---|---|---|
 | P9-M1 — CI hygiene + new-dependency gate | ✅ Completed | 2026-11-06 |
 | P9-M2 — Renovate config + Dependabot alerts | ✅ Completed | 2026-11-06 |
-| P9-M3 — Docs | ⏳ Planned | — |
+| P9-M3 — Docs | ✅ Completed | 2026-11-06 |
 | P9-M4 — Faster CI | ⏳ Planned | — |
 
 ---
@@ -3185,6 +3189,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-06 | P9-M3 completed — CI gates table and Renovate versus Dependabot docs |
 | 2026-11-06 | P9-M4 defined — faster CI: shared browser install, more workers, fewer repeated jobs |
 | 2026-11-06 | P9-M2 completed — Renovate config, validator CI job, Dependabot alerts only |
 | 2026-11-06 | P9-M1 how to test — README and roadmap commands for the dependency gate |

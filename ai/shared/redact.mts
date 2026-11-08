@@ -4,7 +4,7 @@ export interface Redaction {
 }
 
 const BEARER = /\bBearer\s+[A-Za-z0-9._~+/-]{8,}/g;
-const SECRET_ASSIGNMENT = /\b([A-Z][A-Z0-9]*(?:_KEY|_SECRET|_TOKEN|_PASSWORD))\s*=\s*[^\s'"`]+/g;
+const SECRET_ASSIGNMENT = /\b([A-Z][A-Z0-9_]*(?:_KEY|_SECRET|_TOKEN|_PASSWORD))\s*=\s*[^\s'"`]+/g;
 const JWT = /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g;
 const EMAIL = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
 const URL_QUERY = /(https?:\/\/[^\s?#]+)\?[^\s#]*/g;

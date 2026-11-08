@@ -72,6 +72,7 @@ This repository is developed incrementally and serves as both a learning journey
 - Visual regression (`@visual` screenshots)
 - Playwright MCP (AI-driven exploration and test generation)
 - Exploratory testing agent (`npm run explore`, Playwright MCP, bounded)
+- Locator change suggestions in failure reports (suggest, never auto-heal)
 
 ---
 
@@ -548,7 +549,6 @@ Module docs: [`ai/explorer/README.md`](ai/explorer/README.md).
 
 ### Future AI Modules
 
-- Locator Change Suggestions
 - Visual Regression Insights
 
 ---

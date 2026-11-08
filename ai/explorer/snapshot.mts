@@ -21,7 +21,8 @@ function unquote(value: string): string {
 
 /** Pull the YAML body out of an MCP tool response (```yaml fenced block). */
 export function extractSnapshot(responseText: string): string {
-  const match = responseText.match(/```yaml\n([\s\S]*?)```/);
+  // The closing fence must start a line: page text inside the snapshot can contain ```.
+  const match = responseText.match(/```yaml\n([\s\S]*?\n)```[ \t]*(?:\n|$)/);
   return match ? match[1] : '';
 }
 

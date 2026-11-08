@@ -113,7 +113,7 @@ jobs:
 
       - name: Upload Playwright JSON results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-json-${{ matrix.suite }}
           path: test-results/playwright-results.json
@@ -121,7 +121,7 @@ jobs:
           retention-days: 14
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report-${{ matrix.suite }}
@@ -129,7 +129,7 @@ jobs:
           retention-days: 14
 
       - name: Upload test results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-results-${{ matrix.suite }}
@@ -165,7 +165,7 @@ jobs:
           npm run analyze:review -- --diff /tmp/tests.diff --out ai-reports/pr-review.md
 
       - name: Upload test review
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: pr-review
           path: ai-reports/pr-review.md
@@ -195,7 +195,7 @@ jobs:
         run: npm ci
 
       - name: Download suite JSON artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: playwright-json-*
           path: artifacts
@@ -203,7 +203,7 @@ jobs:
 
       - name: Download test review
         continue-on-error: true
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: pr-review
           path: ai-reports
@@ -352,7 +352,7 @@ jobs:
 
       - name: Upload mutation report
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: mutation-report
           path: reports/mutation/

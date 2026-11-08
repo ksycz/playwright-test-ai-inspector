@@ -66,6 +66,30 @@ npm run analyze:report -- ai/failure-analyzer/fixtures/prompt-injection --no-llm
 
 **Point at:** category `assertion`, then the injected sentence still sitting in the excerpt as evidence.
 
+### Optional — Exploration agent (about 2 minutes)
+
+Use it when the conversation turns to AI agents, MCP, or "can AI test for us?". The run takes about a minute, so start it while you talk.
+
+```bash
+npm run dev                                   # terminal 1, if not running yet
+npm run explore -- --no-llm --charters cart   # terminal 2: about 30 seconds
+```
+
+**Say:** "This drives the shop through Playwright MCP, the same tools an AI assistant gets. It has three briefs built from the app spec: cart, checkout and login. Scripted probes always run. An AI layer runs only with an API key, inside a step and turn budget, and it can only reach localhost. A problem is reported only if it happens again from a clean start."
+
+**Then show the scorecard** (from an earlier run; `npm run explore:eval -- --no-llm` takes about 6 minutes):
+
+Open `ai-reports/explorer-eval/evaluation.md`, or quote it: **4 of 5 planted bugs caught, 0 false alarms**. The miss is on purpose, in a spot no probe looks.
+
+**And the last step:** a finding becomes a draft test that uses the page objects.
+
+```bash
+npm run explore:draft -- --finding cart-increase-quantity \
+  --findings ai/explorer/fixtures/finding-cart-increase-quantity.jsonl
+```
+
+**Say one limitation out loud:** "The probes only catch what I thought of. The AI layer looks further, but it costs money per run, gives different results each time, and its findings still need a person. That's why it reports and drafts, and never merges."
+
 ### 3:00–4:00 — Flaky vs hard fail + PR summary
 
 ```bash
@@ -110,6 +134,12 @@ npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.js
 npm run analyze:summary -- \
   --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
   --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+
+# Exploration agent (needs npm run dev)
+npm run explore -- --no-llm --charters cart
+npm run explore:eval -- --no-llm             # about 6 minutes, own server on :5174
+npm run explore:draft -- --finding cart-increase-quantity \
+  --findings ai/explorer/fixtures/finding-cart-increase-quantity.jsonl
 
 # Unit tests for AI modules
 npm run test:ai

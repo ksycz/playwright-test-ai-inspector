@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 12 — Agentic Exploratory Testing (P12-M3 complete; waiting for approval before P12-M4)
+**Current focus:** Phases 1–12 complete; waiting for the next phase to be defined
 
 ---
 
@@ -53,7 +53,7 @@ After every completed milestone, update:
 | **9** | Dependency Gate | ✅ Completed | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts, faster CI |
 | **10** | LLM Guardrails | ✅ Completed | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ✅ Completed | Mutation testing, convention-aware PR review, gate list |
-| **12** | Agentic Exploratory Testing | 🚧 In progress | Spec-driven exploration agent via Playwright MCP |
+| **12** | Agentic Exploratory Testing | ✅ Completed | Spec-driven exploration agent via Playwright MCP |
 
 ---
 
@@ -3152,9 +3152,9 @@ Phase 9 dependency gate + Phase 10 guardrails
 
 # Phase 12 — Agentic Exploratory Testing
 
-**Status:** 🚧 In progress  
-**Completed:** —  
-**Current focus:** P12-M4 — Docs (waiting for approval)
+**Status:** ✅ Completed  
+**Completed:** 2026-11-08  
+**Current focus:** —
 
 ### Goal
 
@@ -3304,14 +3304,23 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 ## P12-M4 — Docs
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-08
+
 - `docs/DEMO.md` segment + honest limitations (cost, nondeterminism, budget)
+
+### What was implemented
+
+- `docs/DEMO.md`: optional two-minute "Exploration agent" segment (live probe run, seeded-bug scorecard, finding → draft) with talking points, plus cheat-sheet commands.
+- `ai/explorer/README.md`: limits table: coverage, shared blind spots, cost, nondeterminism, budget, runtime, evidence matching, spec as oracle, tool version, each with what keeps it in check.
+- README: Phase 12 marked complete; exploration agent added to Known limitations.
 
 ### Acceptance criteria
 
 - [x] Bounded agent run produces a findings report (P12-M1)
 - [x] Seeded-bug detection rate measured (P12-M2)
 - [x] Finding → draft spec flow (P12-M3)
-- [ ] Limitations documented (P12-M4)
+- [x] Limitations documented (P12-M4)
 
 ## Phase 12 — Progress Summary
 
@@ -3320,7 +3329,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 | P12-M1 — Exploration agent | ✅ Completed | 2026-11-08 |
 | P12-M2 — Seeded-bug evaluation | ✅ Completed | 2026-11-08 |
 | P12-M3 — Finding → draft spec | ✅ Completed | 2026-11-08 |
-| P12-M4 — Docs | ⏳ Planned | — |
+| P12-M4 — Docs | ✅ Completed | 2026-11-08 |
 
 ---
 
@@ -3339,6 +3348,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-08 | P12-M4 completed — demo segment and limits table for the exploration agent; Phase 12 complete |
 | 2026-11-08 | P12-M3 completed — `npm run explore:draft` turns a finding into a page-object `@e2e` draft; `--pr` opens it as a draft PR |
 | 2026-11-08 | P12-M2 completed — five seeded bugs behind a dev-only flag, `npm run explore:eval`, probes catch 4/5 with 0 false positives |
 | 2026-11-08 | P12-M1 completed — bounded exploration agent via Playwright MCP: APP_SPEC charters, 13 probes, optional model layer with replay confirmation |

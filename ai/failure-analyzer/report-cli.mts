@@ -9,6 +9,8 @@ import {
   type ReportFormat,
 } from './report.mts';
 import { resolveProviderFromEnv, suggestRootCause } from './suggest.mts';
+import { suggestLocators } from './locator.mts';
+import { breakTie, needsTieBreak, tieBreakerFromEnv } from './locator-tiebreak.mts';
 import type { RootCauseSuggestion } from './types.mts';
 import { readOptionValue } from '../shared/cliArgs.mts';
 
@@ -134,7 +136,25 @@ async function main(argv: string[]): Promise<number> {
       }
     }
 
-    const reportOptions = { suggestion };
+    const locator = suggestLocators(context.errorContextText);
+    if (llmMode !== 'off' && needsTieBreak(locator) && context.errorContextText) {
+      const model = tieBreakerFromEnv();
+      if (model) {
+        try {
+          const pick = await breakTie(locator, context.errorContextText, model);
+          if (pick) {
+            locator.modelPick = pick;
+            console.error(`Added a locator tie-break from "${model.name}".`);
+          } else {
+            console.error(`Locator tie-break from "${model.name}" was not usable; kept the similarity ranking only.`);
+          }
+        } catch (error) {
+          console.error(`Locator tie-break skipped: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+    }
+
+    const reportOptions = { suggestion, locator };
     const written: string[] = [];
 
     if (format === 'both') {

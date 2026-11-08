@@ -10,6 +10,8 @@ export type ReportFormat = 'md' | 'html' | 'both';
 
 export interface ReportOptions {
   suggestion?: RootCauseSuggestion | null;
+  /** Precomputed locator suggestion (with an optional model pick). Computed from the context when omitted. */
+  locator?: LocatorSuggestion | null;
 }
 
 const SUGGESTED_STEPS: Record<FailureCategory, string[]> = {
@@ -301,6 +303,11 @@ function markdownLocatorSection(suggestion: LocatorSuggestion | null): string {
       const note = candidate.note ? ` (${candidate.note})` : '';
       lines.push(`${index + 1}. Similarity ${candidate.score.toFixed(2)}${note}`, '', codeFence(candidate.code), '');
     });
+    if (suggestion.modelPick) {
+      const pick = suggestion.modelPick;
+      const verdict = pick.choice === null ? 'none of the candidates' : `candidate ${pick.choice}`;
+      lines.push(`**Model pick — unverified** (${escapeMarkdown(pick.provider)}): ${verdict}. ${escapeMarkdown(pick.reason)}`, '');
+    }
     lines.push('Review before changing the test: a renamed element can be intended, or it can be the bug.', '');
   }
   return lines.join('\n');
@@ -321,6 +328,13 @@ function htmlLocatorSection(suggestion: LocatorSuggestion | null): string {
       <ol>
         ${items}
       </ol>
+      ${
+        suggestion.modelPick
+          ? `<p><strong>Model pick — unverified</strong> (${escapeHtml(suggestion.modelPick.provider)}): ${
+              suggestion.modelPick.choice === null ? 'none of the candidates' : `candidate ${suggestion.modelPick.choice}`
+            }. ${escapeHtml(suggestion.modelPick.reason)}</p>`
+          : ''
+      }
       <p>Review before changing the test: a renamed element can be intended, or it can be the bug.</p>`;
   return `
     <section aria-labelledby="locator-heading">
@@ -359,7 +373,7 @@ export function generateMarkdownReport(
 ## Classification
 
 ${signals}
-${markdownLocatorSection(suggestLocators(context.errorContextText))}
+${markdownLocatorSection(options.locator !== undefined ? options.locator : suggestLocators(context.errorContextText))}
 ## Artifacts
 
 ### Screenshots
@@ -648,7 +662,7 @@ export async function generateHtmlReport(
       <h2 id="classification-heading">Classification</h2>
       ${signals}
     </section>
-${htmlLocatorSection(suggestLocators(context.errorContextText))}
+${htmlLocatorSection(options.locator !== undefined ? options.locator : suggestLocators(context.errorContextText))}
     <section aria-labelledby="artifacts-heading">
       <h2 id="artifacts-heading">Artifacts</h2>
       <h3>Screenshots</h3>

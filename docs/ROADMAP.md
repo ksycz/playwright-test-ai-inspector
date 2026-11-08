@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 12 — Agentic Exploratory Testing (Phase 11 complete; waiting for approval)
+**Current focus:** Phase 12 — Agentic Exploratory Testing (P12-M1 complete; waiting for approval before P12-M2)
 
 ---
 
@@ -53,7 +53,7 @@ After every completed milestone, update:
 | **9** | Dependency Gate | ✅ Completed | `npm ci`, `npm audit`, new-package check, Renovate + Dependabot alerts, faster CI |
 | **10** | LLM Guardrails | ✅ Completed | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ✅ Completed | Mutation testing, convention-aware PR review, gate list |
-| **12** | Agentic Exploratory Testing | ⏳ Planned | Spec-driven exploration agent via Playwright MCP |
+| **12** | Agentic Exploratory Testing | 🚧 In progress | Spec-driven exploration agent via Playwright MCP |
 
 ---
 
@@ -3152,9 +3152,9 @@ Phase 9 dependency gate + Phase 10 guardrails
 
 # Phase 12 — Agentic Exploratory Testing
 
-**Status:** ⏳ Planned  
+**Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** —
+**Current focus:** P12-M2 — Seeded-bug evaluation (waiting for approval)
 
 ### Goal
 
@@ -3168,8 +3168,54 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 ## P12-M1 — Exploration agent
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-08
+
 - `ai/explorer/`: charter per flow (cart, checkout, auth) generated from `APP_SPEC.md`; runs via Playwright MCP with a step budget
 - Output: JSONL findings + Markdown report (Phase 10 escaping applies)
+
+### What was implemented
+
+- `npm run explore` starts `@playwright/mcp` (pinned to 0.0.84, same as `.mcp.json`) over stdio with `--isolated`, `--allowed-origins <shop>`, and the repo's Playwright Chromium.
+- `charters.mts` reads the bullets under `## Shopping Cart`, `## Checkout`, `## Login` and `## Error Handling`; a missing section fails the run.
+- **Probe layer (always runs):** 13 scripted probes, each tied to one spec bullet. Oracles (`oracles.mts`) compare the cart table, total and badge with `app/src/data/products.json`, so a wrong total cannot confirm itself.
+- **Model layer (optional):** tool-calling loop over a reduced MCP tool set plus `report_finding` / `finish`. Anthropic (`ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`) is preferred; OpenAI is the fallback. `--no-llm` turns it off.
+- **Reproduction:** a failing probe runs again from cleared storage and is kept only if it fails the same way. A model finding must cite a charter requirement verbatim; its steps are replayed from a fresh state and its evidence text must be on the page afterwards. Others are listed as dropped.
+- **Bounds:** shared tool-call budget (`--budget`, default 400); per charter for the model, `--model-steps` (30) and `--model-turns` (40); at most 3 model findings per charter. Off-origin navigation is refused before it reaches MCP.
+- Report: `ai-reports/explorer/report.md`, `findings.jsonl`, `screenshots/<id>.png`.
+
+### Measured
+
+- Real shop: 13/13 probes pass, about 220 tool calls, under a minute.
+- Hand-seeded bugs (decrease to 0 keeps the line; Remove does nothing): both reported with steps and a screenshot, no false positives. Formal seeded-bug metrics are P12-M2.
+
+### Architectural decisions
+
+- Hybrid instead of model-only: the probe layer is free and deterministic, which P12-M2 needs as a baseline, and matches the "heuristics always, model optional" pattern from Phases 3 and 11.
+- Page text from MCP is untrusted input to the model: redacted with `ai/shared/redact.mts` and wrapped in delimiters that page content cannot close.
+- Snapshot parsing, oracles and charters are pure modules added to the mutation gate (score 58.25 overall, up from 53.88). `agent.mts` is not mutated: it is mostly prompt and schema strings, and mutating it added about 50 seconds to a clean run.
+- Argument parsing lives in `args.mts` so unit tests do not load the MCP SDK.
+
+### Deviations
+
+- MCP writes files only inside its output directory, so the output directory doubles as the MCP output root; its `console-*.log` files stay next to the report.
+- Not run in CI yet. A scheduled run belongs with P12-M2, once there is a detection rate to track.
+
+### Dependencies
+
+- Added dev dependencies: `@playwright/mcp` (0.0.84, exact) and `@modelcontextprotocol/sdk` (^1.32). `npm audit --audit-level=high` unchanged (6 moderate, as on main).
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P12-M1-01–03 | Snapshot parser and oracles against real MCP snapshots (cart, invalid checkout) |
+| P12-M1-04 | Charters built from APP_SPEC; missing section throws |
+| P12-M1-05–06 | Origin guard, step budget, MCP error detection |
+| P12-M1-07–08 | Unreproducible failures dropped; budget stop marks later charters |
+| P12-M1-09–11 | Model findings confirmed by replay; tool allow-list; requirement must be cited; page text delimited and redacted |
+| P12-M1-12, 15 | OpenAI and Anthropic message mapping |
+| P12-M1-13–14 | Report escaping, JSONL, CLI accepts localhost only |
 
 ## P12-M2 — Seeded-bug evaluation
 
@@ -3186,7 +3232,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 ### Acceptance criteria
 
-- [ ] Bounded agent run produces a findings report (P12-M1)
+- [x] Bounded agent run produces a findings report (P12-M1)
 - [ ] Seeded-bug detection rate measured (P12-M2)
 - [ ] Finding → draft spec flow (P12-M3)
 - [ ] Limitations documented (P12-M4)
@@ -3195,7 +3241,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 | Milestone | Status | Completed |
 |---|---|---|
-| P12-M1 — Exploration agent | ⏳ Planned | — |
+| P12-M1 — Exploration agent | ✅ Completed | 2026-11-08 |
 | P12-M2 — Seeded-bug evaluation | ⏳ Planned | — |
 | P12-M3 — Finding → draft spec | ⏳ Planned | — |
 | P12-M4 — Docs | ⏳ Planned | — |
@@ -3217,6 +3263,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-08 | P12-M1 completed — bounded exploration agent via Playwright MCP: APP_SPEC charters, 13 probes, optional model layer with replay confirmation |
 | 2026-11-07 | P11-M3 completed — CI gates table and README cover mutation testing and the test review |
 | 2026-11-07 | P11-M2 completed — heuristic test-convention review on pull requests, optional model notes |
 | 2026-11-07 | P11-M1 completed — mutation testing on logic modules via the TAP runner, break at 47 |

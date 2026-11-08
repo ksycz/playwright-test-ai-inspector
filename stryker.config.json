@@ -27,7 +27,10 @@
     "ai/dep-gate/gate.mts",
     "ai/failure-analyzer/classify.mts",
     "ai/failure-analyzer/suggest.mts",
-    "ai/flaky-detector/analyze.mts"
+    "ai/flaky-detector/analyze.mts",
+    "ai/explorer/snapshot.mts",
+    "ai/explorer/oracles.mts",
+    "ai/explorer/charters.mts"
   ],
   "reporters": ["html", "clear-text", "progress"],
   "htmlReporter": {

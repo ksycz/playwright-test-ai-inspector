@@ -111,3 +111,21 @@ npm run analyze:report -- ai/failure-analyzer/fixtures/prompt-injection --no-llm
 ```
 
 The report still classifies that fixture as `assertion`. The sentence "ignore previous instructions" stays in the excerpt and does not replace the classification. `npm run test:ai` covers the same cases offline, including secret redaction and escaped model output. No API key is required.
+
+## Locator suggestions (P13-M1)
+
+When a test fails because a locator finds nothing, the report suggests the closest element from the page snapshot in `error-context.md`:
+
+```bash
+npm run analyze:report -- ai/failure-analyzer/fixtures/locator-click-renamed-button --no-llm
+```
+
+```text
+The test waited for: getByRole('button', { name: 'Add Wireless Mouse to basket' })
+1. Similarity 0.82 → getByRole('button', { name: 'Add Wireless Mouse to cart' })   (confidence: high)
+```
+
+It handles `getByRole` (including a button that became a link), `getByLabel` and `getByText`. It gives no suggestion, with a reason, when the element is still on the page (then it was hidden, disabled or slow, not renamed), when nothing is similar, or for test ids and placeholders, which the snapshot doesn't contain.
+
+It only suggests. A renamed element can be intended or can be the bug, so a person decides; tests are never changed automatically.
+

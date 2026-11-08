@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { suggestLocators, type LocatorSuggestion } from './locator.mts';
 import path from 'node:path';
 import { escapeMarkdown } from '../shared/markdown.mts';
 import { redactSecrets } from '../shared/redact.mts';
@@ -281,6 +282,55 @@ function htmlScreenshotGallery(screenshots: EmbeddedScreenshot[]): string {
     .join('\n');
 }
 
+
+/** A fenced code block the content cannot close: the fence is longer than any backtick run inside. */
+function codeFence(content: string, language = 'ts'): string {
+  const longest = Math.max(0, ...(content.match(/`+/g) ?? []).map((run) => run.length));
+  const fence = '`'.repeat(Math.max(3, longest + 1));
+  return `${fence}${language}\n${content}\n${fence}`;
+}
+
+function markdownLocatorSection(suggestion: LocatorSuggestion | null): string {
+  if (!suggestion) return '';
+  const lines = ['', '## Locator suggestions', '', 'The test waited for this locator and nothing matched:', '', codeFence(suggestion.failed.source), ''];
+  if (suggestion.candidates.length === 0) {
+    lines.push(suggestion.reason ?? 'No suggestions.', '');
+  } else {
+    lines.push(`Closest elements in the page snapshot (confidence: **${suggestion.confidence}**):`, '');
+    suggestion.candidates.forEach((candidate, index) => {
+      const note = candidate.note ? ` (${candidate.note})` : '';
+      lines.push(`${index + 1}. Similarity ${candidate.score.toFixed(2)}${note}`, '', codeFence(candidate.code), '');
+    });
+    lines.push('Review before changing the test: a renamed element can be intended, or it can be the bug.', '');
+  }
+  return lines.join('\n');
+}
+
+function htmlLocatorSection(suggestion: LocatorSuggestion | null): string {
+  if (!suggestion) return '';
+  const items = suggestion.candidates
+    .map(
+      (candidate) =>
+        `<li>Similarity ${candidate.score.toFixed(2)}${candidate.note ? ` (${escapeHtml(candidate.note)})` : ''}<pre><code>${escapeHtml(candidate.code)}</code></pre></li>`,
+    )
+    .join('\n        ');
+  const body =
+    suggestion.candidates.length === 0
+      ? `<p>${escapeHtml(suggestion.reason ?? 'No suggestions.')}</p>`
+      : `<p>Closest elements in the page snapshot (confidence: <strong>${escapeHtml(suggestion.confidence)}</strong>):</p>
+      <ol>
+        ${items}
+      </ol>
+      <p>Review before changing the test: a renamed element can be intended, or it can be the bug.</p>`;
+  return `
+    <section aria-labelledby="locator-heading">
+      <h2 id="locator-heading">Locator suggestions</h2>
+      <p>The test waited for this locator and nothing matched:</p>
+      <pre><code>${escapeHtml(suggestion.failed.source)}</code></pre>
+      ${body}
+    </section>`;
+}
+
 export function generateMarkdownReport(
   context: FailureContext,
   options: ReportOptions = {},
@@ -309,7 +359,7 @@ export function generateMarkdownReport(
 ## Classification
 
 ${signals}
-
+${markdownLocatorSection(suggestLocators(context.errorContextText))}
 ## Artifacts
 
 ### Screenshots
@@ -598,7 +648,7 @@ export async function generateHtmlReport(
       <h2 id="classification-heading">Classification</h2>
       ${signals}
     </section>
-
+${htmlLocatorSection(suggestLocators(context.errorContextText))}
     <section aria-labelledby="artifacts-heading">
       <h2 id="artifacts-heading">Artifacts</h2>
       <h3>Screenshots</h3>

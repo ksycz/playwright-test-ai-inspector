@@ -69,6 +69,8 @@ test('P12-M1-01: snapshot parser reads role, name, ref, text and flags from real
   assert.equal(findNode(nodes, 'button', /^Decrease quantity of Desk/)?.text, '-');
   assert.equal(extractSnapshot('x\n```yaml\n- a [ref=e1]\n```\ny'), '- a [ref=e1]\n');
   assert.equal(extractSnapshot('no snapshot'), '');
+  const withFence = extractSnapshot('```yaml\n- button "a ``` b" [ref=e1]\n- link "after" [ref=e2]\n```\n');
+  assert.equal(parseSnapshot(withFence).length, 2, 'backticks inside page text do not end the snapshot');
 });
 
 test('P12-M1-02: cart oracles read lines, total and badge independently of each other', () => {

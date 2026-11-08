@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phases 1–12 complete; waiting for the next phase to be defined
+**Current focus:** Phase 13 — Locator Change Suggestions (P13-M1 complete; waiting for approval before P13-M2)
 
 ---
 
@@ -54,6 +54,7 @@ After every completed milestone, update:
 | **10** | LLM Guardrails | ✅ Completed | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ✅ Completed | Mutation testing, convention-aware PR review, gate list |
 | **12** | Agentic Exploratory Testing | ✅ Completed | Spec-driven exploration agent via Playwright MCP |
+| **13** | Locator Change Suggestions | 🚧 In progress | Suggest the renamed element when a locator finds nothing; never auto-heal |
 
 ---
 
@@ -3333,6 +3334,80 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 ---
 
+# Phase 13 — Locator Change Suggestions
+
+**Status:** 🚧 In progress  
+**Completed:** —  
+**Current focus:** P13-M2 — Optional model tie-break (waiting for approval)
+
+### Goal
+
+When a test fails because a locator finds nothing (for example a button renamed from "Place order" to "Complete purchase"), the failure report suggests the most likely replacement, taken from the page snapshot Playwright saves on failure. It suggests and explains; it never edits a test.
+
+### Design principles
+
+- **Suggest, don't self-heal:** a renamed element can be intended or can be the bug. Silent auto-healing would hide the second case.
+- Deterministic matching first (role, accessible name similarity); a model only breaks ties, optionally (Phase 10 guardrails apply).
+- Say when there's nothing to suggest, and why: the element is still there (so it's hidden, disabled or slow), nothing similar exists, or the locator type isn't visible in the snapshot (test ids, placeholders).
+- Measured the same way as Phase 12: planted renames, counted hits.
+
+## P13-M1 — Locator suggestions in the failure report
+
+**Status:** ✅ Completed  
+**Completed:** 2026-11-08
+
+### What was implemented
+
+- `ai/failure-analyzer/locator.mts`: reads the failed locator from `error-context.md` ("waiting for …" or "Locator: …" lines; `getByRole`, `getByLabel`, `getByText`; escaped quotes; last link of a chain) and the YAML page snapshot, then ranks elements by name similarity (character-bigram Dice or word Jaccard, whichever is higher).
+- `getByRole`: same role; a clickable element whose role changed (button → link) is offered with a note and a score penalty. `getByLabel`: form controls. `getByText`: any name or text.
+- Confidence: high (score ≥ 0.75 and a clear lead), medium (≥ 0.6), low; up to 3 candidates; `exact: true` is kept.
+- No candidate, with a reason, when the element is still in the snapshot, nothing is similar, or the locator is a test id / placeholder.
+- Markdown and HTML investigation reports get a **Locator suggestions** section when a failed locator is found.
+
+### Measured
+
+- Three real Playwright failures (renamed button, heading text in an `expect`, label): the right element is the only candidate each time, confidence high, even on the products page with eight similar "Add … to cart" buttons.
+
+### Deviations
+
+- The adversarial report test found that a snapshot containing three backticks in page text was cut short by both snapshot readers (this one and the explorer's). Both now require the closing fence at the start of a line.
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P13-M1-01 | Real failures: renamed button, heading (`Locator:` line), label with `exact: true` |
+| P13-M1-02 | Parsing: escaped quotes, chains, `getByText`, non-locator errors |
+| P13-M1-03 | No guess: element present, nothing similar, test id, no snapshot |
+| P13-M1-04 | Role change button → link; close ties lower confidence |
+| P13-M1-05 | Similarity: case/punctuation, unrelated text |
+| P13-M1-06 | Report sections; hostile page text can't break the code fence or inject HTML |
+
+## P13-M2 — Optional model tie-break
+
+- When two or more candidates are close, ask a model to pick, given the failed locator, the candidates and the surrounding snapshot. Output must name one of the listed candidates (or none); Phase 10 delimiting, redaction and schema checks apply.
+
+## P13-M3 — Planted renames + docs
+
+- A seeded "label drift" set (renamed buttons, headings, labels; one removed element; one role change) run through the suggester; metric: correct top suggestion / no false confident suggestions.
+- README, `docs/DEMO.md` segment, `docs/TESTING.md` note on "suggest, don't self-heal".
+
+### Acceptance criteria
+
+- [x] Failure report suggests replacements for renamed elements (P13-M1)
+- [ ] Optional model tie-break (P13-M2)
+- [ ] Planted-rename score measured and documented (P13-M3)
+
+## Phase 13 — Progress Summary
+
+| Milestone | Status | Completed |
+|---|---|---|
+| P13-M1 — Locator suggestions in the failure report | ✅ Completed | 2026-11-08 |
+| P13-M2 — Optional model tie-break | ⏳ Planned | — |
+| P13-M3 — Planted renames + docs | ⏳ Planned | — |
+
+---
+
 ## Out of scope — separate repo: AI provenance gate
 
 AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a separate, reusable GitHub Action. This repo then consumes it:
@@ -3348,6 +3423,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-08 | Phase 13 defined; P13-M1 completed — locator suggestions in failure reports |
 | 2026-11-08 | P12-M4 completed — demo segment and limits table for the exploration agent; Phase 12 complete |
 | 2026-11-08 | P12-M3 completed — `npm run explore:draft` turns a finding into a page-object `@e2e` draft; `--pr` opens it as a draft PR |
 | 2026-11-08 | P12-M2 completed — five seeded bugs behind a dev-only flag, `npm run explore:eval`, probes catch 4/5 with 0 false positives |

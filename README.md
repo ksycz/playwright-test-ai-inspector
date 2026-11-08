@@ -540,6 +540,7 @@ ANTHROPIC_API_KEY=... npm run explore         # probes + model-driven exploratio
 - **Model layer** runs only with an API key, with a per-charter cap on model turns and browser steps.
 - A finding is kept only if it reproduces from a fresh state; model findings are replayed and must show their evidence again. Everything else is listed as dropped.
 - With two cart bugs planted by hand, the probes reported both with steps and screenshots; on the real shop all 13 pass.
+- `npm run explore:eval` measures it: five known bugs can be switched on in the dev server (`VITE_SEEDED_BUGS`). Probes alone catch 4 of 5 with 0 false alarms; the fifth is placed where no probe looks, on purpose.
 
 Module docs: [`ai/explorer/README.md`](ai/explorer/README.md).
 

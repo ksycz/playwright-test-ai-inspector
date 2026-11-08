@@ -9,6 +9,7 @@ import {
 } from 'react';
 import type { CartItem, Product } from '@/types/product';
 import { CART_STORAGE_KEY, loadCartFromStorage, saveCartToStorage } from '@/utils/cartStorage';
+import { isSeeded } from '@/seededBugs';
 
 interface CartContextValue {
   items: CartItem[];
@@ -88,6 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeItem = useCallback((slug: string) => {
+    if (isSeeded('cart-remove-noop')) return;
     setItems((currentItems) => currentItems.filter((item) => item.product.slug !== slug));
   }, []);
 
@@ -101,7 +103,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const subtotal = useMemo(() => calculateSubtotal(items), [items]);
-  const total = subtotal;
+  const total = useMemo(
+    () =>
+      isSeeded('cart-total-ignores-quantity')
+        ? items.reduce((sum, item) => sum + item.product.price, 0)
+        : subtotal,
+    [items, subtotal],
+  );
 
   const value = useMemo(
     () => ({

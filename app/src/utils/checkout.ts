@@ -1,4 +1,5 @@
 import type { CheckoutFormData, CheckoutFormErrors } from '@/types/order';
+import { isSeeded } from '@/seededBugs';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -11,7 +12,7 @@ export function validateCheckoutForm(data: CheckoutFormData): CheckoutFormErrors
 
   if (!data.email.trim()) {
     errors.email = 'Email is required';
-  } else if (!EMAIL_PATTERN.test(data.email.trim())) {
+  } else if (!isSeeded('checkout-email-not-checked') && !EMAIL_PATTERN.test(data.email.trim())) {
     errors.email = 'Enter a valid email address';
   }
 

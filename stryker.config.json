@@ -30,7 +30,8 @@
     "ai/flaky-detector/analyze.mts",
     "ai/explorer/snapshot.mts",
     "ai/explorer/oracles.mts",
-    "ai/explorer/charters.mts"
+    "ai/explorer/charters.mts",
+    "ai/explorer/evaluate.mts"
   ],
   "reporters": ["html", "clear-text", "progress"],
   "htmlReporter": {

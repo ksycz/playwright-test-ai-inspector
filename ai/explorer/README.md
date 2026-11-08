@@ -42,3 +42,34 @@ By default MCP uses the Chromium this repo installs for Playwright (`.playwright
 - The probes find what they were written to check. The model layer is what looks beyond them, and its runs differ from one another.
 - A model finding confirmed by replay is still a claim about the page, not a verdict. Review it before turning it into a spec.
 - Model runs cost money; every call is capped as above. Measuring how many seeded bugs each layer finds is P12-M2.
+
+## Seeded-bug evaluation (P12-M2)
+
+How do you know the explorer works? Plant known bugs and count how many it catches.
+
+```bash
+npm run explore:eval -- --no-llm          # about 6 minutes, probes only
+npm run explore:eval -- --bugs cart-remove-noop,cart-not-saved --no-llm
+```
+
+The command starts its own dev server on port 5174 for each scenario. It runs once on the clean shop and once per bug, with `VITE_SEEDED_BUGS=<bug>`. It writes `ai-reports/explorer-eval/evaluation.md`, one report folder per scenario, and appends one line to `history.jsonl`.
+
+| Seeded bug | What it breaks | Probe that should catch it |
+|---|---|---|
+| `cart-remove-noop` | Remove does nothing | `cart-remove-item` |
+| `cart-total-ignores-quantity` | Total ignores quantity | `cart-increase-quantity` |
+| `checkout-email-not-checked` | `not-an-email` is accepted | `checkout-invalid-email` |
+| `cart-not-saved` | A reload empties the cart | `cart-persists-after-refresh` |
+| `detail-adds-twice` | Add on the product page adds 2 | none, on purpose |
+
+`detail-adds-twice` sits where no probe looks, so the score shows a real blind spot rather than a flattering 100%. It's the case the model layer has to earn its cost on.
+
+Scoring:
+
+- **Caught** = a finding in that bug's run cites one of the spec requirements the bug breaks (`SEEDED_BUG_SPECS` in `evaluate.mts`).
+- **False positive** = any finding on the clean shop.
+- **Other findings** = findings in a bug run that cite something else. Usually knock-on effects: `cart-not-saved` also breaks every probe that reloads the cart page.
+
+First measured run (2026-11-08, probes only): **4 of 5 caught, 0 false positives**, 6 minutes.
+
+The bugs live in the app behind `isSeeded()` (`app/src/seededBugs.ts`). They only switch on in the Vite dev server with `VITE_SEEDED_BUGS` set; `npm run build` never includes them, and they're off in every normal test run.

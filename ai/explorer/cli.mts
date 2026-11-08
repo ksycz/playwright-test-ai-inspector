@@ -1,15 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { createModelExplorer, type ModelExploration } from './agent.mts';
-import { buildCharters } from './charters.mts';
-import { explore } from './explore.mts';
-import { startPlaywrightMcp } from './mcp.mts';
-import { createAnthropicChatModel } from './anthropic.mts';
-import { createOpenAiChatModel } from './openai.mts';
-import { PROBES, type CatalogueProduct, type Credentials } from './probes.mts';
-import { renderMarkdown, toJsonl } from './report.mts';
-import { ExplorerSession } from './session.mts';
 import { parseArgs, type CliOptions } from './args.mts';
+import { renderMarkdown } from './report.mts';
+import { modelFromEnv, runExplorer } from './run.mts';
 
 function printUsage(): void {
   console.error(`Usage:
@@ -21,20 +13,6 @@ Explores the running demo shop through Playwright MCP (start it first with npm r
 Deterministic probes always run. If ANTHROPIC_API_KEY (or OPENAI_API_KEY) is set, a model also\nexplores each charter, capped by --model-turns and --model-steps;
 --no-llm skips it. Writes findings.jsonl and report.md. Exits 0 when the run completes.
 `);
-}
-
-/** ANTHROPIC_API_KEY first, then OPENAI_API_KEY. No key (or --no-llm) means probes only. */
-function modelFromEnv(options: CliOptions): ModelExploration | null {
-  if (options.noLlm) return null;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY?.trim();
-  const openAiKey = process.env.OPENAI_API_KEY?.trim();
-  const chat = anthropicKey
-    ? createAnthropicChatModel({ apiKey: anthropicKey, model: process.env.ANTHROPIC_MODEL })
-    : openAiKey
-      ? createOpenAiChatModel({ apiKey: openAiKey, model: process.env.OPENAI_MODEL })
-      : null;
-  if (!chat) return null;
-  return createModelExplorer(chat, { stepBudget: options.modelSteps, maxTurns: options.modelTurns });
 }
 
 export async function main(argv: string[]): Promise<number> {
@@ -60,51 +38,29 @@ export async function main(argv: string[]): Promise<number> {
     return 1;
   }
 
-  const outDir = path.resolve(options.outDir);
-  await mkdir(outDir, { recursive: true });
-
-  const spec = await readFile('docs/APP_SPEC.md', 'utf8');
-  const charters = buildCharters(spec, options.charters);
-  const catalogue = JSON.parse(
-    await readFile('app/src/data/products.json', 'utf8'),
-  ) as CatalogueProduct[];
-  const [user] = JSON.parse(await readFile('app/src/data/users.json', 'utf8')) as Credentials[];
-  const model = modelFromEnv(options);
-
-  const mcp = await startPlaywrightMcp({
-    origin: options.baseUrl,
-    outputDir: outDir,
-    executablePath: options.executablePath,
-    noSandbox: options.noSandbox,
-    headed: options.headed,
-  });
   try {
-    const session = new ExplorerSession(mcp.caller, {
-      budget: options.budget,
-      origin: options.baseUrl,
-      screenshotDir: path.join(outDir, 'screenshots'),
-    });
-    const result = await explore({
-      session,
-      charters,
-      probes: PROBES,
-      context: { catalogue, user },
+    const result = await runExplorer({
       baseUrl: options.baseUrl,
-      model,
+      charters: options.charters,
+      budget: options.budget,
+      outDir: options.outDir,
+      model: modelFromEnv({
+        disabled: options.noLlm,
+        modelSteps: options.modelSteps,
+        modelTurns: options.modelTurns,
+      }),
+      executablePath: options.executablePath,
+      noSandbox: options.noSandbox,
+      headed: options.headed,
       log: (message) => console.error(message),
     });
-
     const markdown = renderMarkdown(result);
-    await writeFile(path.join(outDir, 'findings.jsonl'), toJsonl(result.findings), 'utf8');
-    await writeFile(path.join(outDir, 'report.md'), markdown, 'utf8');
-    console.error(`Wrote ${path.join(outDir, 'report.md')} and findings.jsonl`);
+    console.error(`Wrote ${path.join(path.resolve(options.outDir), 'report.md')} and findings.jsonl`);
     process.stdout.write(markdown);
     return 0;
   } catch (error) {
     console.error(`Exploration failed: ${error instanceof Error ? error.message : String(error)}`);
     return 1;
-  } finally {
-    await mcp.close();
   }
 }
 

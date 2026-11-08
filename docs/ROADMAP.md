@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 12 — Agentic Exploratory Testing (P12-M1 complete; waiting for approval before P12-M2)
+**Current focus:** Phase 12 — Agentic Exploratory Testing (P12-M2 complete; waiting for approval before P12-M3)
 
 ---
 
@@ -3154,7 +3154,7 @@ Phase 9 dependency gate + Phase 10 guardrails
 
 **Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P12-M2 — Seeded-bug evaluation (waiting for approval)
+**Current focus:** P12-M3 — Finding → draft spec (waiting for approval)
 
 ### Goal
 
@@ -3219,8 +3219,46 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 ## P12-M2 — Seeded-bug evaluation
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-08
+
 - Feature flag in the demo app that injects 3–5 known bugs (e.g. negative quantity accepted, total not updated)
 - Metric: seeded bugs found / false positives per run, tracked like Phase 7 trends
+
+### What was implemented
+
+- `app/src/seededBugs.ts`: five bugs behind `isSeeded()`, on only when the Vite **dev** server runs with `VITE_SEEDED_BUGS=<names|all>`. Production builds and unit tests always see them off. The dev console warns when any are on.
+- Bugs: `cart-remove-noop`, `cart-total-ignores-quantity`, `checkout-email-not-checked`, `cart-not-saved`, `detail-adds-twice`.
+- `npm run explore:eval`: starts a dev server on port 5174 per scenario (clean shop + one per bug), runs the explorer, scores it, writes `ai-reports/explorer-eval/evaluation.md`, and appends to `history.jsonl`.
+- Scoring (`evaluate.mts`): a bug is caught when a finding cites one of its spec requirements; every finding on the clean shop is a false positive; other findings in a bug run are listed as knock-on effects.
+- `run.mts` holds the single-run logic, shared by `explore` and `explore:eval`.
+
+### Measured
+
+- 2026-11-08, probes only: **4/5 caught, 0 false positives**, about 6 minutes. Missed: `detail-adds-twice`.
+- `cart-not-saved` also produced 8 knock-on findings (every probe that reloads the cart).
+
+### Architectural decisions
+
+- One bug per run instead of all at once: bugs interact (an unsaved cart breaks almost every cart probe), and per-run attribution would be guesswork.
+- One bug is deliberately outside probe coverage, so the metric shows a gap the model layer can be compared on rather than a flattering 100%.
+- Matching by spec requirement, not probe id, so model findings are scored the same way as probes.
+
+### Deviations
+
+- Found while writing the scorer: the charter reader only took bullets, so "The cart should persist after page refresh." (a sentence in APP_SPEC) was never offered to the model. The reader now also takes sentences with should/must, and a test checks that every probe and every seeded bug cites a real charter line.
+- Not in CI: a full run is about 6 minutes of browser time. Worth a nightly job once the model layer is measured too.
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P12-M2-01–02 | Flag only works in the dev server; parsing, `all`, unknown names |
+| P12-M2-03–04 | Scored bug list matches the app; every bug requirement is a charter line |
+| P12-M2-05 | Caught vs other findings vs false positives |
+| P12-M2-06–07 | History lines round-trip, bad lines skipped; report escapes text |
+| P12-M2-08 | `explore:eval` options |
+| P12-M2-09 | Every probe cites a charter line |
 
 ## P12-M3 — Finding → draft spec
 
@@ -3233,7 +3271,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 ### Acceptance criteria
 
 - [x] Bounded agent run produces a findings report (P12-M1)
-- [ ] Seeded-bug detection rate measured (P12-M2)
+- [x] Seeded-bug detection rate measured (P12-M2)
 - [ ] Finding → draft spec flow (P12-M3)
 - [ ] Limitations documented (P12-M4)
 
@@ -3242,7 +3280,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 | Milestone | Status | Completed |
 |---|---|---|
 | P12-M1 — Exploration agent | ✅ Completed | 2026-11-08 |
-| P12-M2 — Seeded-bug evaluation | ⏳ Planned | — |
+| P12-M2 — Seeded-bug evaluation | ✅ Completed | 2026-11-08 |
 | P12-M3 — Finding → draft spec | ⏳ Planned | — |
 | P12-M4 — Docs | ⏳ Planned | — |
 
@@ -3263,6 +3301,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-08 | P12-M2 completed — five seeded bugs behind a dev-only flag, `npm run explore:eval`, probes catch 4/5 with 0 false positives |
 | 2026-11-08 | P12-M1 completed — bounded exploration agent via Playwright MCP: APP_SPEC charters, 13 probes, optional model layer with replay confirmation |
 | 2026-11-07 | P11-M3 completed — CI gates table and README cover mutation testing and the test review |
 | 2026-11-07 | P11-M2 completed — heuristic test-convention review on pull requests, optional model notes |

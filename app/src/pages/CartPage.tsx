@@ -37,7 +37,7 @@ export default function CartPage() {
         </button>
       </div>
 
-      <div className="mt-8 overflow-x-auto rounded-xl border border-brand-100 bg-white shadow-sm">
+      <div className="mt-8 overflow-x-auto rounded-xl border border-brand-100 bg-white shadow-xs">
         <table className="min-w-full border-collapse text-left text-sm">
           <caption className="sr-only">Shopping cart items</caption>
           <thead>
@@ -109,7 +109,7 @@ export default function CartPage() {
         </table>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-brand-100 bg-white px-6 py-4 shadow-sm">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-brand-100 bg-white px-6 py-4 shadow-xs">
         <p className="text-lg font-semibold text-brand-950">
           Total: <span data-testid="cart-total">{formatPrice(total)}</span>
         </p>

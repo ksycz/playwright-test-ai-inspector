@@ -310,4 +310,28 @@ https://localhost:5173/checkout`;
     assert.match(prompt, /https:\/\/localhost:5173\/checkout/);
     assert.doesNotMatch(prompt, /\[REDACTED\]/);
   });
+
+  it('P10-M3-04: provider key names with more than one underscore are replaced', () => {
+    const text = [
+      'OPENAI_API_KEY=sk-proj-abc123def456',
+      'ANTHROPIC_API_KEY=sk-ant-api03-xyz789',
+      'AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMIK7MDENG',
+      'GITHUB_TOKEN=ghp_abcdef123456',
+      'DB_ADMIN_PASSWORD = hunter2hunter2',
+    ].join('\n');
+    const redacted = redactSecrets(text);
+    for (const secret of ['sk-proj-abc123def456', 'sk-ant-api03-xyz789', 'wJalrXUtnFEMIK7MDENG', 'ghp_abcdef123456', 'hunter2hunter2']) {
+      assert.ok(!redacted.text.includes(secret), `${secret} leaked`);
+    }
+    assert.match(redacted.text, /^OPENAI_API_KEY=\[REDACTED\]$/m);
+    assert.match(redacted.text, /^ANTHROPIC_API_KEY=\[REDACTED\]$/m);
+    assert.match(redacted.text, /^AWS_SECRET_ACCESS_KEY=\[REDACTED\]$/m);
+    assert.equal(redacted.count, 5);
+  });
+
+  it('P10-M3-05: ordinary words around key-like names stay unchanged', () => {
+    const plain = 'The MAX_RETRY_COUNT=3 setting and the KEYBOARD=us layout are fine. API_KEYS are documented.';
+    assert.equal(redactSecrets(plain).text, plain);
+    assert.equal(redactSecrets(plain).count, 0);
+  });
 });

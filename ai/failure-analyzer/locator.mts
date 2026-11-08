@@ -25,12 +25,20 @@ export type LocatorCandidate = {
   note?: string;
 };
 
+/** Optional model opinion on a tie (P13-M2). `choice` is a 1-based candidate number, or null for none. */
+export type ModelPick = {
+  provider: string;
+  choice: number | null;
+  reason: string;
+};
+
 export type LocatorSuggestion = {
   failed: FailedLocator;
   confidence: 'high' | 'medium' | 'low' | 'none';
   candidates: LocatorCandidate[];
   /** Why there are no candidates, or why the locator probably isn't the problem. */
   reason?: string;
+  modelPick?: ModelPick;
 };
 
 const FORM_ROLES = new Set(['textbox', 'searchbox', 'combobox', 'checkbox', 'radio', 'spinbutton', 'slider', 'switch']);

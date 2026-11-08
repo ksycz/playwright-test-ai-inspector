@@ -129,3 +129,12 @@ It handles `getByRole` (including a button that became a link), `getByLabel` and
 
 It only suggests. A renamed element can be intended or can be the bug, so a person decides; tests are never changed automatically.
 
+### Optional model tie-break (P13-M2)
+
+When two or more candidates are about equally close, and `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`) is set, a model is asked which one the test most likely meant. The report adds one line, for example **Model pick — unverified** (anthropic:…): candidate 2. Keeps the word "now".
+
+- It never reorders the list. The similarity ranking stays the evidence; the pick is an opinion.
+- The reply must name a listed candidate or `null`, with a short reason, or it's dropped.
+- Page text goes in redacted and fenced as untrusted data.
+- `--no-llm` skips it; a failed request is logged and the report is written anyway.
+

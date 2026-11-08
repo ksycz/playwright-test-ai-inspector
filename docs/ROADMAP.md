@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 13 — Locator Change Suggestions (P13-M1 complete; waiting for approval before P13-M2)
+**Current focus:** Phase 13 — Locator Change Suggestions (P13-M2 complete; waiting for approval before P13-M3)
 
 ---
 
@@ -3338,7 +3338,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 **Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P13-M2 — Optional model tie-break (waiting for approval)
+**Current focus:** P13-M3 — Planted renames + docs (waiting for approval)
 
 ### Goal
 
@@ -3385,7 +3385,28 @@ When a test fails because a locator finds nothing (for example a button renamed 
 
 ## P13-M2 — Optional model tie-break
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-08
+
 - When two or more candidates are close, ask a model to pick, given the failed locator, the candidates and the surrounding snapshot. Output must name one of the listed candidates (or none); Phase 10 delimiting, redaction and schema checks apply.
+
+### What was implemented
+
+- `ai/failure-analyzer/locator-tiebreak.mts`: runs only when there are 2+ candidates and confidence isn't high. Anthropic first (`ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`), OpenAI as fallback; `--no-llm` skips it. Temperature 0, 200 max tokens.
+- Prompt: candidates and up to 4,000 characters of snapshot inside `<<<UNTRUSTED_PAGE_SNAPSHOT>>>` markers the page can't close; secrets redacted.
+- Reply must be exactly `{"choice": <1..n or null>, "reason": "<= 200 chars"}`; anything else is dropped and the report keeps the similarity ranking.
+- The report adds one line, "Model pick — unverified", escaped; it never reorders the candidates. A failed request is logged and skipped.
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P13-M2-01 | Called only on a tie |
+| P13-M2-02 | Page text fenced and redacted; injected end marker removed |
+| P13-M2-03 | Strict reply: out-of-range, non-integer, extra keys, long reason, prose → dropped |
+| P13-M2-04 | One call per tie; none on a clear answer; unusable reply dropped |
+| P13-M2-05 | Request shapes; HTTP errors; Anthropic preferred |
+| P13-M2-06 | Report labels and escapes the pick |
 
 ## P13-M3 — Planted renames + docs
 
@@ -3395,7 +3416,7 @@ When a test fails because a locator finds nothing (for example a button renamed 
 ### Acceptance criteria
 
 - [x] Failure report suggests replacements for renamed elements (P13-M1)
-- [ ] Optional model tie-break (P13-M2)
+- [x] Optional model tie-break (P13-M2)
 - [ ] Planted-rename score measured and documented (P13-M3)
 
 ## Phase 13 — Progress Summary
@@ -3403,7 +3424,7 @@ When a test fails because a locator finds nothing (for example a button renamed 
 | Milestone | Status | Completed |
 |---|---|---|
 | P13-M1 — Locator suggestions in the failure report | ✅ Completed | 2026-11-08 |
-| P13-M2 — Optional model tie-break | ⏳ Planned | — |
+| P13-M2 — Optional model tie-break | ✅ Completed | 2026-11-08 |
 | P13-M3 — Planted renames + docs | ⏳ Planned | — |
 
 ---
@@ -3423,6 +3444,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-08 | P13-M2 completed — optional, strictly validated model tie-break for close locator suggestions |
 | 2026-11-08 | Phase 13 defined; P13-M1 completed — locator suggestions in failure reports |
 | 2026-11-08 | P12-M4 completed — demo segment and limits table for the exploration agent; Phase 12 complete |
 | 2026-11-08 | P12-M3 completed — `npm run explore:draft` turns a finding into a page-object `@e2e` draft; `--pr` opens it as a draft PR |

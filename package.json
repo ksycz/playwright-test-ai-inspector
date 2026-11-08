@@ -30,6 +30,7 @@
     "analyze:review": "node --experimental-strip-types ai/pr-review/cli.mts",
     "explore": "node --experimental-strip-types ai/explorer/cli.mts",
     "explore:eval": "node --experimental-strip-types ai/explorer/eval-cli.mts",
+    "explore:draft": "node --experimental-strip-types ai/explorer/draft-cli.mts",
     "report": "playwright show-report playwright-report",
     "trace": "playwright show-trace"
   },

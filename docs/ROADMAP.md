@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 12 — Agentic Exploratory Testing (P12-M2 complete; waiting for approval before P12-M3)
+**Current focus:** Phase 12 — Agentic Exploratory Testing (P12-M3 complete; waiting for approval before P12-M4)
 
 ---
 
@@ -3154,7 +3154,7 @@ Phase 9 dependency gate + Phase 10 guardrails
 
 **Status:** 🚧 In progress  
 **Completed:** —  
-**Current focus:** P12-M3 — Finding → draft spec (waiting for approval)
+**Current focus:** P12-M4 — Docs (waiting for approval)
 
 ### Goal
 
@@ -3262,7 +3262,45 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 ## P12-M3 — Finding → draft spec
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-08
+
 - Command that turns a confirmed finding into a draft `@e2e` spec using POM + fixtures, opened as a PR for human review
+
+### What was implemented
+
+- Findings now carry structured `actions` (goto / click role+name / type label) and probe `checks` (cart total, badge, row visible/absent, URL, invalid field, visible text, button/link visible).
+- `npm run explore:draft -- --finding <id>` writes `tests/e2e/explored/<id>.spec.ts` using page objects, `loginViaUi` and `fillForm`; falls back to `getByRole`/`getByLabel` with `exact: true`.
+- `--pr` branches from `origin/main`, commits only the spec, pushes and opens a **draft** PR with the four-section description; `--dry-run` prints the commands.
+- Incomplete drafts (model findings, ref-only steps) are written as `test.fixme` with TODOs.
+
+### Measured
+
+- Drafts for 3 seeded-bug findings: pass on the clean shop, each fails only with its own bug on, 5 repeats without flakes, no convention-review findings.
+- All 3 duplicate existing smoke tests, so none were committed; one kept as `docs/samples/explored-draft.spec.ts.txt`.
+
+### Architectural decisions
+
+- Deterministic code generation, no model: the same finding always gives the same spec, and finding text can only appear as escaped string literals or one-line comments (tested with a hostile title).
+- Drafts assert the spec, not the observed behaviour, so they fail while the bug exists and become regression tests once it's fixed.
+- `--pr` opens a draft PR and never merges: a person decides what becomes a test.
+
+### Deviations
+
+- `--pr` was verified with `--dry-run` and unit tests; the live git push + `gh api` path was not run against the repo here, to avoid opening a demo PR.
+- Mutation gate now includes `evaluate.mts` and `draft.mts`: score 61.13; a clean run took about 4 minutes on the dev machine (was 2–3).
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P12-M3-01 | Recorded probe finding → page-object spec |
+| P12-M3-02–03 | Demo-user login → `loginViaUi`; wrong password stays plain; checkout → `fillForm` |
+| P12-M3-04 | Model / ref-only findings → `test.fixme` + TODO |
+| P12-M3-05 | Hostile finding text can't escape strings, comments or the output path |
+| P12-M3-06 | Every check kind has an assertion |
+| P12-M3-07 | PR description: four sections, escaped |
+| P12-M3-08 | `--pr` commands: fetch, branch from base, one-file commit, draft PR |
 
 ## P12-M4 — Docs
 
@@ -3272,7 +3310,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 - [x] Bounded agent run produces a findings report (P12-M1)
 - [x] Seeded-bug detection rate measured (P12-M2)
-- [ ] Finding → draft spec flow (P12-M3)
+- [x] Finding → draft spec flow (P12-M3)
 - [ ] Limitations documented (P12-M4)
 
 ## Phase 12 — Progress Summary
@@ -3281,7 +3319,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 |---|---|---|
 | P12-M1 — Exploration agent | ✅ Completed | 2026-11-08 |
 | P12-M2 — Seeded-bug evaluation | ✅ Completed | 2026-11-08 |
-| P12-M3 — Finding → draft spec | ⏳ Planned | — |
+| P12-M3 — Finding → draft spec | ✅ Completed | 2026-11-08 |
 | P12-M4 — Docs | ⏳ Planned | — |
 
 ---
@@ -3301,6 +3339,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-08 | P12-M3 completed — `npm run explore:draft` turns a finding into a page-object `@e2e` draft; `--pr` opens it as a draft PR |
 | 2026-11-08 | P12-M2 completed — five seeded bugs behind a dev-only flag, `npm run explore:eval`, probes catch 4/5 with 0 false positives |
 | 2026-11-08 | P12-M1 completed — bounded exploration agent via Playwright MCP: APP_SPEC charters, 13 probes, optional model layer with replay confirmation |
 | 2026-11-07 | P11-M3 completed — CI gates table and README cover mutation testing and the test review |

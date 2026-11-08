@@ -31,7 +31,8 @@
     "ai/explorer/snapshot.mts",
     "ai/explorer/oracles.mts",
     "ai/explorer/charters.mts",
-    "ai/explorer/evaluate.mts"
+    "ai/explorer/evaluate.mts",
+    "ai/explorer/draft.mts"
   ],
   "reporters": ["html", "clear-text", "progress"],
   "htmlReporter": {

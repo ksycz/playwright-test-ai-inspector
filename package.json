@@ -40,6 +40,6 @@
     "@playwright/test": "^1.57.0",
     "@stryker-mutator/core": "^10.1.1",
     "@stryker-mutator/tap-runner": "^10.1.1",
-    "@types/node": "^24.10.1"
+    "@types/node": "^26.0.0"
   }
 }

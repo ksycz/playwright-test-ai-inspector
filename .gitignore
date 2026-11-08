@@ -24,3 +24,6 @@ scripts/mutation-spike/*-report.json
 
 # OS
 .DS_Store
+
+# Personal learning notes (kept locally, not in the repo)
+docs/LESSONS_LEARNED.md

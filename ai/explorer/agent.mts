@@ -281,6 +281,7 @@ export function createModelExplorer(model: ChatModel, options: ModelExplorerOpti
           actual: candidate.args.actual,
           steps: candidate.steps.map((step) => step.note),
           screenshot,
+          actions: candidate.steps.map((step) => step.action ?? null),
         });
       }
       return result;

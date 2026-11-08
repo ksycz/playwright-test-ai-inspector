@@ -73,3 +73,23 @@ Scoring:
 First measured run (2026-11-08, probes only): **4 of 5 caught, 0 false positives**, 6 minutes.
 
 The bugs live in the app behind `isSeeded()` (`app/src/seededBugs.ts`). They only switch on in the Vite dev server with `VITE_SEEDED_BUGS` set; `npm run build` never includes them, and they're off in every normal test run.
+
+## Finding → draft spec (P12-M3)
+
+```bash
+npm run explore:draft -- --finding cart-increase-quantity
+npm run explore:draft -- --finding cart-increase-quantity --findings ai-reports/explorer-eval/cart-total-ignores-quantity/findings.jsonl
+npm run explore:draft -- --finding cart-increase-quantity --pr --dry-run   # print the git/gh commands
+npm run explore:draft -- --finding cart-increase-quantity --pr             # branch, commit, push, draft PR
+```
+
+The explorer now records each step as an action (open a path, click a role + name, type into a label), and each probe records the checks it expected (cart total, badge, row shown or gone, URL, invalid field, visible text). `draft.mts` turns those into a spec:
+
+- steps map to page objects: `productsPage.addToCart(...)`, `cartPage.increaseQuantityButton(...)`, `checkoutPage.fillForm({...})`; a login with the demo user becomes `loginViaUi(page)`; anything else falls back to `getByRole` / `getByLabel` with `exact: true`;
+- checks become `expect` lines on the same objects;
+- every value from a finding goes into the file as an escaped string literal or a one-line comment, never as code, so model text can't inject code;
+- if a step was a model click by ref, or there are no checks (model findings), the spec is written with `test.fixme` and a TODO.
+
+`--pr` fetches `origin/main`, creates `explored/<id>` from it, commits only the spec, pushes, and opens a **draft** PR (via `gh api`) whose description has the four sections: what changed, the problem, how to test, risk.
+
+Verified on the seeded bugs from P12-M2: drafts for `cart-remove-item`, `cart-increase-quantity` and `checkout-invalid-email` pass on the clean shop and each fails only with its own bug switched on (5 repeats, no flakes). All three duplicate existing smoke tests, so none were committed; one is kept as a sample in `docs/samples/`.

@@ -2,6 +2,7 @@ import type { ModelExploration } from './agent.mts';
 import type { Probe, ProbeContext, ProbeOutcome } from './probes.mts';
 import { BudgetExceededError, type ExplorerSession } from './session.mts';
 import type {
+  Action,
   Charter,
   CharterSummary,
   DroppedFinding,
@@ -21,7 +22,7 @@ export type ExploreOptions = {
   log?: (message: string) => void;
 };
 
-type Attempt = { outcome: ProbeOutcome; steps: string[] };
+type Attempt = { outcome: ProbeOutcome; steps: string[]; actions: Array<Action | null> };
 
 async function attempt(probe: Probe, options: ExploreOptions): Promise<Attempt> {
   const { session, context } = options;
@@ -34,7 +35,11 @@ async function attempt(probe: Probe, options: ExploreOptions): Promise<Attempt> 
     const message = error instanceof Error ? error.message : String(error);
     outcome = { ok: false, expected: 'flow completes', actual: message };
   }
-  return { outcome, steps: session.steps.map((step) => step.note) };
+  return {
+    outcome,
+    steps: session.steps.map((step) => step.note),
+    actions: session.steps.map((step) => step.action ?? null),
+  };
 }
 
 /**
@@ -97,6 +102,8 @@ export async function explore(options: ExploreOptions): Promise<ExplorationResul
           actual: second.outcome.actual,
           steps: second.steps,
           screenshot,
+          actions: second.actions,
+          ...(second.outcome.checks ? { checks: second.outcome.checks } : {}),
         });
       }
 

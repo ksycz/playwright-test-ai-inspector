@@ -10,7 +10,7 @@ import {
 } from './oracles.mts';
 import type { ExplorerSession } from './session.mts';
 import { findNode, type SnapshotNode } from './snapshot.mts';
-import type { Flow } from './types.mts';
+import type { Check, Flow } from './types.mts';
 
 export type CatalogueProduct = { slug: string; name: string; price: number };
 export type Credentials = { username: string; password: string };
@@ -20,7 +20,9 @@ export type ProbeContext = {
   user: Credentials;
 };
 
-export type ProbeOutcome = { ok: true } | { ok: false; expected: string; actual: string };
+export type ProbeOutcome =
+  | { ok: true }
+  | { ok: false; expected: string; actual: string; checks?: Check[] };
 
 export type Probe = {
   id: string;
@@ -33,8 +35,8 @@ export type Probe = {
 
 const PASS: ProbeOutcome = { ok: true };
 
-function fail(expected: string, actual: string): ProbeOutcome {
-  return { ok: false, expected, actual };
+function fail(expected: string, actual: string, checks?: Check[]): ProbeOutcome {
+  return checks ? { ok: false, expected, actual, checks } : { ok: false, expected, actual };
 }
 
 function product(context: ProbeContext, index: number): CatalogueProduct {
@@ -78,10 +80,27 @@ async function fillCheckout(session: ExplorerSession, values: Record<string, str
 }
 
 /** Checks the cart table against catalogue prices: each line and the total. */
+/** What a correct cart page shows, as checks a draft spec can assert. */
+export function cartChecks(
+  expected: Array<{ product: CatalogueProduct; quantity: number }>,
+  absent: string[] = [],
+): Check[] {
+  const total = expected.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
+  const count = expected.reduce((sum, line) => sum + line.quantity, 0);
+  return [
+    ...expected.map((line): Check => ({ kind: 'rowVisible', name: line.product.name })),
+    ...absent.map((name): Check => ({ kind: 'rowAbsent', name })),
+    { kind: 'cartTotal', amount: formatPrice(total) },
+    { kind: 'cartBadge', count },
+  ];
+}
+
 function checkCartMath(
   nodes: SnapshotNode[],
   expected: Array<{ product: CatalogueProduct; quantity: number }>,
+  absent: string[] = [],
 ): ProbeOutcome {
+  const checks = cartChecks(expected, absent);
   const rows = cartRows(nodes);
   let expectedTotal = 0;
   for (const { product: item, quantity } of expected) {
@@ -91,12 +110,13 @@ function checkCartMath(
       return fail(
         `${item.name} × ${quantity} = ${formatPrice(item.price * quantity)}`,
         describeCart(nodes),
+        checks,
       );
     }
   }
   const expectedCount = expected.reduce((sum, line) => sum + line.quantity, 0);
   if (!sameAmount(cartTotal(nodes), expectedTotal) || cartBadgeCount(nodes) !== expectedCount) {
-    return fail(`total ${formatPrice(expectedTotal)}; badge ${expectedCount}`, describeCart(nodes));
+    return fail(`total ${formatPrice(expectedTotal)}; badge ${expectedCount}`, describeCart(nodes), checks);
   }
   return PASS;
 }
@@ -159,9 +179,13 @@ export const PROBES: Probe[] = [
       const rows = cartRows(nodes);
       const badRow = rows.find((row) => row.quantity !== null && row.quantity < 1);
       if (badRow || rows.some((row) => row.name === item.name)) {
-        return fail(`${item.name} removed; ${other.name} × 1 left`, describeCart(nodes));
+        return fail(
+          `${item.name} removed; ${other.name} × 1 left`,
+          describeCart(nodes),
+          cartChecks([{ product: other, quantity: 1 }], [item.name]),
+        );
       }
-      return checkCartMath(nodes, [{ product: other, quantity: 1 }]);
+      return checkCartMath(nodes, [{ product: other, quantity: 1 }], [item.name]);
     },
   },
   {
@@ -176,7 +200,7 @@ export const PROBES: Probe[] = [
       await addToCart(session, remove.name);
       await openCart(session);
       await session.click('button', `Remove ${remove.name} from cart`);
-      return checkCartMath(await session.snapshot(), [{ product: keep, quantity: 1 }]);
+      return checkCartMath(await session.snapshot(), [{ product: keep, quantity: 1 }], [remove.name]);
     },
   },
   {
@@ -191,7 +215,10 @@ export const PROBES: Probe[] = [
       await session.click('button', 'Clear cart');
       const nodes = await session.snapshot();
       if (!hasText(nodes, 'Your cart is empty') || cartBadgeCount(nodes) !== 0) {
-        return fail('empty cart state; badge 0', describeCart(nodes));
+        return fail('empty cart state; badge 0', describeCart(nodes), [
+          { kind: 'textVisible', text: 'Your cart is empty' },
+          { kind: 'cartBadge', count: 0 },
+        ]);
       }
       return PASS;
     },
@@ -206,7 +233,9 @@ export const PROBES: Probe[] = [
       await session.goto('/checkout');
       const url = await session.currentUrl();
       if (!/\/login(\?|$)/.test(new URL(url).pathname + new URL(url).search)) {
-        return fail('redirect to /login', `stayed on ${new URL(url).pathname}`);
+        return fail('redirect to /login', `stayed on ${new URL(url).pathname}`, [
+          { kind: 'url', pattern: '/login' },
+        ]);
       }
       return PASS;
     },
@@ -226,7 +255,11 @@ export const PROBES: Probe[] = [
       const expected = Object.keys(validCheckout);
       const missing = expected.filter((field) => !invalid.includes(field));
       if (missing.length > 0 || !hasText(nodes, 'Checkout')) {
-        return fail(`invalid: ${expected.join(', ')}`, `invalid: ${invalid.join(', ') || 'none'}`);
+        return fail(
+          `invalid: ${expected.join(', ')}`,
+          `invalid: ${invalid.join(', ') || 'none'}`,
+          expected.map((label): Check => ({ kind: 'fieldInvalid', label })),
+        );
       }
       return PASS;
     },
@@ -248,6 +281,10 @@ export const PROBES: Probe[] = [
         return fail(
           'Email marked invalid; still on /checkout',
           `invalid: ${invalidFields(nodes).join(', ') || 'none'}; page ${new URL(url).pathname}`,
+          [
+            { kind: 'fieldInvalid', label: 'Email' },
+            { kind: 'url', pattern: '/checkout$' },
+          ],
         );
       }
       return PASS;
@@ -271,6 +308,10 @@ export const PROBES: Probe[] = [
         return fail(
           'on /order-confirmation; badge 0',
           `page ${new URL(url).pathname}; badge ${cartBadgeCount(nodes) ?? 'missing'}`,
+          [
+            { kind: 'url', pattern: '/order-confirmation$' },
+            { kind: 'cartBadge', count: 0 },
+          ],
         );
       }
       return PASS;
@@ -288,7 +329,14 @@ export const PROBES: Probe[] = [
       await session.click('button', 'Log in');
       const nodes = await session.snapshot();
       if (!hasText(nodes, /invalid/i) || findNode(nodes, 'button', 'Log out')) {
-        return fail('error message; still logged out', hasText(nodes, /invalid/i) ? 'logged in' : 'no error shown');
+        return fail(
+          'error message; still logged out',
+          hasText(nodes, /invalid/i) ? 'logged in' : 'no error shown',
+          [
+            { kind: 'textVisible', text: 'Invalid username or password' },
+            { kind: 'linkVisible', name: 'Login' },
+          ],
+        );
       }
       return PASS;
     },
@@ -303,7 +351,9 @@ export const PROBES: Probe[] = [
       await session.goto('/products');
       const nodes = await session.snapshot();
       if (!findNode(nodes, 'button', 'Log out')) {
-        return fail('Log out button after reload', 'Login link shown');
+        return fail('Log out button after reload', 'Login link shown', [
+          { kind: 'buttonVisible', name: 'Log out' },
+        ]);
       }
       return PASS;
     },
@@ -320,7 +370,9 @@ export const PROBES: Probe[] = [
       await session.goto('/checkout');
       const url = await session.currentUrl();
       if (!new URL(url).pathname.startsWith('/login')) {
-        return fail('redirect to /login after logout', `page ${new URL(url).pathname}`);
+        return fail('redirect to /login after logout', `page ${new URL(url).pathname}`, [
+          { kind: 'url', pattern: '/login' },
+        ]);
       }
       return PASS;
     },

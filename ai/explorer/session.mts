@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { extractSnapshot, findNode, pageUrl, parseSnapshot, type SnapshotNode } from './snapshot.mts';
-import type { RecordedStep } from './types.mts';
+import type { Action, RecordedStep } from './types.mts';
 
 /** Anything that can call a Playwright MCP tool and return its text output. */
 export type ToolCaller = {
@@ -104,7 +104,12 @@ export class ExplorerSession {
     return resolved.href;
   }
 
-  async call(tool: string, args: Record<string, unknown> = {}, note = ''): Promise<string> {
+  async call(
+    tool: string,
+    args: Record<string, unknown> = {},
+    note = '',
+    action?: Action,
+  ): Promise<string> {
     if (this.#used >= this.budget) {
       throw new BudgetExceededError(this.budget);
     }
@@ -124,7 +129,13 @@ export class ExplorerSession {
     }
 
     if (!READ_ONLY_TOOLS.has(tool)) {
-      this.#steps.push({ tool, args: finalArgs, note: note || describeStep(tool, finalArgs) });
+      const derived = action ?? (tool === 'browser_navigate' ? gotoAction(String(finalArgs.url)) : undefined);
+      this.#steps.push({
+        tool,
+        args: finalArgs,
+        note: note || describeStep(tool, finalArgs),
+        ...(derived ? { action: derived } : {}),
+      });
     }
     return text;
   }
@@ -152,6 +163,7 @@ export class ExplorerSession {
       'browser_click',
       { element: `${role} "${node.name}"`, target: node.ref },
       `Click ${role} "${node.name}"`,
+      { kind: 'click', role, name: node.name },
     );
   }
 
@@ -164,6 +176,7 @@ export class ExplorerSession {
       'browser_type',
       { element: `textbox "${label}"`, target: node.ref, text },
       `Type "${text}" into "${label}"`,
+      { kind: 'type', label, text },
     );
   }
 
@@ -192,6 +205,11 @@ export class ExplorerSession {
     await this.call('browser_navigate', { url: '/' });
     this.#steps = [];
   }
+}
+
+function gotoAction(url: string): Action {
+  const parsed = new URL(url);
+  return { kind: 'goto', path: parsed.pathname + parsed.search };
 }
 
 export function describeStep(tool: string, args: Record<string, unknown>): string {

@@ -39,30 +39,6 @@
       "matchManagers": ["npm"],
       "matchFileNames": ["package.json"],
       "matchDepNames": ["!node", "!@types/node"],
-      "prBodyNotes": ["## How to test locally\n\n```bash\ngit fetch origin {{{branchName}}} && git switch {{{branchName}}}\nnvm install && nvm use\nnpm run setup\n```\n\n```bash\nnpm run test:ai\nnpm test\n```\n\nWhen done: `git switch main && npm run setup`."]
-    },
-    {
-      "description": "PR body: app dependency updates (build, suites, visual check).",
-      "matchManagers": ["npm"],
-      "matchFileNames": ["app/package.json"],
-      "prBodyNotes": ["## How to test locally\n\n```bash\ngit fetch origin {{{branchName}}} && git switch {{{branchName}}}\nnvm install && nvm use\nnpm run setup\n```\n\n```bash\nnpm run build          # tsc -b + vite build\nnpm run test:smoke\nnpm run test:e2e\nnpm run test:api\nnpm run test:visual    # CSS/layout changes show up here\nnpm run dev            # then click through http://localhost:5173\n```\n\nWhen done: `git switch main && npm run setup`."]
-    },
-    {
-      "description": "PR body: GitHub Actions updates only run on GitHub.",
-      "matchManagers": ["github-actions"],
-      "matchDepNames": ["!node"],
-      "prBodyNotes": ["## How to test locally\n\nNothing to run locally: this only changes `.github/workflows/`. Open the **Checks** tab and confirm every job is green, especially the ones that use the updated action."]
-    },
-    {
-      "description": "PR body: Node.js runtime updates (.nvmrc, CI, @types/node).",
-      "matchDepNames": ["node", "@types/node"],
-      "prBodyNotes": ["## How to test locally\n\n```bash\ngit fetch origin {{{branchName}}} && git switch {{{branchName}}}\nnvm install && nvm use\nnpm run setup\n```\n\n`node -v` should print the new version.\n\n```bash\nnpm run test:ai\nnpm test\nnpm run test:mutation\nnpm run build\n```\n\nWhen done: `git switch main && npm run setup`."]
-    },
-    {
-      "description": "PR body: root npm updates. One note per PR: the rules below do not overlap.",
-      "matchManagers": ["npm"],
-      "matchFileNames": ["package.json"],
-      "matchDepNames": ["!node", "!@types/node"],
       "prBodyNotes": ["## What changed\n\nRenovate updates the test and tooling packages listed in the table below.\n\n## What problem it solves\n\nKeeps the test tooling current: bug fixes, security fixes and new features.\n\n## How to test locally\n\n```bash\ngit fetch origin {{{branchName}}} && git switch {{{branchName}}}\nnvm install && nvm use\nnpm run setup\n```\n\n```bash\nnpm run test:ai\nnpm test\n```\n\nWhen done: `git switch main && npm run setup`.\n\n## Risk\n\n{{#if isMajor}}**Medium to high.** A major version can include breaking changes: read the release notes below and check the failing CI jobs, if any.{{else}}**Low.** A minor or patch update; CI must pass before it merges.{{/if}}"]
     },
     {

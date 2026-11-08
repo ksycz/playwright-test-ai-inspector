@@ -14,6 +14,11 @@
       "groupName": "Playwright"
     },
     {
+      "description": "Keep Vite and its React plugin in one pull request. The plugin's peer range follows Vite majors, so updating either one alone cannot install.",
+      "matchPackageNames": ["vite", "@vitejs/plugin-react"],
+      "groupName": "Vite"
+    },
+    {
       "description": "Automerge Playwright patch and minor updates after required CI checks pass.",
       "matchPackageNames": ["@playwright/test", "playwright", "playwright-core"],
       "matchUpdateTypes": ["minor", "patch"],

@@ -217,7 +217,11 @@ const call = (id: string, name: string, args: unknown): ToolCall => ({
   arguments: typeof args === 'string' ? args : JSON.stringify(args),
 });
 
-const cartCharter = buildCharters(spec, ['cart'])[0];
+/**
+ * Built inside each test, not at module load: if buildCharters throws (for example under a
+ * mutant), that is one failing test instead of a crashed test file.
+ */
+const cartCharter = (): Charter => buildCharters(spec, ['cart'])[0];
 const report = {
   requirement: 'Shopping Cart: removing products',
   title: 'Remove does nothing',
@@ -235,7 +239,7 @@ test('P12-M1-09: a model finding counts only after replay shows the evidence', a
     [call('4', 'finish', {})],
   ]);
   const session = new ExplorerSession(fake.caller, { budget: 100, origin: ORIGIN });
-  const result = await createModelExplorer(model, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter);
+  const result = await createModelExplorer(model, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter());
 
   assert.equal(result.findings.length, 1);
   assert.equal(result.findings[0].source, 'model');
@@ -245,7 +249,7 @@ test('P12-M1-09: a model finding counts only after replay shows the evidence', a
 
   fake.state.page = '- heading "Your cart is empty" [ref=e1]';
   const second = scriptedModel([[call('1', 'report_finding', report)], [call('2', 'finish', {})]]);
-  const dropped = await createModelExplorer(second, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter);
+  const dropped = await createModelExplorer(second, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter());
   assert.equal(dropped.findings.length, 0);
   assert.match(dropped.dropped[0].reason, /evidence text was not on the page/);
 });
@@ -261,7 +265,7 @@ test('P12-M1-10: the model cannot use other tools, invent requirements, or excee
     [call('6', 'browser_snapshot', {})],
   ]);
   const session = new ExplorerSession(fake.caller, { budget: 100, origin: ORIGIN });
-  const result = await createModelExplorer(model, { stepBudget: 1, maxTurns: 10 }).explore(session, cartCharter);
+  const result = await createModelExplorer(model, { stepBudget: 1, maxTurns: 10 }).explore(session, cartCharter());
 
   const toolReplies = model.seen.at(-1)!.filter((message) => message.role === 'tool').map((message) => message.content);
   assert.match(toolReplies[0], /browser_evaluate is not available/);
@@ -281,10 +285,10 @@ test('P12-M1-11: page text sent to the model is delimited, redacted, and cannot 
   assert.match(wrapped, /Bearer \[REDACTED\]/);
   assert.ok(evidenceOnPage('Total:\n  $54.98', 'total: $54.98'));
   assert.ok(!evidenceOnPage('Total: $12.99', '$54.98'));
-  assert.deepEqual(parseFindingArgs({ ...report, extra: 1 }, cartCharter), { ok: false, error: 'unexpected fields: extra' });
-  assert.equal(parseFindingArgs({ ...report, title: 'x'.repeat(121) }, cartCharter).ok, false);
-  assert.equal(parseFindingArgs({ ...report, evidence: 'ab' }, cartCharter).ok, false);
-  assert.equal(parseFindingArgs(report, cartCharter).ok, true);
+  assert.deepEqual(parseFindingArgs({ ...report, extra: 1 }, cartCharter()), { ok: false, error: 'unexpected fields: extra' });
+  assert.equal(parseFindingArgs({ ...report, title: 'x'.repeat(121) }, cartCharter()).ok, false);
+  assert.equal(parseFindingArgs({ ...report, evidence: 'ab' }, cartCharter()).ok, false);
+  assert.equal(parseFindingArgs(report, cartCharter()).ok, true);
 });
 
 test('P12-M1-12: OpenAI messages carry tool calls and tool results', () => {

@@ -71,6 +71,7 @@ This repository is developed incrementally and serves as both a learning journey
 - Test convention review (`npm run analyze:review`)
 - Visual regression (`@visual` screenshots)
 - Playwright MCP (AI-driven exploration and test generation)
+- Exploratory testing agent (`npm run explore`, Playwright MCP, bounded)
 
 ---
 
@@ -113,6 +114,8 @@ docs/           Specs, testing conventions, roadmap
 ✅ Phase 10 complete — failure text is untrusted data, model replies must match a short schema, and secrets are removed before a provider call.
 
 ✅ Phase 11 complete — mutation testing on the analyzer logic modules, and a convention review on the sticky comment when a pull request changes tests. The review does not block the merge.
+
+🚧 Phase 12 in progress — P12-M1 exploration agent: spec-driven charters run through Playwright MCP with a step budget; optional model layer.
 
 **Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
 
@@ -523,6 +526,23 @@ Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md) and [`ai/pr-
 
 MCP is a development aid only: CI runs the committed specs and doesn't need an AI agent or the MCP server.
 
+### Exploratory testing agent
+
+The next step after exploring by hand: a bounded agent that explores the shop through the same Playwright MCP server and reports findings with steps, a screenshot and the `APP_SPEC.md` requirement they break.
+
+```bash
+npm run dev                                   # shop on localhost:5173
+npm run explore -- --no-llm                   # probes only, about a minute
+ANTHROPIC_API_KEY=... npm run explore         # probes + model-driven exploration
+```
+
+- **Probes** always run: 13 checks over three charters (cart, checkout, auth) built from `APP_SPEC.md`.
+- **Model layer** runs only with an API key, with a per-charter cap on model turns and browser steps.
+- A finding is kept only if it reproduces from a fresh state; model findings are replayed and must show their evidence again. Everything else is listed as dropped.
+- With two cart bugs planted by hand, the probes reported both with steps and screenshots; on the real shop all 13 pass.
+
+Module docs: [`ai/explorer/README.md`](ai/explorer/README.md).
+
 ### Future AI Modules
 
 - Locator Change Suggestions
@@ -563,7 +583,7 @@ Additional documentation is available in the `docs` directory.
 - [`ROADMAP.md`](docs/ROADMAP.md) — milestone plan and progress log
 - [`samples/`](docs/samples/) — sanitized analyzer samples + README screenshots
 
-Module READMEs: [`ai/failure-analyzer`](ai/failure-analyzer/README.md), [`ai/flaky-detector`](ai/flaky-detector/README.md), [`ai/failure-trends`](ai/failure-trends/README.md), [`ai/run-summary`](ai/run-summary/README.md), [`app/public/api`](app/public/api/README.md).
+Module READMEs: [`ai/failure-analyzer`](ai/failure-analyzer/README.md), [`ai/flaky-detector`](ai/flaky-detector/README.md), [`ai/failure-trends`](ai/failure-trends/README.md), [`ai/run-summary`](ai/run-summary/README.md), [`ai/explorer`](ai/explorer/README.md), [`app/public/api`](app/public/api/README.md).
 
 ---
 
@@ -664,6 +684,8 @@ Each milestone includes:
 - [x] Historical failure trends
 
 - [x] Run / PR summaries
+
+- [x] Exploration agent via Playwright MCP (P12-M1)
 
 
 

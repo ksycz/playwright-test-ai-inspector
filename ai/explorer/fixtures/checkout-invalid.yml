@@ -1,0 +1,54 @@
+- generic [ref=f5e3]:
+  - banner [ref=f5e4]:
+    - generic [ref=f5e6]:
+      - paragraph [ref=f5e7]: Demo Shop
+      - navigation "Main" [ref=f5e8]:
+        - list [ref=f5e9]:
+          - listitem [ref=f5e10]:
+            - link "Home" [ref=f5e11] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=f5e12]:
+            - link "Products" [ref=f5e13] [cursor=pointer]:
+              - /url: /products
+          - listitem [ref=f5e14]:
+            - link "Cart, 3 items" [ref=f5e15] [cursor=pointer]:
+              - /url: /cart
+              - text: Cart (3)
+          - listitem [ref=f5e16]: Welcome, standard_user
+          - listitem [ref=f5e17]:
+            - button "Log out" [ref=f5e18] [cursor=pointer]
+  - main [ref=f5e19]:
+    - heading "Checkout" [level=1] [ref=f5e20]
+    - paragraph [ref=f5e21]: Enter your details to complete your order.
+    - generic [ref=f5e22]:
+      - generic [ref=f5e23]:
+        - generic [ref=f5e24]:
+          - generic [ref=f5e25]: Name
+          - textbox "Name" [ref=f5e26]: Ada
+        - generic [ref=f5e27]:
+          - generic [ref=f5e28]: Email
+          - textbox "Email" [invalid] [ref=f5e29]
+          - paragraph [ref=f5e50]: Email is required
+        - generic [ref=f5e30]:
+          - generic [ref=f5e31]: Address
+          - textbox "Address" [invalid] [ref=f5e32]
+          - paragraph [ref=f5e51]: Address is required
+        - generic [ref=f5e33]:
+          - generic [ref=f5e34]: City
+          - textbox "City" [invalid] [ref=f5e35]
+          - paragraph [ref=f5e52]: City is required
+        - generic [ref=f5e36]:
+          - generic [ref=f5e37]: ZIP Code
+          - textbox "ZIP Code" [invalid] [ref=f5e38]
+          - paragraph [ref=f5e53]: ZIP Code is required
+        - button "Place order" [active] [ref=f5e39] [cursor=pointer]
+      - region "Order summary" [ref=f5e40]:
+        - heading "Order summary" [level=2] [ref=f5e41]
+        - list [ref=f5e42]:
+          - listitem [ref=f5e43]:
+            - generic [ref=f5e44]: Wireless Mouse × 2
+            - generic [ref=f5e45]: $59.98
+          - listitem [ref=f5e46]:
+            - generic [ref=f5e47]: Desk Lamp
+            - generic [ref=f5e48]: $34.50
+        - paragraph [ref=f5e49]: "Total: $94.48"

@@ -39,9 +39,19 @@ By default MCP uses the Chromium this repo installs for Playwright (`.playwright
 
 ## Limits
 
-- The probes find what they were written to check. The model layer is what looks beyond them, and its runs differ from one another.
-- A model finding confirmed by replay is still a claim about the page, not a verdict. Review it before turning it into a spec.
-- Model runs cost money; every call is capped as above. Measuring how many seeded bugs each layer finds is P12-M2.
+Honest list; each one is a reason the agent reports and drafts but never decides.
+
+| Limit | What it means in practice | What keeps it in check |
+|---|---|---|
+| **Coverage** | The 13 probes find only what they were written to check. Seeded-bug score: 4 of 5; the miss (`detail-adds-twice`) is outside every probe. | The model layer is meant to look further; `explore:eval` measures both layers the same way. |
+| **Same author, same blind spots** | The probes and the seeded bugs come from the same spec, and the drafted tests largely duplicate the existing smoke suite. | One seeded bug is deliberately uncovered; drafts are reviewed for duplication before merging. |
+| **Cost** | Each model run calls a paid API, roughly once per turn, and pays for every page snapshot it reads. | Opt-in only (needs a key), never in CI, capped by `--model-turns` (40) and `--model-steps` (30) per charter, page text truncated to 8,000 characters. Set a spend limit in the provider console. |
+| **Nondeterminism** | Two model runs on the same shop can explore differently and report different things. | Findings must reproduce from a clean state, cite a spec line word for word, and show their evidence again after replay. Probes stay deterministic. |
+| **Budget cuts runs short** | When the step budget runs out, the remaining charters are skipped. | The report marks them `not run: step budget used up`. A full probe run uses about 220 of the default 400. |
+| **Runtime** | One explore run is about a minute; `explore:eval` is about 6 (one dev server per bug). | Not in CI; run it when detection logic changes. |
+| **Evidence is a text match** | A replayed model finding is confirmed when its evidence text is on the page, which says the page shows something, not that it's wrong. | Still labelled "needs human review"; drafts from model findings are `test.fixme` until a person writes the assertion. |
+| **Spec as the oracle** | Charters come from `docs/APP_SPEC.md`. A rule that isn't written there can't be broken. | Tests check that every probe and seeded bug cites a real charter line. |
+| **Tool version** | `@playwright/mcp` is pinned (0.0.84); tool names and arguments change between versions (`ref` became `target`). | Pinned in `package.json` and `.mcp.json`; Renovate proposes updates for review. |
 
 ## Seeded-bug evaluation (P12-M2)
 

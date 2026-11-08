@@ -578,7 +578,6 @@ Additional documentation is available in the `docs` directory.
 - [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architectural decisions (app, tests, AI, CI)
 - [`APP_SPEC.md`](docs/APP_SPEC.md) — demo shop functional specification
 - [`AI_GUIDELINES.md`](docs/AI_GUIDELINES.md) — AI-assisted development guidelines
-- [`LESSONS_LEARNED.md`](docs/LESSONS_LEARNED.md) — learning notes (current state + history)
 - [`TESTING.md`](docs/TESTING.md) — Playwright conventions, suites, AI CLIs, CI
 - [`ROADMAP.md`](docs/ROADMAP.md) — milestone plan and progress log
 - [`samples/`](docs/samples/) — sanitized analyzer samples + README screenshots

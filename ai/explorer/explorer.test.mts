@@ -97,6 +97,8 @@ test('P12-M1-03: invalid checkout fields come from the [invalid] flag', () => {
 test('P12-M1-04: charters are built from APP_SPEC sections', () => {
   const [cart, checkout, auth] = buildCharters(spec, ['cart', 'checkout', 'auth']);
   assert.ok(cart.requirements.includes('Shopping Cart: decreasing quantity'));
+  assert.ok(cart.requirements.includes('Shopping Cart: The cart should persist after page refresh.'), 'sentence-style requirement');
+  assert.ok(!cart.requirements.some((item) => item.endsWith(':')), 'intro lines are skipped');
   assert.ok(checkout.requirements.includes('Checkout: validate required fields'));
   assert.ok(auth.requirements.includes('Login: protected checkout route'));
   assert.ok(auth.requirements.includes('Error Handling: invalid login message'));

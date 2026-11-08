@@ -1,5 +1,6 @@
 import type { CartItem, Product } from '@/types/product';
 import { isAllowedProductImagePath } from '@/utils/productImage';
+import { isSeeded } from '@/seededBugs';
 
 export const CART_STORAGE_KEY = 'cart';
 
@@ -72,5 +73,6 @@ export function loadCartFromStorage(): CartItem[] {
 }
 
 export function saveCartToStorage(items: CartItem[]) {
+  if (isSeeded('cart-not-saved')) return;
   localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
 }

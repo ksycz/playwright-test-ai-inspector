@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
 import { useProducts } from '@/context/ProductsContext';
 import { formatPrice } from '@/utils/products';
+import { isSeeded } from '@/seededBugs';
 
 export default function ProductDetailPage() {
   const { slug = '' } = useParams();
@@ -39,7 +40,10 @@ export default function ProductDetailPage() {
               </p>
               <p className="mt-4 text-2xl font-semibold text-brand-700">{formatPrice(product.price)}</p>
               <p className="mt-6 text-slate-600">{product.fullDescription}</p>
-              <button type="button" onClick={() => addItem(product)} className="btn-primary mt-8">
+              <button type="button" onClick={() => {
+                addItem(product);
+                if (isSeeded('detail-adds-twice')) addItem(product);
+              }} className="btn-primary mt-8">
                 Add {product.name} to cart
               </button>
             </div>

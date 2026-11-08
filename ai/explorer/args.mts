@@ -112,3 +112,97 @@ export function parseArgs(args: string[]): CliOptions {
   }
   return options;
 }
+
+export type EvalOptions = {
+  bugs: string[];
+  port: number;
+  budget: number;
+  outDir: string;
+  history: string;
+  noLlm: boolean;
+  modelSteps: number;
+  modelTurns: number;
+  executablePath?: string;
+  noSandbox: boolean;
+};
+
+const EVAL_VALUE_OPTIONS = new Set([
+  '--bugs',
+  '--port',
+  '--budget',
+  '--out-dir',
+  '--history',
+  '--model-steps',
+  '--model-turns',
+  '--executable-path',
+]);
+
+/** Options for npm run explore:eval. `known` is the list of seeded bug ids. */
+export function parseEvalArgs(args: string[], known: readonly string[]): EvalOptions {
+  const options: EvalOptions = {
+    bugs: [...known],
+    port: 5174,
+    budget: 400,
+    outDir: 'ai-reports/explorer-eval',
+    history: 'ai-reports/explorer-eval/history.jsonl',
+    noLlm: false,
+    modelSteps: 30,
+    modelTurns: 40,
+    executablePath: process.env.EXPLORER_EXECUTABLE_PATH || undefined,
+    noSandbox: process.env.EXPLORER_NO_SANDBOX === '1',
+  };
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--no-llm') {
+      options.noLlm = true;
+      continue;
+    }
+    if (arg === '--no-sandbox') {
+      options.noSandbox = true;
+      continue;
+    }
+    if (!EVAL_VALUE_OPTIONS.has(arg)) {
+      throw new Error(`Unknown option: ${arg}`);
+    }
+    const parsed = readOptionValue(args, index, arg);
+    if (!parsed.ok) throw new Error(parsed.error);
+    index = parsed.nextIndex;
+    const value = parsed.value;
+    switch (arg) {
+      case '--bugs': {
+        const names = value.split(',').map((name) => name.trim()).filter(Boolean);
+        const unknown = names.filter((name) => !known.includes(name));
+        if (names.length === 0 || unknown.length > 0) {
+          throw new Error(`--bugs accepts ${known.join(', ')}`);
+        }
+        options.bugs = names;
+        break;
+      }
+      case '--port': {
+        const port = positiveInt(value, arg);
+        if (port < 1024 || port > 65535) throw new Error('--port must be between 1024 and 65535');
+        options.port = port;
+        break;
+      }
+      case '--budget':
+        options.budget = positiveInt(value, arg);
+        break;
+      case '--out-dir':
+        options.outDir = value;
+        break;
+      case '--history':
+        options.history = value;
+        break;
+      case '--model-steps':
+        options.modelSteps = positiveInt(value, arg);
+        break;
+      case '--model-turns':
+        options.modelTurns = positiveInt(value, arg);
+        break;
+      case '--executable-path':
+        options.executablePath = value;
+        break;
+    }
+  }
+  return options;
+}

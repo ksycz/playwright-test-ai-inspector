@@ -7,7 +7,7 @@ export const CHARTER_SECTIONS: Record<Flow, string[]> = {
   auth: ['Login', 'Error Handling'],
 };
 
-/** Bullet points and plain requirement lines under a `## <heading>` in APP_SPEC.md. */
+/** Bullet points, and sentences with should/must, under a `## <heading>` in APP_SPEC.md. */
 export function readSpecSection(spec: string, heading: string): string[] | null {
   const lines = spec.split('\n');
   const start = lines.findIndex((line) => line.trim() === `## ${heading}`);
@@ -25,6 +25,12 @@ export function readSpecSection(spec: string, heading: string): string[] | null 
     const bullet = line.match(/^\s*- (.+)$/);
     if (bullet) {
       requirements.push(bullet[1].trim());
+      continue;
+    }
+    // Requirements written as a sentence, e.g. "The cart should persist after page refresh."
+    const sentence = line.trim();
+    if (/\b(should|must)\b/i.test(sentence) && !sentence.endsWith(':') && !sentence.startsWith('*')) {
+      requirements.push(sentence);
     }
   }
   return requirements;

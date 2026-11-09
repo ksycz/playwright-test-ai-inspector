@@ -3,6 +3,7 @@ import path from 'node:path';
 import { readOptionValue } from '../shared/cliArgs.mts';
 import { REVIEW_SYSTEM_PROMPT, type ReviewModel } from './model.mts';
 import { readGuidelines, reviewTestDiff } from './review.mts';
+import { apiError } from '../shared/apiError.mts';
 
 function printUsage(): void {
   console.error(`Usage:
@@ -43,7 +44,7 @@ async function modelFromEnv(disabled: boolean): Promise<ReviewModel | null> {
         }),
       });
       if (!response.ok) {
-        throw new Error(`OpenAI request failed (${response.status})`);
+        throw await apiError('OpenAI', response);
       }
       const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
       return payload.choices?.[0]?.message?.content ?? '';

@@ -1,5 +1,6 @@
 import { redactSecrets } from '../shared/redact.mts';
 import type { FailureContext, LlmProvider, RootCauseSuggestion } from './types.mts';
+import { apiError } from '../shared/apiError.mts';
 
 export type FetchLike = typeof fetch;
 
@@ -148,7 +149,7 @@ export function createOpenAiProvider(
       });
 
       if (!response.ok) {
-        throw new Error(`OpenAI request failed (${response.status})`);
+        throw await apiError('OpenAI', response);
       }
 
       const payload = (await response.json()) as {
@@ -184,14 +185,13 @@ export function createAnthropicProvider(
         body: JSON.stringify({
           model,
           max_tokens: 800,
-          temperature: 0.2,
           system: SYSTEM_PROMPT,
           messages: [{ role: 'user', content: buildRootCausePrompt(context) }],
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Anthropic request failed (${response.status})`);
+        throw await apiError('Anthropic', response);
       }
 
       const payload = (await response.json()) as {

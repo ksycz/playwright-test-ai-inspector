@@ -111,6 +111,7 @@ describe('P13-M2 locator tie-break', () => {
     assert.equal(await createAnthropicTieBreaker({ apiKey: 'k', fetchImpl }).complete('S', 'U'), '{"choice":1,"reason":"a"}');
     const anthropicBody = JSON.parse(String(requests[0].init.body));
     assert.equal(anthropicBody.system, 'S');
+    assert.equal('temperature' in anthropicBody, false, 'newer Claude models reject temperature');
     assert.equal((requests[0].init.headers as Record<string, string>)['x-api-key'], 'k');
 
     assert.equal(await createOpenAiTieBreaker({ apiKey: 'k', fetchImpl }).complete('S', 'U'), '{"choice":2,"reason":"b"}');

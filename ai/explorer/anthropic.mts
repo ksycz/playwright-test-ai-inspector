@@ -1,4 +1,5 @@
 import type { ChatMessage, ChatModel, ToolCall, ToolSpec } from './agent.mts';
+import { apiError } from '../shared/apiError.mts';
 
 type FetchLike = typeof fetch;
 
@@ -81,7 +82,6 @@ export function createAnthropicChatModel(options: {
         body: JSON.stringify({
           model,
           max_tokens: 1024,
-          temperature: 0.2,
           system: request.system,
           messages: request.messages,
           tools: tools.map((tool) => ({
@@ -92,7 +92,7 @@ export function createAnthropicChatModel(options: {
         }),
       });
       if (!response.ok) {
-        throw new Error(`Anthropic request failed (${response.status})`);
+        throw await apiError('Anthropic', response);
       }
       const payload = (await response.json()) as { content?: ContentBlock[] };
       const blocks = payload.content ?? [];

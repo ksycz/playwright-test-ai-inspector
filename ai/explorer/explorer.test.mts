@@ -377,3 +377,45 @@ test('P12-M1-14: the CLI only targets a local shop and validates its options', (
   assert.throws(() => parseArgs(['--out-dir', '--no-llm']), /Missing value/);
   assert.throws(() => parseArgs(['--wat']), /Unknown option/);
 });
+
+test('P12-M1-16: Anthropic requests send no temperature (newer models reject it)', async () => {
+  const { createAnthropicChatModel } = await import('./anthropic.mts');
+  let body: Record<string, unknown> = {};
+  const fetchImpl = (async (_url: string, init: RequestInit) => {
+    body = JSON.parse(String(init.body));
+    return new Response(JSON.stringify({ content: [{ type: 'text', text: 'ok' }] }), { status: 200 });
+  }) as typeof fetch;
+  await createAnthropicChatModel({ apiKey: 'k', model: 'claude-sonnet-5-5', fetchImpl }).complete([{ role: 'user', content: 'hi' }], []);
+  assert.equal('temperature' in body, false);
+  assert.equal(body.model, 'claude-sonnet-5-5');
+
+  const failing = (async () =>
+    new Response(JSON.stringify({ error: { message: 'something invalid' } }), { status: 400 })) as typeof fetch;
+  await assert.rejects(
+    createAnthropicChatModel({ apiKey: 'k', fetchImpl: failing }).complete([{ role: 'user', content: 'hi' }], []),
+    /Anthropic request failed \(400\): something invalid/,
+  );
+});
+
+test('P12-M1-17: a failed model call marks the charter and the run continues', async () => {
+  const { caller } = fakeCaller();
+  const session = new ExplorerSession(caller, { budget: 200, origin: ORIGIN });
+  let calls = 0;
+  const result = await explore({
+    session,
+    charters,
+    probes: [probe('steady', ['pass'])],
+    context: { catalogue: [], user: { username: 'u', password: 'p' } },
+    baseUrl: ORIGIN,
+    model: {
+      name: 'broken',
+      async explore() {
+        calls += 1;
+        throw new Error('Anthropic request failed (400): `temperature` is deprecated for this model.');
+      },
+    },
+  });
+  assert.equal(calls, 2, 'both charters still got their model pass');
+  assert.match(result.charters[0].stoppedEarly ?? '', /^model error: Anthropic request failed \(400\)/);
+  assert.equal(result.charters[0].checksPassed, 1, 'probes ran and counted');
+});

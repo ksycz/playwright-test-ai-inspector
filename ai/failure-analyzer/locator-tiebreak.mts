@@ -1,5 +1,6 @@
 import { redactSecrets } from '../shared/redact.mts';
 import { extractPageSnapshot, type LocatorSuggestion, type ModelPick } from './locator.mts';
+import { apiError } from '../shared/apiError.mts';
 
 /**
  * Optional model tie-break for locator suggestions (P13-M2).
@@ -88,9 +89,9 @@ export function createAnthropicTieBreaker(options: { apiKey: string; model?: str
       const response = await fetchImpl('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'x-api-key': options.apiKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, max_tokens: 200, temperature: 0, system, messages: [{ role: 'user', content: user }] }),
+        body: JSON.stringify({ model, max_tokens: 200, system, messages: [{ role: 'user', content: user }] }),
       });
-      if (!response.ok) throw new Error(`Anthropic request failed (${response.status})`);
+      if (!response.ok) throw await apiError('Anthropic', response);
       const payload = (await response.json()) as { content?: Array<{ type?: string; text?: string }> };
       return payload.content?.find((block) => block.type === 'text')?.text ?? '';
     },
@@ -116,7 +117,7 @@ export function createOpenAiTieBreaker(options: { apiKey: string; model?: string
           ],
         }),
       });
-      if (!response.ok) throw new Error(`OpenAI request failed (${response.status})`);
+      if (!response.ok) throw await apiError('OpenAI', response);
       const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
       return payload.choices?.[0]?.message?.content ?? '';
     },

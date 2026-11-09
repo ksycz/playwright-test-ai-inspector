@@ -1,4 +1,5 @@
 import type { ChatMessage, ChatModel, ToolCall, ToolSpec } from './agent.mts';
+import { apiError } from '../shared/apiError.mts';
 
 type FetchLike = typeof fetch;
 
@@ -59,7 +60,7 @@ export function createOpenAiChatModel(options: {
         }),
       });
       if (!response.ok) {
-        throw new Error(`OpenAI request failed (${response.status})`);
+        throw await apiError('OpenAI', response);
       }
       const payload = (await response.json()) as {
         choices?: Array<{ message?: OpenAiMessage }>;

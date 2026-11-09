@@ -43,6 +43,7 @@ npm run analyze:report -- \
   ai/failure-analyzer/fixtures/sample-failure \
   --format html \
   --out ai-reports/sample-failure.html
+open ai-reports/sample-failure.html   # macOS; xdg-open on Linux
 ```
 
 Open the HTML (or the committed preview screenshot / sample):
@@ -138,6 +139,7 @@ npm run test:visual
 
 # AI CLIs (fixtures)
 npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+open ai-reports/sample-failure.html
 npm run analyze:report -- ai/failure-analyzer/fixtures/prompt-injection --no-llm
 npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
 npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl

@@ -133,7 +133,7 @@ Full interview script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute-by-minute talk
 |---|---|---|
 | 0–1 | Install + open the shop | `npm run setup` then `npm run dev` → http://localhost:5173 |
 | 1–2 | Smoke suite (POM + tags) | `npm run test:smoke` |
-| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` |
+| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` then `open ai-reports/sample-failure.html` (macOS; `xdg-open` on Linux) |
 | 3–4 | Flaky + trends + PR-style summary | Commands below |
 | 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
 

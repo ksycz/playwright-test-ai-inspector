@@ -296,10 +296,18 @@ async function replay(
   await session.reset();
   for (const step of candidate.steps) {
     try {
-      await session.call(step.tool, step.args, step.note);
+      if (step.action) {
+        await session.replayAction(step.action);
+      } else if (step.tool === 'browser_click' || step.tool === 'browser_type') {
+        // Only a ref was recorded and refs change between page loads: nothing reliable to replay.
+        return { ok: false, reason: `replay failed at "${step.note}": no role and name were recorded for it` };
+      } else {
+        await session.call(step.tool, step.args, step.note);
+      }
     } catch (error) {
       if (error instanceof BudgetExceededError) throw error;
-      return { ok: false, reason: `replay failed at "${step.note}"` };
+      const detail = error instanceof Error ? `: ${error.message}` : '';
+      return { ok: false, reason: `replay failed at "${step.note}"${detail}` };
     }
   }
   const page = visibleText(await session.snapshot());

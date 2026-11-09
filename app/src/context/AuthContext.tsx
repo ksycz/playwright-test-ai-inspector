@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { isSeeded } from '@/seededBugs';
 import type { AuthSession } from '@/types/auth';
 import { validateCredentials } from '@/utils/auth';
 import { AUTH_STORAGE_KEY, loadAuthFromStorage, saveAuthToStorage } from '@/utils/authStorage';
@@ -21,7 +22,9 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthSession | null>(() => loadAuthFromStorage());
+  const [user, setUser] = useState<AuthSession | null>(() =>
+    isSeeded('audit-session-not-restored') ? null : loadAuthFromStorage(),
+  );
 
   useEffect(() => {
     saveAuthToStorage(user);
@@ -54,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    if (isSeeded('audit-logout-keeps-session')) return;
     setUser(null);
   }, []);
 

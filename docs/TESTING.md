@@ -197,7 +197,7 @@ CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 - **Tests that failed for none of the planted bugs:** a place to look for redundant tests. It is not a verdict; a test can guard behaviour no planted bug touches. Read the test before removing it.
 - **Clean-shop failures:** if any test fails with no bug planted, the results are not trustworthy until it is fixed (the command exits with code 2).
 
-Defaults to every test and every behaviour bug, about a minute per run. `--grep` limits the suites, `--bugs` picks bugs (add `drift-*` names to include label changes). It needs the Playwright browsers installed, so it is run locally, not in CI. Stop `npm run dev` first: the audit starts its own dev server on port 5173 for every run, and stops with a clear message if the port is taken.
+Besides the five bugs the exploration agent is scored on, the shop has 13 `audit-*` bugs in areas those don't touch (login and session, navigation, home page, catalogue, product page, 404 page, images, redirects, cart badge, the API 404, and the header colour for the visual tests). They are kept out of the agent's score and out of `all`; `audit-all` switches them on together. Defaults to every test and every behaviour bug, about a minute per run. `--grep` limits the suites, `--bugs` picks bugs (add `drift-*` names to include label changes). It needs the Playwright browsers installed, so it is run locally, not in CI. Stop `npm run dev` first: the audit starts its own dev server on port 5173 for every run, and stops with a clear message if the port is taken.
 
 ## Continuous Integration
 

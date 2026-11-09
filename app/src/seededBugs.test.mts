@@ -19,7 +19,10 @@ describe('seeded bugs (P12-M2)', () => {
     assert.equal(parseSeededBugs('all').size, 5, 'all = the five behaviour bugs');
     assert.ok([...parseSeededBugs('all')].every((bug) => !bug.startsWith('drift-')));
     assert.equal(parseSeededBugs('drift-all').size, 6, 'drift-all = the six label drifts');
-    assert.equal(parseSeededBugs('all,drift-all').size, SEEDED_BUGS.length);
+    assert.ok([...parseSeededBugs('all')].every((bug) => !bug.startsWith('audit-')), 'all leaves out audit-only bugs');
+    assert.equal(parseSeededBugs('audit-all').size, 13, 'audit-all = the thirteen audit-only bugs');
+    assert.ok([...parseSeededBugs('audit-all')].every((bug) => bug.startsWith('audit-')));
+    assert.equal(parseSeededBugs('all,drift-all,audit-all').size, SEEDED_BUGS.length);
     assert.deepEqual([...parseSeededBugs('drift-all,cart-not-saved')].filter((bug) => !bug.startsWith('drift-')), ['cart-not-saved']);
     assert.equal(parseSeededBugs('').size, 0);
   });

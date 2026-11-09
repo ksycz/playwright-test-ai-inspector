@@ -36,7 +36,7 @@ function result(findings: Finding[], stepsUsed = 100): ExplorationResult {
 const [removeBug, totalBug] = SEEDED_BUG_SPECS;
 
 test('P12-M2-03: the scored bug list matches the bugs the app can switch on', () => {
-  assert.deepEqual(SEEDED_BUG_SPECS.map((bug) => bug.id), SEEDED_BUGS.filter((bug) => !bug.startsWith('drift-')));
+  assert.deepEqual(SEEDED_BUG_SPECS.map((bug) => bug.id), SEEDED_BUGS.filter((bug) => !bug.startsWith('drift-') && !bug.startsWith('audit-')));
 });
 
 test('P12-M2-04: every requirement a bug breaks is a real charter line, so a model can cite it', () => {

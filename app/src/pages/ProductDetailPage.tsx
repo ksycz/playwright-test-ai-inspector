@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
               <p className="mt-2">
                 <span className="category-badge">{product.category}</span>
               </p>
-              <p className="mt-4 text-2xl font-semibold text-brand-700">{formatPrice(product.price)}</p>
+              <p className="mt-4 text-2xl font-semibold text-brand-700">{formatPrice(isSeeded('audit-detail-price-off') ? product.price + 1 : product.price)}</p>
               <p className="mt-6 text-slate-600">{product.fullDescription}</p>
               <button type="button" onClick={() => {
                 addItem(product);

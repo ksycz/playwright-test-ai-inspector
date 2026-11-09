@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
+import { isSeeded } from '@/seededBugs';
 
 const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
   [
@@ -9,6 +10,9 @@ const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
       ? 'bg-white/20 text-white shadow-xs'
       : 'text-brand-100 hover:bg-white/10 hover:text-white',
   ].join(' ');
+
+// Seeded bug audit-nav-no-active: the current page is no longer announced as current.
+const activeNavAria = () => (isSeeded('audit-nav-no-active') ? ('false' as const) : ('page' as const));
 
 const navButtonClassName =
   'inline-flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-medium text-brand-100 transition-colors hover:bg-white/10 hover:text-white focus-ring';
@@ -24,19 +28,25 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-brand-800 bg-linear-to-r from-brand-800 to-brand-700 shadow-md">
+      <header
+        className={
+          isSeeded('audit-header-red')
+            ? 'border-b border-red-800 bg-red-600 shadow-md'
+            : 'border-b border-brand-800 bg-linear-to-r from-brand-800 to-brand-700 shadow-md'
+        }
+      >
         <div className="mx-auto max-w-5xl px-4 py-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-lg font-semibold tracking-tight text-white">Demo Shop</p>
             <nav aria-label="Main">
               <ul className="flex flex-wrap items-center gap-1">
                 <li>
-                  <NavLink to="/" end className={navLinkClassName}>
+                  <NavLink to="/" end className={navLinkClassName} aria-current={activeNavAria()}>
                     Home
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/products" className={navLinkClassName}>
+                  <NavLink to="/products" className={navLinkClassName} aria-current={activeNavAria()}>
                     Products
                   </NavLink>
                 </li>
@@ -44,6 +54,7 @@ export default function AppLayout() {
                   <NavLink
                     to="/cart"
                     className={navLinkClassName}
+                    aria-current={activeNavAria()}
                     aria-label={cartAriaLabel(totalItems)}
                   >
                     Cart ({totalItems})
@@ -62,7 +73,7 @@ export default function AppLayout() {
                   </>
                 ) : (
                   <li>
-                    <NavLink to="/login" className={navLinkClassName}>
+                    <NavLink to="/login" className={navLinkClassName} aria-current={activeNavAria()}>
                       Login
                     </NavLink>
                   </li>

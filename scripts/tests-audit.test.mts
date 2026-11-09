@@ -58,6 +58,7 @@ test('TA-04: a failing clean run is flagged, and report text is escaped', () => 
   const markdown = renderAudit(audit, { date: '2026-11-09', grep: '@smoke' });
   assert.match(markdown, /failed on the clean shop/);
   assert.match(markdown, /## Bugs guarded by a single test/);
+  assert.match(markdown, /## Which tests caught which bug/);
   assert.match(markdown, /Tests that failed for none of the planted bugs \(0 of 1\)/);
   assert.doesNotMatch(markdown, /!\[x\]\(/);
   const ok = renderAudit(buildAudit([t('a')], [{ bug: 'b', tests: [t('a')] }]), { date: 'd', grep: 'all' });
@@ -81,4 +82,20 @@ test('TA-06: a report with no tests is a problem, not a pass', () => {
   assert.match(reportProblem({ suites: [], errors: [] }) ?? '', /ran no tests/);
   assert.match(reportProblem({ errors: [{ message: '\u001b[31mBoom\u001b[39m\nstack' }] }) ?? '', /: Boom$/);
   assert.equal(reportProblem({ suites: [{ file: 'a.spec.ts', specs: [{ title: 't', ok: true }] }], errors: [] }), null);
+});
+
+test('TA-07: the report names the tests behind each bug, and only counts a cascade', () => {
+  const many = Array.from({ length: CASCADE_THRESHOLD + 1 }, (_, i) => t(`m${i}`, true));
+  const audit = buildAudit(
+    [t('one'), t('two'), ...many.map((x) => ({ ...x, failed: false }))],
+    [
+      { bug: 'small', tests: [t('one', true), t('two', true)] },
+      { bug: 'big', tests: many },
+      { bug: 'none', tests: [t('one')] },
+    ],
+  );
+  const markdown = renderAudit(audit, { date: 'd', grep: 'all' });
+  assert.match(markdown, /`small`: `one` \(f\.spec\.ts\); `two` \(f\.spec\.ts\)/);
+  assert.match(markdown, /`big`: 11 tests \(too many to list/);
+  assert.doesNotMatch(markdown, /`none`:.*`one`/);
 });

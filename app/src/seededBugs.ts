@@ -18,18 +18,36 @@ export const SEEDED_BUGS = [
   'drift-username-label',
   'drift-browse-role',
   'drift-proceed-removed',
+  // Audit-only bugs (tests:audit): areas the five behaviour bugs above don't touch. Kept out of
+  // `all` and out of the exploration agent's score; `audit-all` switches them on together.
+  'audit-login-any-password',
+  'audit-logout-keeps-session',
+  'audit-session-not-restored',
+  'audit-nav-no-active',
+  'audit-home-shows-all',
+  'audit-catalogue-drops-last',
+  'audit-detail-price-off',
+  'audit-image-alt-empty',
+  'audit-notfound-no-home-link',
+  'audit-redirect-open',
+  'audit-badge-counts-lines',
+  'audit-api-404-html',
+  'audit-header-red',
 ] as const;
 
 export type SeededBug = (typeof SEEDED_BUGS)[number];
 
-/** Comma-separated names → known bugs. `all` = every behaviour bug; `drift-all` = every label drift. */
+/** Comma-separated names → known bugs. `all` = the five behaviour bugs; `drift-all` = every label drift; `audit-all` = every audit-only bug. */
 export function parseSeededBugs(raw: string | undefined): Set<SeededBug> {
   const names = (raw ?? '')
     .split(',')
     .map((name) => name.trim())
     .filter(Boolean);
   const result = new Set<SeededBug>();
-  if (names.includes('all')) SEEDED_BUGS.filter((bug) => !bug.startsWith('drift-')).forEach((bug) => result.add(bug));
+  if (names.includes('all')) {
+    SEEDED_BUGS.filter((bug) => !bug.startsWith('drift-') && !bug.startsWith('audit-')).forEach((bug) => result.add(bug));
+  }
+  if (names.includes('audit-all')) SEEDED_BUGS.filter((bug) => bug.startsWith('audit-')).forEach((bug) => result.add(bug));
   if (names.includes('drift-all')) SEEDED_BUGS.filter((bug) => bug.startsWith('drift-')).forEach((bug) => result.add(bug));
   if (result.size > 0) {
     SEEDED_BUGS.filter((bug) => names.includes(bug)).forEach((bug) => result.add(bug));

@@ -111,6 +111,17 @@ export function renderAudit(audit: Audit, meta: { date: string; grep: string }):
     lines.push(`| \`${escapeMarkdown(entry.bug)}\` | ${entry.failing.length} |`);
   }
   lines.push('');
+  lines.push('## Which tests caught which bug');
+  lines.push('');
+  for (const entry of audit.bugs) {
+    if (entry.failing.length === 0) continue;
+    if (entry.failing.length > CASCADE_THRESHOLD) {
+      lines.push(`- \`${escapeMarkdown(entry.bug)}\`: ${entry.failing.length} tests (too many to list; see the cascade note below)`);
+    } else {
+      lines.push(`- \`${escapeMarkdown(entry.bug)}\`: ${entry.failing.map(label).join('; ')}`);
+    }
+  }
+  lines.push('');
   lines.push('## Bugs guarded by a single test');
   lines.push('');
   if (audit.singleGuards.length === 0) lines.push('None: every bug is caught by at least two tests, or by none.');
@@ -141,6 +152,7 @@ export function renderAudit(audit: Audit, meta: { date: string; grep: string }):
 
 type Options = { grep: string; bugs: string[]; outDir: string; config?: string };
 
+/** Every bug that breaks behaviour (the explorer's five and the audit-only ones), not label drifts. */
 export const BEHAVIOUR_BUGS: string[] = SEEDED_BUGS.filter((bug) => !bug.startsWith('drift-'));
 
 export function parseAuditArgs(args: string[]): Options {

@@ -37,7 +37,9 @@ export default defineConfig({
     toHaveScreenshot: {
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.1,
+      // Loose by default so a local run on another OS (different fonts) doesn't fail. CI renders
+      // in the same image as the baselines and sets VISUAL_MAX_DIFF_RATIO=0.02 to catch real changes.
+      maxDiffPixelRatio: Number(process.env.VISUAL_MAX_DIFF_RATIO ?? 0.1),
     },
   },
   use: {

@@ -82,7 +82,7 @@ Native Playwright screenshot assertions (`toHaveScreenshot`) — no external vis
 npm run test:visual
 ```
 
-Runs specs tagged `@visual` (`tests/visual/`). Fixed viewport `1280x720` (viewport shots, not full-page — avoids OS page-height drift), animations disabled, `maxDiffPixelRatio: 0.1` for font AA.
+Runs specs tagged `@visual` (`tests/visual/`). Fixed viewport `1280x720` (viewport shots, not full-page — avoids OS page-height drift), animations disabled, `maxDiffPixelRatio` 0.1 by default (loose, so a local run on another OS with different fonts doesn't fail) and 0.02 in CI (`VISUAL_MAX_DIFF_RATIO`), where the screenshots are rendered in the same image as the baselines. The test audit planted a red header (`audit-header-red`): at 0.1 no visual test noticed it.
 
 Baselines live next to the spec:
 

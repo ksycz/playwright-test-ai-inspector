@@ -5,6 +5,7 @@ import { escapeMarkdown } from '../shared/markdown.mts';
 import { redactSecrets } from '../shared/redact.mts';
 import { resolvePathInsideRoot } from '../shared/pathContainment.mts';
 import type { FailureCategory, FailureContext, RootCauseSuggestion } from './types.mts';
+import { escapeHtml } from '../shared/escapeHtml.mts';
 
 export type ReportFormat = 'md' | 'html' | 'both';
 
@@ -113,14 +114,8 @@ function truncatePlainErrorText(text: string | null, maxLength = 1200): {
 }
 
 /** Escape text for safe inclusion in HTML body content and attributes. */
-export function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
+// Shared with the flaky, trends and run-summary pages; re-exported for existing imports.
+export { escapeHtml };
 
 function htmlBulletList(items: string[]): string {
   if (items.length === 0) {

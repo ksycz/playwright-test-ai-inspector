@@ -1,16 +1,19 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { generateRunSummaryMarkdown, defaultSummaryOutPath } from './report.mts';
+import { generateRunSummaryHtml, generateRunSummaryMarkdown, defaultSummaryOutPath } from './report.mts';
 import { summarizeRuns } from './summarize.mts';
 import type { SuiteSummaryInput } from './types.mts';
 import { readOptionValue } from '../shared/cliArgs.mts';
+import { FORMAT_ERROR, OUT_WITH_BOTH_ERROR, formatsToWrite, parseReportFormat, type ReportFormat } from '../shared/reportFormat.mts';
 
 function printUsage(): void {
   console.error(`Usage:
-  npm run analyze:summary -- --suite <name> <playwright-results.json> [--suite <name> <json>]... [--out <file.md>] [--title <text>]
+  npm run analyze:summary -- --suite <name> <playwright-results.json> [--suite <name> <json>]... [--format md|html|both] [--out <file>] [--title <text>]
 
 Build a Markdown run summary (PR-comment friendly) from one or more Playwright JSON reports.
 Reuses the flaky detector and failure classifier.
+--format md (default) writes Markdown and prints it; html writes a styled page; both writes the two.
+Exits with code 2 when a suite has hard failures, so CI can fail the job.
 
 Examples:
   npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json
@@ -32,6 +35,7 @@ async function main(argv: string[]): Promise<number> {
   const inputs: SuiteSummaryInput[] = [];
   let outPath: string | undefined;
   let title: string | undefined;
+  let format: ReportFormat = 'md';
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -70,6 +74,22 @@ async function main(argv: string[]): Promise<number> {
       continue;
     }
 
+    if (arg === '--format') {
+      const parsed = readOptionValue(args, index, '--format');
+      if (!parsed.ok) {
+        console.error(parsed.error);
+        return 1;
+      }
+      const value = parseReportFormat(parsed.value);
+      if (!value) {
+        console.error(FORMAT_ERROR(parsed.value));
+        return 1;
+      }
+      format = value;
+      index = parsed.nextIndex;
+      continue;
+    }
+
     if (arg.startsWith('-')) {
       console.error(`Unknown option: ${arg}`);
       printUsage();
@@ -88,17 +108,26 @@ async function main(argv: string[]): Promise<number> {
   }
 
   try {
-    const report = await summarizeRuns(inputs, { title });
-    const markdown = generateRunSummaryMarkdown(report);
-    const absoluteOut = path.resolve(outPath ?? defaultSummaryOutPath());
-    await mkdir(path.dirname(absoluteOut), { recursive: true });
-    await writeFile(absoluteOut, markdown, 'utf8');
+    if (format === 'both' && outPath) {
+      console.error(OUT_WITH_BOTH_ERROR);
+      return 1;
+    }
 
-    console.error(`Wrote run summary to ${absoluteOut}`);
+    const report = await summarizeRuns(inputs, { title });
+    for (const current of formatsToWrite(format)) {
+      const content = current === 'md' ? generateRunSummaryMarkdown(report) : generateRunSummaryHtml(report);
+      const absoluteOut = path.resolve(outPath ?? defaultSummaryOutPath(current));
+      await mkdir(path.dirname(absoluteOut), { recursive: true });
+      await writeFile(absoluteOut, content, 'utf8');
+      console.error(`Wrote run summary to ${absoluteOut}`);
+    }
+
     console.error(
       `Overall=${report.overallStatus} unexpected=${report.totals.unexpected} flaky=${report.totals.flaky}`,
     );
-    process.stdout.write(markdown);
+    if (format === 'md') {
+      process.stdout.write(generateRunSummaryMarkdown(report));
+    }
     return report.overallStatus === 'failed' ? 2 : 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

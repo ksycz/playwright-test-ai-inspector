@@ -24,6 +24,7 @@
     "ai/shared/markdown.mts",
     "ai/shared/pathContainment.mts",
     "ai/shared/cliArgs.mts",
+    "ai/shared/escapeHtml.mts",
     "ai/dep-gate/gate.mts",
     "ai/failure-analyzer/classify.mts",
     "ai/failure-analyzer/locator.mts",

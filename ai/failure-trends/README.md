@@ -27,6 +27,7 @@ Then generate the report from local history:
 ```bash
 npm run analyze:trends
 npm run analyze:trends -- --out /tmp/trends.md
+npm run analyze:trends -- --format html            # ai-reports/trends.html (or --format both)
 ```
 
 ## Commands

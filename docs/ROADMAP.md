@@ -3483,6 +3483,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-09 | 13 `audit-*` planted bugs for `tests:audit` (login, nav, home, catalogue, 404, API, header); the report lists which tests caught which bug. Found: no test catches the home page showing every product instead of only featured ones |
 | 2026-11-09 | `npm run tests:audit`: runs the suites per planted bug and reports single-test guards, cascades and tests that catch nothing |
 | 2026-11-09 | Test audit: six duplicate smoke tests removed (P1-M2-05, P1-M4-05, P1-M5-06, P1-M6-06, P1-M9-04, P1-M9-07); 93 → 87 tests |
 | 2026-11-09 | AI provenance gate skips (not fails) when no mutation report exists, so docs-only PRs pass; the Action treats `warn` as `fail` |

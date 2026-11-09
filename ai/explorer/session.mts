@@ -47,6 +47,9 @@ export class ElementNotFoundError extends Error {
   }
 }
 
+/** Roles a field label can belong to, when a recorded type step is replayed. */
+const FORM_ROLES = new Set(['textbox', 'searchbox', 'combobox', 'checkbox', 'radio', 'spinbutton', 'slider', 'switch']);
+
 /** Steps that do not change the page; left out of reproduction steps. */
 const READ_ONLY_TOOLS = new Set(['browser_snapshot', 'browser_wait_for', 'browser_take_screenshot']);
 
@@ -66,6 +69,8 @@ export type SessionOptions = {
 export class ExplorerSession {
   #used = 0;
   #steps: RecordedStep[] = [];
+  /** Last snapshot seen, so a click on a ref can be recorded as role + name (refs change between page loads). */
+  #lastNodes: SnapshotNode[] = [];
   readonly #caller: ToolCaller;
   readonly budget: number;
   readonly origin: string;
@@ -128,8 +133,15 @@ export class ExplorerSession {
       throw new OriginNotAllowedError(landedOn, this.origin);
     }
 
+    if (tool === 'browser_snapshot') {
+      const nodes = parseSnapshot(extractSnapshot(text));
+      if (nodes.length > 0) this.#lastNodes = nodes;
+    }
+
     if (!READ_ONLY_TOOLS.has(tool)) {
-      const derived = action ?? (tool === 'browser_navigate' ? gotoAction(String(finalArgs.url)) : undefined);
+      const derived =
+        action ??
+        (tool === 'browser_navigate' ? gotoAction(String(finalArgs.url)) : this.#actionFromRef(tool, finalArgs));
       this.#steps.push({
         tool,
         args: finalArgs,
@@ -138,6 +150,59 @@ export class ExplorerSession {
       });
     }
     return text;
+  }
+
+  /** A model click/type on a ref becomes a role + name action, using the snapshot it was looking at. */
+  #actionFromRef(tool: string, args: Record<string, unknown>): Action | undefined {
+    const ref = typeof args.target === 'string' ? args.target : undefined;
+    const node = ref ? this.#lastNodes.find((item) => item.ref === ref) : undefined;
+    if (!node?.name) return undefined;
+    if (tool === 'browser_click') return { kind: 'click', role: node.role, name: node.name };
+    if (tool === 'browser_type' && typeof args.text === 'string') return { kind: 'type', label: node.name, text: args.text };
+    return undefined;
+  }
+
+  /** Find an element by role + name on the current page, waiting once for it to appear. */
+  async #find(role: string | null, name: string): Promise<SnapshotNode> {
+    const match = (nodes: SnapshotNode[]) =>
+      nodes.find((node) => node.ref && node.name === name && (role === null ? FORM_ROLES.has(node.role) : node.role === role));
+    let node = match(await this.snapshot());
+    if (!node) {
+      await this.call('browser_wait_for', { text: name, time: 5 }).catch((error) => {
+        if (error instanceof BudgetExceededError) throw error;
+      });
+      node = match(await this.snapshot());
+    }
+    if (!node?.ref) throw new ElementNotFoundError(`${role ?? 'field'} "${name}"`);
+    return node;
+  }
+
+  /**
+   * Repeat a recorded action on a fresh page: elements are found again by role + name,
+   * because the refs from the original run do not exist any more.
+   */
+  async replayAction(action: Action): Promise<void> {
+    if (action.kind === 'goto') {
+      await this.goto(action.path);
+      return;
+    }
+    if (action.kind === 'click') {
+      const node = await this.#find(action.role, action.name);
+      await this.call(
+        'browser_click',
+        { element: `${action.role} "${action.name}"`, target: node.ref },
+        `Click ${action.role} "${action.name}"`,
+        action,
+      );
+      return;
+    }
+    const node = await this.#find(null, action.label);
+    await this.call(
+      'browser_type',
+      { element: `textbox "${action.label}"`, target: node.ref, text: action.text },
+      `Type "${action.text}" into "${action.label}"`,
+      action,
+    );
   }
 
   async snapshot(): Promise<SnapshotNode[]> {

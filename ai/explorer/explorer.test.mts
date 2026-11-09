@@ -232,28 +232,51 @@ const report = {
   evidence: 'Insulated Bottle',
 };
 
-test('P12-M1-09: a model finding counts only after replay shows the evidence', async () => {
-  const fake = fakeCaller('- button "Remove Insulated Bottle from cart" [ref=e7]\n- cell "Insulated Bottle" [ref=e8]');
+test('P12-M1-09: a model finding is replayed by role and name, so new refs after a reload do not break it', async () => {
+  const before = '- button "Remove Insulated Bottle from cart" [ref=e7]\n- cell "Insulated Bottle" [ref=e8]';
+  // A fresh page load gives every element a new ref, as Playwright MCP does.
+  const after = '- button "Remove Insulated Bottle from cart" [ref=f2e31]\n- cell "Insulated Bottle" [ref=f2e32]';
+  const fake = fakeCaller(before);
   const model = scriptedModel([
     [call('1', 'browser_navigate', { url: '/cart' })],
-    [call('2', 'browser_click', { target: 'e7', element: 'Remove' })],
-    [call('3', 'report_finding', report)],
-    [call('4', 'finish', {})],
+    [call('2', 'browser_snapshot', {})],
+    [call('3', 'browser_click', { target: 'e7', element: 'Remove' })],
+    [call('4', 'report_finding', report)],
+    [call('5', 'finish', {})],
   ]);
+  fake.state.onClick = () => {
+    fake.state.page = after;
+  };
   const session = new ExplorerSession(fake.caller, { budget: 100, origin: ORIGIN });
   const result = await createModelExplorer(model, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter());
 
-  assert.equal(result.findings.length, 1);
+  assert.equal(result.findings.length, 1, JSON.stringify(result.dropped));
   assert.equal(result.findings[0].source, 'model');
-  assert.deepEqual(result.findings[0].steps, ['Open http://localhost:5173/cart', 'Click Remove']);
-  const replayedClicks = fake.calls.filter((item) => item.name === 'browser_click');
-  assert.equal(replayedClicks.length, 2, 'the click ran once live and once in replay');
+  assert.deepEqual(result.findings[0].actions, [
+    { kind: 'goto', path: '/cart' },
+    { kind: 'click', role: 'button', name: 'Remove Insulated Bottle from cart' },
+  ], 'the click is recorded by role and name, so a draft spec can use it');
+  const clicks = fake.calls.filter((item) => item.name === 'browser_click').map((item) => item.args.target);
+  assert.deepEqual(clicks, ['e7', 'f2e31'], 'the replay clicked the new ref of the same button');
 
   fake.state.page = '- heading "Your cart is empty" [ref=e1]';
   const second = scriptedModel([[call('1', 'report_finding', report)], [call('2', 'finish', {})]]);
   const dropped = await createModelExplorer(second, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter());
   assert.equal(dropped.findings.length, 0);
   assert.match(dropped.dropped[0].reason, /evidence text was not on the page/);
+});
+
+test('P12-M1-18: a click recorded only by ref is dropped with a clear reason', async () => {
+  const fake = fakeCaller('- button "Remove Insulated Bottle from cart" [ref=e7]\n- cell "Insulated Bottle" [ref=e8]');
+  const model = scriptedModel([
+    [call('1', 'browser_click', { target: 'e7', element: 'Remove' })],
+    [call('2', 'report_finding', report)],
+    [call('3', 'finish', {})],
+  ]);
+  const session = new ExplorerSession(fake.caller, { budget: 100, origin: ORIGIN });
+  const result = await createModelExplorer(model, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter());
+  assert.equal(result.findings.length, 0);
+  assert.match(result.dropped[0].reason, /no role and name were recorded/);
 });
 
 test('P12-M1-10: the model cannot use other tools, invent requirements, or exceed its step budget', async () => {

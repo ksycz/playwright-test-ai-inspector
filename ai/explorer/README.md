@@ -30,7 +30,7 @@ Anthropic is used when its key is set (`ANTHROPIC_MODEL` overrides the model, sa
 - **One origin:** `--base-url` must be localhost. The session refuses navigation elsewhere, and MCP starts with `--allowed-origins` set to the shop, so the browser blocks other origins too.
 - **Small tool set for the model:** navigate, back, snapshot, click, type, press key, select option, wait. No `evaluate`, no `run_code`, no uploads, no tabs.
 - **Untrusted page text:** what the model sees is redacted and wrapped in `<<<UNTRUSTED_PAGE>>>` delimiters that page content cannot close (same approach as Phase 10).
-- **Reproducible or dropped:** a failing probe is run a second time from a fresh state (storage cleared); it is reported only if it fails the same way. A model finding must cite a requirement from the charter word for word, and its steps are replayed from a fresh state; it is kept only if the evidence text is on the page after replay. Everything else is listed under "Dropped".
+- **Reproducible or dropped:** a failing probe is run a second time from a fresh state (storage cleared); it is reported only if it fails the same way. A model finding must cite a requirement from the charter word for word, and its steps are replayed from a fresh state, finding each clicked element again by role and name (element refs change between page loads); it is kept only if the evidence text is on the page after replay. Everything else is listed under "Dropped".
 - **Escaped report:** model-written fields are escaped before they go into Markdown.
 
 ## Browser

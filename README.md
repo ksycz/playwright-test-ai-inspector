@@ -335,11 +335,11 @@ If the targeted tests pass cleanly, force a retry path by running under CI again
 npm run trace -- test-results/<failed-or-retried-test-folder>/trace.zip
 ```
 
-**3. What to narrate in an interview**
+**3. What to look at**
 
 - Action timeline + DOM snapshots before/after the failure
 - Network / console as supporting evidence
-- How this pairs with `npm run analyze:report` (classification + next steps) on the same failure folder
+- `npm run analyze:report` on the same failure folder adds a classification and next steps
 
 Config reminder: `trace: 'on-first-retry'` in `playwright.config.ts` (screenshots/videos only on failure).
 

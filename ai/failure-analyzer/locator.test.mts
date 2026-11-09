@@ -46,6 +46,9 @@ describe('P13-M1 locator suggestions', () => {
       exact: true,
       source: "getByRole('link', { name: 'Don\\'t go', exact: true })",
     });
+    const withLevel = parseFailedLocator("  - waiting for getByRole('heading', { name: 'Log in', level: 1 })");
+    assert.deepEqual([withLevel?.role, withLevel?.name, withLevel?.exact], ['heading', 'Log in', false], 'other options are allowed');
+    assert.equal(parseFailedLocator("  - waiting for getByRole('checkbox', { checked: true, name: 'A, b' })")?.name, 'A, b');
     const chained = parseFailedLocator("  - waiting for getByRole('row', { name: 'Mouse' }).getByRole('button', { name: 'Remove' })");
     assert.equal(chained?.name, 'Remove');
     assert.equal(parseFailedLocator("Locator: getByText('Total: $9')")?.kind, 'text');

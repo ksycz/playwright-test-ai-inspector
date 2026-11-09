@@ -11,17 +11,30 @@ export const SEEDED_BUGS = [
   'checkout-email-not-checked',
   'cart-not-saved',
   'detail-adds-twice',
+  // Label drift (P13-M3): UI text and role changes that break locators, not behaviour.
+  'drift-clear-cart',
+  'drift-place-order',
+  'drift-login-heading',
+  'drift-username-label',
+  'drift-browse-role',
+  'drift-proceed-removed',
 ] as const;
 
 export type SeededBug = (typeof SEEDED_BUGS)[number];
 
-/** Comma-separated names → known bugs. `all` turns every bug on; unknown names are ignored. */
+/** Comma-separated names → known bugs. `all` = every behaviour bug; `drift-all` = every label drift. */
 export function parseSeededBugs(raw: string | undefined): Set<SeededBug> {
   const names = (raw ?? '')
     .split(',')
     .map((name) => name.trim())
     .filter(Boolean);
-  if (names.includes('all')) return new Set(SEEDED_BUGS);
+  const result = new Set<SeededBug>();
+  if (names.includes('all')) SEEDED_BUGS.filter((bug) => !bug.startsWith('drift-')).forEach((bug) => result.add(bug));
+  if (names.includes('drift-all')) SEEDED_BUGS.filter((bug) => bug.startsWith('drift-')).forEach((bug) => result.add(bug));
+  if (result.size > 0) {
+    SEEDED_BUGS.filter((bug) => names.includes(bug)).forEach((bug) => result.add(bug));
+    return result;
+  }
   return new Set(SEEDED_BUGS.filter((bug) => names.includes(bug)));
 }
 

@@ -47,7 +47,8 @@ const MIN_SCORE = 0.45;
 
 const QUOTED = String.raw`'((?:[^'\\]|\\.)*)'`;
 const LOCATOR_PATTERNS: Array<{ kind: FailedLocator['kind']; pattern: RegExp }> = [
-  { kind: 'role', pattern: new RegExp(String.raw`getByRole\(${QUOTED}(?:,\s*\{\s*name:\s*${QUOTED}(?:,\s*exact:\s*(true|false))?\s*\})?\)`, 'g') },
+  // Options can hold more than name/exact (level, checked, pressed, …); name and exact are read from them below.
+  { kind: 'role', pattern: new RegExp(String.raw`getByRole\(${QUOTED}(?:,\s*\{((?:[^{}'\\]|${QUOTED})*)\})?\)`, 'g') },
   { kind: 'label', pattern: new RegExp(String.raw`getByLabel\(${QUOTED}(?:,\s*\{\s*exact:\s*(true|false)\s*\})?\)`, 'g') },
   { kind: 'text', pattern: new RegExp(String.raw`getByText\(${QUOTED}(?:,\s*\{\s*exact:\s*(true|false)\s*\})?\)`, 'g') },
   { kind: 'placeholder', pattern: new RegExp(String.raw`getByPlaceholder\(${QUOTED}(?:,\s*\{\s*exact:\s*(true|false)\s*\})?\)`, 'g') },
@@ -74,8 +75,8 @@ export function parseFailedLocator(errorText: string): FailedLocator | null {
             ? {
                 kind,
                 role: match[1],
-                name: unescape(match[2] ?? ''),
-                exact: match[3] === 'true',
+                name: unescape(match[2]?.match(new RegExp(String.raw`name:\s*${QUOTED}`))?.[1] ?? ''),
+                exact: /exact:\s*true/.test(match[2] ?? ''),
                 source: match[0],
               }
             : { kind, name: unescape(match[1]), exact: match[2] === 'true', source: match[0] };

@@ -28,6 +28,7 @@
     "ai/failure-analyzer/classify.mts",
     "ai/failure-analyzer/locator.mts",
     "ai/failure-analyzer/locator-tiebreak.mts",
+    "ai/failure-analyzer/locator-eval.mts",
     "ai/failure-analyzer/suggest.mts",
     "ai/flaky-detector/analyze.mts",
     "ai/explorer/snapshot.mts",

@@ -18,6 +18,16 @@ Playwright framework conventions for this repository (Phases 2–9).
 - Use `data-testid` only when semantic roles and names are insufficient
 - Keep locator definitions in page objects
 
+### When a locator breaks: suggest, don't self-heal
+
+If a test fails because a locator finds nothing, the failure report (`npm run analyze:report`) has a **Locator suggestions** section with the closest elements from the page snapshot. Treat it as a lead, not a fix:
+
+- Check whether the UI change was intended. A renamed or removed button can be the bug.
+- If it was intended, update the page object (not the spec), and keep role + accessible name locators.
+- No suggestion usually means the element was removed or renamed to something unrelated ("Place order" → "Complete purchase"). Look at the screenshot.
+
+The repo never rewrites locators automatically. Measured on planted UI changes (`npm run locator:eval`): 38 of 43 failures got the right suggestion, 0 were confident but wrong.
+
 ## Artifacts and reporting
 
 Playwright is configured to:

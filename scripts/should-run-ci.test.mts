@@ -20,6 +20,10 @@ describe('P9-M4 docs-only CI skip', () => {
     assert.equal(decide(['docs/ROADMAP.md', 'package.json']), 'true');
   });
 
+  it('a .gitignore or LICENSE change alone does not run CI', () => {
+    assert.equal(decide(['.gitignore', 'LICENSE', 'docs/ROADMAP.md']), 'false');
+  });
+
   it('an empty change list still runs CI', () => {
     assert.equal(decide([]), 'true');
   });

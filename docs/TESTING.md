@@ -215,6 +215,16 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 - JSON reporter writes `test-results/playwright-results.json` for `analyze:flaky` / `analyze:trends` / `analyze:summary`
 - A pull request that only changes `docs/` or Markdown files skips the test jobs. A push to `main` still runs them.
 
+### Which jobs run
+
+| Change | Browser suites (smoke, e2e, api, visual) + run summary | AI unit tests, dependency gate | Mutation |
+|---|---|---|---|
+| Docs only (`docs/`, `*.md`, `.gitignore`, `LICENSE`) | no | no | no |
+| Only `ai/` tooling (plus docs) | no: that code runs outside the browser | yes | if it touches mutated code or tests |
+| Anything else (app, tests, config, lockfiles, scripts, workflows) | yes | yes | if it touches mutated code or tests |
+| Push to `main` | yes | yes | if it touches mutated code or tests |
+| Nightly | no | no | yes, all mutants |
+
 ### CI gates
 
 Thresholds below are the ones enforced today. The convention review comments and does not fail the job.
@@ -225,7 +235,7 @@ Thresholds below are the ones enforced today. The convention review comments and
 | `npm audit --audit-level=high` | `ai-unit` | No high-severity advisory in the root or app lockfile | Upgrade the affected package, or run `npm audit fix` when the fix stays inside the existing version range |
 | New dependency gate | Pull requests | A **new** package name must exist on npm, be at least 7 days old, and have at least 1000 weekly downloads | Depend on a package that already clears those bars. A version bump of a package already in the base is not checked here |
 | Renovate config | Pull requests and pushes that change `renovate.json` | `renovate.json` passes `renovate-config-validator` | Fix the JSON. Locally: `npx --yes --package renovate@44.221.5 renovate-config-validator` |
-| Mutation score | Pull requests that change `ai/` (not Markdown) or `stryker.config.json`, and a nightly run | Score on the logic modules at least 47. Baseline on 2026-11-07 was 52.51 (657 mutants, 45 seconds) | A surviving mutant means a test still passed after the code changed. Strengthen the assertion that covers that line. Report: `reports/mutation/index.html` |
+| Mutation score | Pull requests that change a mutated file, a file it imports, any test file, or `stryker.config.json` (`scripts/should-run-mutation.mjs`), and a nightly run that retests every mutant (`--force`). Pull requests reuse earlier results (Stryker incremental file, cached), so only changed mutants run | Score on the logic modules at least 47. Baseline on 2026-11-07 was 52.51 (657 mutants, 45 seconds) | A surviving mutant means a test still passed after the code changed. Strengthen the assertion that covers that line. Report: `reports/mutation/index.html` |
 | Test convention review | Pull requests that change `tests/`, `ai/pr-review/`, or `scripts/should-run-review.mjs` | The job exits 0. Findings are comments, not a failing score | The sticky comment names the file and line. Replace `waitForTimeout`, prefer `getByRole`, add `@smoke`, `@e2e`, `@api`, or `@visual`, remove `test.only`, or log in with `loggedInPage` from `auth.fixture` |
 | AI provenance | Every pull request | Policy in `.github/ai-provenance.yml` (read from the base branch): AI-touched files that mutation testing covers must score at least 47; no mutation report → gate skipped | The PR comment lists the AI-tagged commits and files and the gate result. Strengthen the tests for the AI-touched files listed, as for the mutation gate. Report: artifact `ai-provenance-<pr>-<attempt>` |
 

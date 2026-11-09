@@ -111,7 +111,7 @@ Establish the React application scaffold, tooling, and repository structure so s
 
 | ID | Scenario |
 |---|---|
-| P1-M1-01 | App dev server starts and serves the root page |
+| P1-M1-01 | ~~App dev server starts and serves the root page~~ (removed: covered by P1-M2-01) |
 | P1-M1-02 | Page has a document title and main landmark |
 
 ### Accessibility considerations
@@ -2204,7 +2204,7 @@ Add a dedicated `@api` suite using Playwright `request` (no browser UI required 
 | P5-M3-01 | Products list status 200 + array length ≥ 1 |
 | P5-M3-02 | Each product has required fields and unique slugs |
 | P5-M3-03 | Featured/home subset (if exposed) matches contract rules |
-| P5-M3-04 | 404 for missing API resource |
+| P5-M3-04 | ~~404 for missing API resource~~ (removed: folded into P5-M4-02, which now also checks the JSON content-type) |
 
 ### Implementation scope
 
@@ -3483,6 +3483,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-09 | Test audit: two more overlapping tests removed (P1-M1-01, P5-M3-04); 87 → 85 tests |
 | 2026-11-09 | `npm run tests:audit`: runs the suites per planted bug and reports single-test guards, cascades and tests that catch nothing |
 | 2026-11-09 | Test audit: six duplicate smoke tests removed (P1-M2-05, P1-M4-05, P1-M5-06, P1-M6-06, P1-M9-04, P1-M9-07); 93 → 87 tests |
 | 2026-11-09 | AI provenance gate skips (not fails) when no mutation report exists, so docs-only PRs pass; the Action treats `warn` as `fail` |

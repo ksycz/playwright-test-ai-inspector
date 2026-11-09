@@ -1,0 +1,73 @@
+name: Update visual baselines
+
+# Regenerates the screenshot baselines in the same image the CI visual tests run in, so they match
+# exactly. Nothing is committed: the PNGs are uploaded as an artifact to download and review.
+#
+# Run it by adding the label `update-visual-baselines` to a pull request.
+# (A manual "Run workflow" button also works once this file is on main.)
+on:
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  playwright-version:
+    name: Playwright version
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'update-visual-baselines'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Read installed Playwright version
+        id: version
+        run: |
+          version="$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  update:
+    name: Regenerate baselines
+    needs: playwright-version
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix app
+
+      - name: Regenerate baselines
+        run: npm run test:visual -- --update-snapshots
+        env:
+          CI: true
+          PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+
+      - name: Upload baselines
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: visual-baselines
+          path: tests/visual/pages.spec.ts-snapshots/
+          retention-days: 7

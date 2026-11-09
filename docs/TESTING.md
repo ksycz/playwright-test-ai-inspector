@@ -98,6 +98,8 @@ npm run test:visual -- --update-snapshots
 
 Review the PNG diffs in git before committing.
 
+**Without Docker:** add the label `update-visual-baselines` to the pull request. The workflow `Update visual baselines` regenerates the screenshots in the CI image and uploads them as the `visual-baselines` artifact (nothing is committed). Download it, copy the PNGs into `tests/visual/pages.spec.ts-snapshots/`, check the diffs and commit.
+
 **CI note:** Baselines are shared across OS (path omits platform). Prefer regenerating inside the Playwright Docker image that matches CI if Darwin vs Linux antialiasing causes noise:
 
 ```bash

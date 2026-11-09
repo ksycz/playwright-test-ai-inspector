@@ -27,3 +27,6 @@ scripts/mutation-spike/*-report.json
 
 # Personal learning notes (kept locally, not in the repo)
 docs/LESSONS_LEARNED.md
+
+# Saved test diff for the local convention-review demo
+/tests.diff

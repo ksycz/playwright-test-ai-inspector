@@ -137,23 +137,38 @@ Full demo script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute by minute, with cop
 | 3–4 | Flaky + trends + PR-style summary | Commands below |
 | 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
 
+Flaky detector (fixture, no Playwright run needed):
+
 ```bash
-# Flaky detector (fixture — no Playwright run needed)
 npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+```
 
-# Historical trends (fixture history)
+Historical trends (fixture history):
+
+```bash
 npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
+```
 
-# Multi-suite run summary (PR-comment style Markdown)
-npm run analyze:summary -- \
-  --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
-  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+Multi-suite run summary (PR-comment style Markdown):
 
-# Mutation score on the logic modules (about a minute). CI fails below 47.
+```bash
+npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+```
+
+Mutation score on the logic modules (about a minute; CI fails below 47):
+
+```bash
 npm run test:mutation
+```
 
-# Convention review of a saved test diff. Findings do not fail the command.
-npm run analyze:review -- --diff path/to/tests.diff --no-llm
+Convention review of a test diff (findings do not fail the command). First save the diff of your test changes, then review it:
+
+```bash
+git diff main -- tests > tests.diff
+```
+
+```bash
+npm run analyze:review -- --diff tests.diff --no-llm
 ```
 
 CI runs mutation when a pull request changes `ai/` (and once a night). It appends the convention review to the sticky comment when a pull request changes `tests/`. The gate list is in [`docs/TESTING.md`](docs/TESTING.md).

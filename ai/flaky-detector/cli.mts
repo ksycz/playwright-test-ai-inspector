@@ -1,23 +1,26 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { analyzeFlakyReport } from './analyze.mts';
-import { defaultFlakyReportPath, generateFlakyMarkdownReport } from './report.mts';
+import { defaultFlakyReportPath, generateFlakyHtmlReport, generateFlakyMarkdownReport } from './report.mts';
 import { readOptionValue } from '../shared/cliArgs.mts';
 
 const DEFAULT_REPORT = 'test-results/playwright-results.json';
 
 function printUsage(): void {
-  console.error(`Usage: npm run analyze:flaky -- [playwright-results.json] [--out <file.md>]
+  console.error(`Usage: npm run analyze:flaky -- [playwright-results.json] [--format md|html|both] [--out <file>]
 
 Analyze a Playwright JSON report for flaky tests (failed then passed on retry)
 versus hard failures (failed all attempts).
 
 Defaults to ${DEFAULT_REPORT} when no path is given.
+--format md (default) writes Markdown and prints it; html writes a styled page;
+both writes the two. --out sets the file name (only with a single format).
 
 Examples:
   npm run analyze:flaky
   npm run analyze:flaky -- test-results/playwright-results.json
   npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --out /tmp/flaky.md
+  npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html
 `);
 }
 
@@ -31,6 +34,7 @@ async function main(argv: string[]): Promise<number> {
 
   let sourcePath: string | undefined;
   let outPath: string | undefined;
+  let format: 'md' | 'html' | 'both' = 'md';
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -41,6 +45,21 @@ async function main(argv: string[]): Promise<number> {
         return 1;
       }
       outPath = parsed.value;
+      index = parsed.nextIndex;
+      continue;
+    }
+
+    if (arg === '--format') {
+      const parsed = readOptionValue(args, index, '--format');
+      if (!parsed.ok) {
+        console.error(parsed.error);
+        return 1;
+      }
+      if (parsed.value !== 'md' && parsed.value !== 'html' && parsed.value !== 'both') {
+        console.error(`--format must be md, html or both (got "${parsed.value}").`);
+        return 1;
+      }
+      format = parsed.value;
       index = parsed.nextIndex;
       continue;
     }
@@ -62,19 +81,30 @@ async function main(argv: string[]): Promise<number> {
 
   const reportPath = sourcePath ?? DEFAULT_REPORT;
 
+  if (format === 'both' && outPath) {
+    console.error('--out cannot be used with --format both: each format gets its default name in ai-reports/.');
+    return 1;
+  }
+
   try {
     const analysis = await analyzeFlakyReport(reportPath);
-    const markdown = generateFlakyMarkdownReport(analysis);
-    const absoluteOut = path.resolve(outPath ?? defaultFlakyReportPath(analysis));
+    const formats: Array<'md' | 'html'> = format === 'both' ? ['md', 'html'] : [format];
 
-    await mkdir(path.dirname(absoluteOut), { recursive: true });
-    await writeFile(absoluteOut, markdown, 'utf8');
+    for (const current of formats) {
+      const content = current === 'md' ? generateFlakyMarkdownReport(analysis) : generateFlakyHtmlReport(analysis);
+      const absoluteOut = path.resolve(outPath ?? defaultFlakyReportPath(analysis, 'ai-reports', current));
+      await mkdir(path.dirname(absoluteOut), { recursive: true });
+      await writeFile(absoluteOut, content, 'utf8');
+      console.error(`Wrote flaky analysis to ${absoluteOut}`);
+    }
 
-    console.error(`Wrote flaky analysis to ${absoluteOut}`);
     console.error(
       `Summary: flaky=${analysis.stats.flaky}, unexpected=${analysis.stats.unexpected}, expected=${analysis.stats.expected}, skipped=${analysis.stats.skipped}`,
     );
-    process.stdout.write(markdown);
+    // Only the Markdown goes to stdout: a page of HTML in the terminal helps nobody.
+    if (format === 'md') {
+      process.stdout.write(generateFlakyMarkdownReport(analysis));
+    }
     return 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

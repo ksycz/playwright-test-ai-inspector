@@ -137,10 +137,14 @@ Full demo script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute by minute, with cop
 | 3–4 | Flaky + trends + PR-style summary | Commands below |
 | 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
 
-Flaky detector (fixture, no Playwright run needed):
+Flaky detector (fixture, no Playwright run needed), as a styled HTML page:
 
 ```bash
-npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html
+```
+
+```bash
+open ai-reports/flaky-then-pass-flaky.html
 ```
 
 Historical trends (fixture history):
@@ -483,6 +487,7 @@ npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
 ```
 
 Distinguishes **flaky** (failed then passed on retry) from **hard failures** (failed all attempts).  
+Writes Markdown to `ai-reports/` by default; `--format html` writes a styled page (`--format both` for the two).  
 Module docs: [`ai/flaky-detector/README.md`](ai/flaky-detector/README.md).
 
 ### Historical Failure Trends

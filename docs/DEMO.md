@@ -104,7 +104,8 @@ npm run analyze:report -- ai/failure-analyzer/fixtures/locator-click-renamed-but
 ### 3:00–4:00 — Flaky vs hard fail + PR summary
 
 ```bash
-npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html
+open ai-reports/flaky-then-pass-flaky.html   # macOS; xdg-open on Linux
 
 npm run analyze:summary -- \
   --title "Playwright CI summary" \

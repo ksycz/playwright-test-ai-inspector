@@ -442,3 +442,37 @@ test('P12-M1-17: a failed model call marks the charter and the run continues', a
   assert.match(result.charters[0].stoppedEarly ?? '', /^model error: Anthropic request failed \(400\)/);
   assert.equal(result.charters[0].checksPassed, 1, 'probes ran and counted');
 });
+
+test('P12-M1-19: replay waits for the evidence, and a drop shows what was claimed and what the page showed', async () => {
+  const fake = fakeCaller('- heading "Your cart is empty" [ref=e1]\n- paragraph: Add products <img src=x> to get started.');
+  const model = scriptedModel([
+    [call('1', 'browser_navigate', { url: '/cart' })],
+    [call('2', 'report_finding', report)],
+    [call('3', 'finish', {})],
+  ]);
+  const session = new ExplorerSession(fake.caller, { budget: 100, origin: ORIGIN });
+  const result = await createModelExplorer(model, { stepBudget: 20, maxTurns: 10 }).explore(session, cartCharter());
+
+  const waits = fake.calls.filter((item) => item.name === 'browser_wait_for');
+  assert.deepEqual(waits.at(-1)?.args, { text: 'Insulated Bottle', time: 5 }, 'replay gave the evidence time to appear');
+  assert.equal(result.findings.length, 0);
+  const dropped = result.dropped[0];
+  assert.equal(dropped.detail?.evidence, 'Insulated Bottle');
+  assert.deepEqual(dropped.detail?.steps, ['Open http://localhost:5173/cart']);
+  assert.match(dropped.detail?.pageText ?? '', /Your cart is empty/);
+
+  const markdown = renderMarkdown({
+    baseUrl: ORIGIN,
+    startedAt: 'now',
+    budget: 100,
+    stepsUsed: 10,
+    modelUsed: 'm',
+    charters: [],
+    findings: [],
+    dropped: result.dropped,
+  });
+  assert.match(markdown, /Claimed evidence: Insulated Bottle/);
+  assert.match(markdown, /Steps replayed: Open http:\/\/localhost:5173\/cart/);
+  assert.match(markdown, /Page after replay \(excerpt\): .*Your cart is empty/);
+  assert.doesNotMatch(markdown, /<img src=x>/, 'page text is escaped');
+});

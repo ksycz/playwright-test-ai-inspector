@@ -267,6 +267,11 @@ export function createModelExplorer(model: ChatModel, options: ModelExplorerOpti
             charter: charter.id,
             title: candidate.args.title,
             reason: confirmed.reason,
+            detail: {
+              evidence: candidate.args.evidence,
+              steps: candidate.steps.map((step) => step.note),
+              ...(confirmed.pageText ? { pageText: confirmed.pageText } : {}),
+            },
           });
           continue;
         }
@@ -292,7 +297,7 @@ export function createModelExplorer(model: ChatModel, options: ModelExplorerOpti
 async function replay(
   session: ExplorerSession,
   candidate: Candidate,
-): Promise<{ ok: true } | { ok: false; reason: string }> {
+): Promise<{ ok: true } | { ok: false; reason: string; pageText?: string }> {
   await session.reset();
   for (const step of candidate.steps) {
     try {
@@ -310,9 +315,18 @@ async function replay(
       return { ok: false, reason: `replay failed at "${step.note}"${detail}` };
     }
   }
+  // The page can still be updating after the last click (a badge, a fetched list): give the
+  // claimed evidence up to 5 seconds to appear before deciding. Not finding it is not an error here.
+  await session.call('browser_wait_for', { text: candidate.args.evidence, time: 5 }).catch((error) => {
+    if (error instanceof BudgetExceededError) throw error;
+  });
   const page = visibleText(await session.snapshot());
   if (!evidenceOnPage(page, candidate.args.evidence)) {
-    return { ok: false, reason: 'evidence text was not on the page after replay' };
+    return {
+      ok: false,
+      reason: 'evidence text was not on the page after replay',
+      pageText: page.replace(/\s+/g, ' ').trim().slice(0, 400),
+    };
   }
   return { ok: true };
 }

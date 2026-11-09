@@ -104,22 +104,26 @@ npm run analyze:report -- ai/failure-analyzer/fixtures/locator-click-renamed-but
 ### 3:00–4:00 — Flaky vs hard fail + PR summary
 
 ```bash
-npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html
+open ai-reports/flaky-then-pass-flaky.html   # macOS; xdg-open on Linux
 
 npm run analyze:summary -- \
   --title "Playwright CI summary" \
   --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
-  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json \
+  --format html
+open ai-reports/run-summary.html
 ```
 
 **Say:** same classifier powers sticky PR comments in CI (see screenshot in README). Trends CLI appends JSONL history across runs.
 
 ### 4:00–5:00 — Trace + limitations (credibility)
 
-**Trace (if you have a `trace.zip` from CI or a local retry):**
+**Trace** (`--trace on` records one even for passing tests; don't add `CI=true`, see README "Trace walkthrough"):
 
 ```bash
-npm run trace -- test-results/<folder>/trace.zip
+npm run test:smoke -- tests/smoke/error-empty-states.spec.ts --trace on
+npm run trace -- "$(find test-results -name trace.zip | head -1)"
 ```
 
 **Say one limitation out loud:** demo auth is theatrical (credentials ship in the client bundle); cart totals are client-trusted; no real backend. The value is the **testing system**, not production security.

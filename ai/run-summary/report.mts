@@ -1,4 +1,5 @@
 import { escapeMarkdown } from '../shared/markdown.mts';
+import { code, dataTable, escapeHtml, htmlPage, muted, section, statTiles } from '../shared/html.mts';
 import type { RunSummaryReport, SuiteRunSummary } from './types.mts';
 
 function statusEmoji(status: SuiteRunSummary['status'] | RunSummaryReport['overallStatus']): string {
@@ -94,6 +95,77 @@ export function generateRunSummaryMarkdown(report: RunSummaryReport): string {
   return `${lines.join('\n')}\n`;
 }
 
-export function defaultSummaryOutPath(): string {
-  return 'ai-reports/run-summary.md';
+export function defaultSummaryOutPath(format: 'md' | 'html' = 'md'): string {
+  return `ai-reports/run-summary.${format}`;
+}
+
+const STATUS_TONE: Record<RunSummaryReport['overallStatus'], string> = {
+  passed: 'good',
+  failed: 'bad',
+  flaky: 'warn',
+  skipped: 'neutral',
+  empty: 'neutral',
+};
+
+function htmlSuite(suite: SuiteRunSummary): string {
+  const failures =
+    suite.hardFailures.length === 0
+      ? ''
+      : `<h4>Hard failures</h4>
+      ${dataTable(
+        ['Cause', 'Test', 'Error'],
+        suite.hardFailures.map((failure) => [
+          { html: `<span class="badge">${escapeHtml(failure.category)}</span>` },
+          { html: `${escapeHtml(failure.fullTitle)}<br />${code(failure.file)}` },
+          { html: failure.lastError ? code(failure.lastError) : '' },
+        ]),
+      )}`;
+  const flaky =
+    suite.flakyTests.length === 0
+      ? ''
+      : `<h4>Flaky tests</h4>
+      <ul>${suite.flakyTests.map((title) => `<li>${escapeHtml(title)}</li>`).join('')}</ul>`;
+  const clean = failures === '' && flaky === '' ? muted('No hard failures or flaky tests.') : '';
+  const { stats } = suite;
+  return `<article class="panel suite">
+      <h3>${code(suite.suite)} <span class="${STATUS_TONE[suite.status]}">${escapeHtml(suite.status)}</span></h3>
+      <p class="meta">${stats.expected} passed · ${stats.unexpected} hard fail · ${stats.flaky} flaky · ${stats.skipped} skipped</p>
+      ${failures}${flaky}${clean}
+    </article>`;
+}
+
+/** The same content as the PR comment, as a page to open locally. */
+export function generateRunSummaryHtml(report: RunSummaryReport): string {
+  const { totals } = report;
+  const tone = STATUS_TONE[report.overallStatus];
+  const body = [
+    `<p class="overall status-${escapeHtml(report.overallStatus)}"><span class="${tone}">Overall: ${escapeHtml(report.overallStatus)}</span></p>`,
+    section(
+      'totals',
+      'Totals',
+      statTiles([
+        { label: 'Passed', value: totals.expected, tone: 'good' },
+        { label: 'Hard failures', value: totals.unexpected, tone: totals.unexpected > 0 ? 'bad' : 'neutral' },
+        { label: 'Flaky', value: totals.flaky, tone: totals.flaky > 0 ? 'warn' : 'neutral' },
+        { label: 'Skipped', value: totals.skipped },
+      ]),
+    ),
+    section(
+      'suites',
+      'Suites',
+      report.suites.length === 0 ? muted('No suite reports were provided.') : report.suites.map(htmlSuite).join('\n    '),
+    ),
+  ].join('\n\n    ');
+
+  return htmlPage({
+    title: report.title,
+    testId: 'run-summary-report',
+    heading: report.title,
+    lede: `Merged from ${report.suites.length} suite report(s), generated ${report.generatedAt}. In CI the same summary is the sticky PR comment.`,
+    body,
+    extraStyles: `
+    .overall { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem; }
+    h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0.9rem 0 0.35rem; }
+`,
+  });
 }

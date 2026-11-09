@@ -2,8 +2,9 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { analyzeTrends } from './history.mts';
 import { recordRunFromReport } from './record.mts';
-import { generateTrendsMarkdown, defaultTrendsOutPath } from './report.mts';
+import { generateTrendsHtml, generateTrendsMarkdown, defaultTrendsOutPath } from './report.mts';
 import { readOptionValue } from '../shared/cliArgs.mts';
+import { FORMAT_ERROR, OUT_WITH_BOTH_ERROR, formatsToWrite, parseReportFormat, type ReportFormat } from '../shared/reportFormat.mts';
 import {
   DEFAULT_HISTORY_PATH,
   DEFAULT_JSON_REPORT,
@@ -13,9 +14,10 @@ import {
 function printUsage(): void {
   console.error(`Usage:
   npm run analyze:trends -- --record [playwright-results.json] [--history <runs.jsonl>] [--suite <label>]
-  npm run analyze:trends -- [--history <runs.jsonl>] [--out <trends.md>]
+  npm run analyze:trends -- [--history <runs.jsonl>] [--format md|html|both] [--out <file>]
 
-Record a Playwright JSON suite run into append-only JSONL history, or generate a Markdown trend report.
+Record a Playwright JSON suite run into append-only JSONL history, or generate a trend report.
+--format md (default) writes Markdown and prints it; html writes a styled page; both writes the two.
 
 Defaults:
   JSON report: ${DEFAULT_JSON_REPORT}
@@ -26,6 +28,7 @@ Examples:
   npm run analyze:trends -- --record
   npm run analyze:trends -- --record ai/flaky-detector/fixtures/hard-fail.json --suite smoke
   npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
+  npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl --format html
 `);
 }
 
@@ -42,6 +45,7 @@ async function main(argv: string[]): Promise<number> {
   let historyPath = DEFAULT_HISTORY_PATH;
   let outPath: string | undefined;
   let suite: string | undefined;
+  let format: ReportFormat = 'md';
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -84,6 +88,22 @@ async function main(argv: string[]): Promise<number> {
       continue;
     }
 
+    if (arg === '--format') {
+      const parsed = readOptionValue(args, index, '--format');
+      if (!parsed.ok) {
+        console.error(parsed.error);
+        return 1;
+      }
+      const value = parseReportFormat(parsed.value);
+      if (!value) {
+        console.error(FORMAT_ERROR(parsed.value));
+        return 1;
+      }
+      format = value;
+      index = parsed.nextIndex;
+      continue;
+    }
+
     if (arg.startsWith('-')) {
       console.error(`Unknown option: ${arg}`);
       printUsage();
@@ -119,15 +139,24 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
 
-    const summary = await analyzeTrends(historyPath);
-    const markdown = generateTrendsMarkdown(summary);
-    const absoluteOut = path.resolve(outPath ?? defaultTrendsOutPath());
-    await mkdir(path.dirname(absoluteOut), { recursive: true });
-    await writeFile(absoluteOut, markdown, 'utf8');
+    if (format === 'both' && outPath) {
+      console.error(OUT_WITH_BOTH_ERROR);
+      return 1;
+    }
 
-    console.error(`Wrote trend report to ${absoluteOut}`);
+    const summary = await analyzeTrends(historyPath);
+    for (const current of formatsToWrite(format)) {
+      const content = current === 'md' ? generateTrendsMarkdown(summary) : generateTrendsHtml(summary);
+      const absoluteOut = path.resolve(outPath ?? defaultTrendsOutPath(current));
+      await mkdir(path.dirname(absoluteOut), { recursive: true });
+      await writeFile(absoluteOut, content, 'utf8');
+      console.error(`Wrote trend report to ${absoluteOut}`);
+    }
+
     console.error(`Runs=${summary.runCount}, unexpected=${summary.totals.unexpected}, flaky=${summary.totals.flaky}`);
-    process.stdout.write(markdown);
+    if (format === 'md') {
+      process.stdout.write(generateTrendsMarkdown(summary));
+    }
     return 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

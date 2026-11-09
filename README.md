@@ -137,31 +137,61 @@ Full demo script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute by minute, with cop
 | 3–4 | Flaky + trends + PR-style summary | Commands below |
 | 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
 
-Flaky detector (fixture, no Playwright run needed):
+### Flaky detector
+
+Reads a Playwright JSON report and sorts tests into **flaky** (failed, then passed on a retry) and **hard failures** (failed every attempt). The fixture holds one checkout test that failed once and passed on retry, so you need no Playwright run. The report lists each attempt with its status, duration and error.
 
 ```bash
-npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html
 ```
-
-Historical trends (fixture history):
 
 ```bash
-npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
+open ai-reports/flaky-then-pass-flaky.html
 ```
 
-Multi-suite run summary (PR-comment style Markdown):
+Without `--format html` it prints Markdown in the terminal and saves it to `ai-reports/flaky-then-pass-flaky.md`.
+
+### Historical trends
+
+Reads several past runs (one JSON line per run, here five sample runs) and shows what keeps going wrong: totals, hard failures grouped by cause (assertion, timeout, locator…), the tests that fail most often, and the flaky "hotspots". One red run is noise; the same test failing in three runs is a pattern. The HTML page adds bars for each run and each cause.
 
 ```bash
-npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl --format html
 ```
 
-Mutation score on the logic modules (about a minute; CI fails below 47):
+```bash
+open ai-reports/trends.html
+```
+
+### Multi-suite run summary
+
+Merges the JSON reports of several suites into the Markdown that CI posts as one sticky PR comment: an overall status, totals, then per suite its hard failures (with a cause) and flaky tests. Here the smoke fixture has a hard failure and the e2e one a flaky test, so the overall status is `failed`. Without `--format html` you get the Markdown that CI posts.
+
+```bash
+npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json --format html
+```
+
+```bash
+open ai-reports/run-summary.html
+```
+
+It exits with code 2 when a suite has hard failures, so CI can fail the job. That's expected here: npm then prints an error line after the report.
+
+### Mutation score
+
+Stryker plants small bugs ("mutants") in the AI and CI logic modules, for example `>` becomes `>=`, and runs the unit tests against each one. A mutant the tests catch is *killed*; one they miss *survived* and points to a weak test. The score is the share killed; CI fails below 47. Takes about a minute; the HTML report is `reports/mutation/index.html`.
 
 ```bash
 npm run test:mutation
 ```
 
-Convention review of a test diff (findings do not fail the command). First save the diff of your test changes, then review it:
+```bash
+open reports/mutation/index.html
+```
+
+### Convention review
+
+Checks the test files changed in a diff against this repo's rules: no fixed `waitForTimeout`, no `test.only`, prefer `getByRole` over CSS/XPath, a suite tag on every `describe`, and the login fixture instead of logging in by hand. `--no-llm` runs only these rules; with `OPENAI_API_KEY` set and without the flag, a model adds suggestions. Findings are advice and never fail the command. First save the diff of your test changes, then review it:
 
 ```bash
 git diff main -- tests > tests.diff
@@ -170,6 +200,8 @@ git diff main -- tests > tests.diff
 ```bash
 npm run analyze:review -- --diff tests.diff --no-llm
 ```
+
+With no test changes on your branch the diff is empty and it reports no findings.
 
 CI runs mutation when a pull request changes `ai/` (and once a night). It appends the convention review to the sticky comment when a pull request changes `tests/`. The gate list is in [`docs/TESTING.md`](docs/TESTING.md).
 
@@ -332,23 +364,29 @@ Failure artifacts (screenshots, videos, traces) are written to `test-results/`. 
 
 ### Trace walkthrough
 
-Playwright traces are the best “live demo” of debugging quality. This repo captures traces **on first retry** when `CI=true`.
+A trace is a recording of one test: every action, a DOM snapshot before and after it, network calls and console output. You open it in Playwright's Trace Viewer and step through the test like a video.
+
+This repo records traces only **on the first retry** (`trace: 'on-first-retry'`), because recording every test is slow. Locally there are no retries, so a normal run writes no trace. For a demo, ask for one with `--trace on`.
 
 **1. Produce a trace (about 1 minute)**
 
 ```bash
-# Retries enabled → failed-then-retried tests write trace.zip
-CI=true npm run test:smoke -- tests/smoke/error-empty-states.spec.ts
+npm run test:smoke -- tests/smoke/error-empty-states.spec.ts --trace on
 ```
 
-If the targeted tests pass cleanly, force a retry path by running under CI against a temporarily broken assertion, or download `test-results-*` from a failed GitHub Actions job (Artifacts).
+Every test in that file now writes `test-results/<test-folder>/trace.zip`, even when it passes. If `npm run dev` is running, the tests reuse it.
+
+Don't add `CI=true` for this. With `CI` set, the config turns on retries **and** starts its own dev server on port 5173 instead of reusing yours. If `npm run dev` is already running, the run stops with "Port 5173 is already in use" (from `scripts/playwright.sh`).
 
 **2. Open Trace Viewer**
 
+The folder names are long, so this opens the first trace it finds:
+
 ```bash
-# Path is printed in the Playwright output for retried tests
-npm run trace -- test-results/<failed-or-retried-test-folder>/trace.zip
+npm run trace -- "$(find test-results -name trace.zip | head -1)"
 ```
+
+To see a real failure instead, download `test-results-*` from a failed GitHub Actions job (Artifacts) and open its `trace.zip` the same way.
 
 **3. What to look at**
 
@@ -356,7 +394,7 @@ npm run trace -- test-results/<failed-or-retried-test-folder>/trace.zip
 - Network / console as supporting evidence
 - `npm run analyze:report` on the same failure folder adds a classification and next steps
 
-Config reminder: `trace: 'on-first-retry'` in `playwright.config.ts` (screenshots/videos only on failure).
+Config: `trace: 'on-first-retry'` in `playwright.config.ts`; screenshots and videos are kept only on failure.
 
 ### Continuous Integration
 
@@ -483,6 +521,7 @@ npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
 ```
 
 Distinguishes **flaky** (failed then passed on retry) from **hard failures** (failed all attempts).  
+Writes Markdown to `ai-reports/` by default; `--format html` writes a styled page (`--format both` for the two). The trends and run-summary commands take the same option.  
 Module docs: [`ai/flaky-detector/README.md`](ai/flaky-detector/README.md).
 
 ### Historical Failure Trends

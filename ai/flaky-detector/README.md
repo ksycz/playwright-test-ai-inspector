@@ -21,7 +21,11 @@ npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
 npm run test:ai
 npm run analyze:flaky
 npm run analyze:flaky -- test-results/playwright-results.json --out ai-reports/flaky.md
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html   # styled page
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format both   # .md and .html
 ```
+
+`--format md` (default) also prints the Markdown to the terminal. `html` and `both` only print the file paths. Test titles and error text are HTML-escaped (P4-M2-09).
 
 ## How to produce the JSON report
 

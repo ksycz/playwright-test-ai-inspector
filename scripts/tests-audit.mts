@@ -48,6 +48,24 @@ export function outcomesFromReport(report: unknown): TestOutcome[] {
   return outcomes;
 }
 
+/**
+ * Playwright still writes a valid report when it cannot run anything (a port already in use,
+ * a missing browser, a bad config), with no tests and the reason under `errors`.
+ * Returns that reason, or null when the report holds real results.
+ */
+export function reportProblem(report: unknown): string | null {
+  const root = report as { errors?: Array<{ message?: string }> };
+  const first = root.errors?.find((error) => error.message)?.message;
+  if (first) {
+    const line = first.split('\n').find((text) => text.trim()) ?? first;
+    const hint = /already used|EADDRINUSE/.test(first)
+      ? ' Stop the running dev server (the audit starts its own on port 5173) and try again.'
+      : '';
+    return `Playwright could not run the tests: ${line.replace(/\u001b\[[0-9;]*m/g, '').trim()}${hint}`;
+  }
+  return outcomesFromReport(report).length === 0 ? 'Playwright ran no tests. Check --grep, and that the tests start (npm run test:smoke).' : null;
+}
+
 export function buildAudit(baseline: TestOutcome[], runs: BugRun[]): Audit {
   const all = new Set<string>(baseline.map((test) => test.id));
   for (const run of runs) for (const test of run.tests) all.add(test.id);
@@ -196,11 +214,15 @@ export async function main(argv: string[]): Promise<number> {
         env: { ...process.env, CI: '1', VITE_SEEDED_BUGS: bug, PLAYWRIGHT_JSON_OUTPUT_NAME: reportFile },
       },
     );
+    let report: unknown;
     try {
-      return outcomesFromReport(JSON.parse(await readFile(reportFile, 'utf8')));
+      report = JSON.parse(await readFile(reportFile, 'utf8'));
     } catch {
       throw new Error(`No Playwright report for "${name}". Does the suite start? Try: npm run test:smoke`);
     }
+    const problem = reportProblem(report);
+    if (problem) throw new Error(`${problem} (run: ${name})`);
+    return outcomesFromReport(report);
   }
 
   try {

@@ -6,6 +6,7 @@ import {
   CASCADE_THRESHOLD,
   outcomesFromReport,
   parseAuditArgs,
+  reportProblem,
   renderAudit,
   type TestOutcome,
 } from './tests-audit.mts';
@@ -72,4 +73,12 @@ test('TA-05: options default to behaviour bugs and reject unknown ones', () => {
   assert.throws(() => parseAuditArgs(['--bugs', 'nope']), /Unknown bug: nope/);
   assert.throws(() => parseAuditArgs(['--bugs']), /Missing value/);
   assert.throws(() => parseAuditArgs(['--bogus', 'x']), /Unknown option/);
+});
+
+test('TA-06: a report with no tests is a problem, not a pass', () => {
+  const portInUse = { suites: [], errors: [{ message: 'Error: http://localhost:5173 is already used, make sure that nothing is running on the port/url' }] };
+  assert.match(reportProblem(portInUse) ?? '', /could not run the tests.*already used.*Stop the running dev server/);
+  assert.match(reportProblem({ suites: [], errors: [] }) ?? '', /ran no tests/);
+  assert.match(reportProblem({ errors: [{ message: '\u001b[31mBoom\u001b[39m\nstack' }] }) ?? '', /: Boom$/);
+  assert.equal(reportProblem({ suites: [{ file: 'a.spec.ts', specs: [{ title: 't', ok: true }] }], errors: [] }), null);
 });

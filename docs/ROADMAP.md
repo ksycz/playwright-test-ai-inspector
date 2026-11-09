@@ -3248,7 +3248,7 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 ### Deviations
 
 - Found while writing the scorer: the charter reader only took bullets, so "The cart should persist after page refresh." (a sentence in APP_SPEC) was never offered to the model. The reader now also takes sentences with should/must, and a test checks that every probe and every seeded bug cites a real charter line.
-- Not in CI: a full run is about 6 minutes of browser time. Worth a nightly job once the model layer is measured too.
+- Not in CI: a full run is about 6 minutes of browser time. Worth a nightly job now that the model layer is measured too (Sonnet 5.5 caught `detail-adds-twice` after the replay fixes in #48/#49; Haiku 4.5 did not).
 
 ### Test cases
 

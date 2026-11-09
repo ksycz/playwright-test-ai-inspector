@@ -183,7 +183,7 @@ This is a **portfolio / learning** project, not a production shop:
 - **Client-trusted cart totals** — fine for Playwright practice; not payment-safe.
 - **Visual baselines** are tuned for CI Chromium viewports; local OS font differences can cause noise.
 - **Optional LLM** (`--llm`) sends failure excerpts to a third party when an API key is set; default tooling is offline.
-- **Exploration agent** finds what its probes check (4 of 5 seeded bugs); the AI layer costs money per run and varies between runs, so findings are reported and drafted, never merged automatically. Details: [`ai/explorer/README.md`](ai/explorer/README.md#limits).
+- **Exploration agent** finds what its probes check (4 of 5 seeded bugs); the AI layer (Sonnet 5.5) also caught the fifth in a measured run, but costs money per run and varies between runs, so findings are reported and drafted, never merged automatically. Details: [`ai/explorer/README.md`](ai/explorer/README.md#limits).
 
 The engineering value is the **Playwright framework + offline AI CLIs + CI summaries**, not production security or commerce.
 

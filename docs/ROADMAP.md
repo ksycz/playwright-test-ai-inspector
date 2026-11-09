@@ -722,7 +722,7 @@ Build the Home landing page with shop introduction and featured products, per AP
 | ID | Scenario |
 |---|---|
 | P1-M8-01 | Home page shows intro heading and description |
-| P1-M8-02 | Featured products section renders product cards |
+| P1-M8-02 | Featured products section shows exactly the featured products |
 | P1-M8-03 | Clicking featured product navigates to detail page |
 | P1-M8-04 | No featured products shows fallback message |
 

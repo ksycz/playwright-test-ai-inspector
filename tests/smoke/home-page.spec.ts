@@ -13,7 +13,7 @@ test.describe('@smoke P1-M8 — Home Page and Featured Products', () => {
     await expect(homePage.introText).toBeVisible();
   });
 
-  test('P1-M8-02: featured products section renders product cards', async ({ page }) => {
+  test('P1-M8-02: featured products section shows exactly the featured products', async ({ page }) => {
     const homePage = new HomePage(page);
     await homePage.goto();
 
@@ -22,6 +22,9 @@ test.describe('@smoke P1-M8 — Home Page and Featured Products', () => {
     for (const product of featuredProducts) {
       await expect(homePage.featuredProductCard(product.name)).toBeVisible();
     }
+
+    // Only the featured products: the full catalogue must not show up here.
+    await expect(homePage.productCards).toHaveCount(featuredProducts.length);
   });
 
   test('P1-M8-03: clicking featured product navigates to detail page', async ({ page }) => {

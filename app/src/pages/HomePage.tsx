@@ -3,13 +3,18 @@ import ProductsGate from '@/components/ProductsGate';
 import ProductGrid from '@/components/ProductGrid';
 import { useCart } from '@/context/CartContext';
 import { useProducts } from '@/context/ProductsContext';
+import { isSeeded } from '@/seededBugs';
 
 export default function HomePage() {
   const { addItem } = useCart();
-  const { getFeaturedProducts } = useProducts();
+  const { getFeaturedProducts, products } = useProducts();
   const [searchParams] = useSearchParams();
   const forceEmptyFeatured = searchParams.get('featured') === 'none';
-  const featuredProducts = forceEmptyFeatured ? [] : getFeaturedProducts();
+  const featuredProducts = forceEmptyFeatured
+    ? []
+    : isSeeded('audit-home-shows-all')
+      ? products
+      : getFeaturedProducts();
 
   return (
     <ProductsGate heading="Welcome to Demo Shop">

@@ -1,3 +1,5 @@
+import { isSeeded } from '../seededBugs.ts';
+
 const DEFAULT_REDIRECT = '/products';
 
 const EXACT_REDIRECT_PATHS = new Set([
@@ -23,6 +25,7 @@ function isAllowedRedirectPathname(pathname: string): boolean {
  * Invalid or hostile values fall back to /products.
  */
 export function sanitizeRedirectPath(redirectPath: string | null): string {
+  if (isSeeded('audit-redirect-open') && redirectPath) return redirectPath;
   if (!redirectPath) {
     return DEFAULT_REDIRECT;
   }

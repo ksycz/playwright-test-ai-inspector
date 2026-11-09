@@ -35,6 +35,12 @@ function apiJsonNotFoundPlugin(): Plugin {
       return;
     }
 
+    // Seeded bug audit-api-404-html (dev server only): a missing API path falls through to the SPA page.
+    if (process.env.VITE_SEEDED_BUGS?.split(',').some((name) => ['audit-api-404-html', 'audit-all'].includes(name.trim()))) {
+      next();
+      return;
+    }
+
     res.statusCode = 404;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.end(JSON.stringify({ error: 'Not found', path: urlPath }));

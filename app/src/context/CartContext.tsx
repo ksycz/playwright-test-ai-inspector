@@ -98,7 +98,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const totalItems = useMemo(
-    () => items.reduce((total, item) => total + item.quantity, 0),
+    () =>
+      isSeeded('audit-badge-counts-lines')
+        ? items.length
+        : items.reduce((total, item) => total + item.quantity, 0),
     [items],
   );
 

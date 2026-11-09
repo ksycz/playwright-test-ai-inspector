@@ -43,7 +43,7 @@ Honest list; each one is a reason the agent reports and drafts but never decides
 
 | Limit | What it means in practice | What keeps it in check |
 |---|---|---|
-| **Coverage** | The 13 probes find only what they were written to check. Seeded-bug score: 4 of 5; the miss (`detail-adds-twice`) is outside every probe. | The model layer is meant to look further; `explore:eval` measures both layers the same way. |
+| **Coverage** | The 13 probes find only what they were written to check. Seeded-bug score: 4 of 5; the miss (`detail-adds-twice`) is outside every probe. | The model layer looks further: with Claude Sonnet 5.5 it caught `detail-adds-twice` (1 of 1, 0 false alarms, 341 of 400 steps). `explore:eval` measures both layers the same way. |
 | **Same author, same blind spots** | The probes and the seeded bugs come from the same spec, and the drafted tests largely duplicate the existing smoke suite. | One seeded bug is deliberately uncovered; drafts are reviewed for duplication before merging. |
 | **Cost** | Each model run calls a paid API, roughly once per turn, and pays for every page snapshot it reads. | Opt-in only (needs a key), never in CI, capped by `--model-turns` (40) and `--model-steps` (30) per charter, page text truncated to 8,000 characters. Set a spend limit in the provider console. |
 | **Nondeterminism** | Two model runs on the same shop can explore differently and report different things. | Findings must reproduce from a clean state, cite a spec line word for word, and show their evidence again after replay. Probes stay deterministic. |
@@ -73,6 +73,15 @@ The command starts its own dev server on port 5174 for each scenario. It runs on
 | `detail-adds-twice` | Add on the product page adds 2 | none, on purpose |
 
 `detail-adds-twice` sits where no probe looks, so the score shows a real blind spot rather than a flattering 100%. It's the case the model layer has to earn its cost on.
+
+**Measured model layer (one run each, so an indication, not a rate):**
+
+| Model | Caught `detail-adds-twice` | Notes |
+|---|---|---|
+| Claude Haiku 4.5 | No | Used its turns without reporting a finding. |
+| Claude Sonnet 5.5 | Yes | Found it in several runs, but replay first dropped the finding (stale element refs, then evidence timing). Both fixed; the confirmed run needed 341 steps. |
+
+A stronger model found what the scripted checks cannot, and the replay step turned out to be the part that needed tuning. Results vary between runs, so findings still need a person.
 
 Scoring:
 

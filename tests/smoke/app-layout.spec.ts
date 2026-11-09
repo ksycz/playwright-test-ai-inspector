@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { BasePage, HomePage, NotFoundPage, ProductsPage } from '../pages';
+import { BasePage, HomePage, ProductsPage } from '../pages';
 
 test.describe('@smoke P1-M2 — Application Layout and Routing', () => {
   test('P1-M2-01: app loads at / with layout visible', async ({ page }) => {
@@ -42,14 +42,6 @@ test.describe('@smoke P1-M2 — Application Layout and Routing', () => {
 
     await expect(basePage.productsLink).toHaveAttribute('aria-current', 'page');
     await expect(basePage.homeLink).not.toHaveAttribute('aria-current', 'page');
-  });
-
-  test('P1-M2-05: unknown route shows 404 with link to Home', async ({ page }) => {
-    const notFoundPage = new NotFoundPage(page);
-    await notFoundPage.goto('/does-not-exist');
-
-    await expect(notFoundPage.heading).toBeVisible();
-    await expect(notFoundPage.backToHomeLink).toBeVisible();
   });
 
   test('P1-M2-06: cart badge displays 0 initially', async ({ page }) => {

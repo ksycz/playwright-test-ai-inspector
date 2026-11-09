@@ -1,12 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { checkoutFieldErrors, invalidUser } from '../data';
-import { loginViaUi, loginWithProductInCart } from '../fixtures';
+import { checkoutFieldErrors } from '../data';
+import { loginWithProductInCart } from '../fixtures';
 import {
   CartPage,
   CheckoutPage,
-  LoginPage,
   NotFoundPage,
-  OrderConfirmationPage,
   ProductDetailPage,
 } from '../pages';
 
@@ -38,15 +36,6 @@ test.describe('@smoke P1-M9 — Error and Empty States', () => {
     await expect(cartPage.browseProductsLink).toBeVisible();
   });
 
-  test('P1-M9-04: invalid login error message', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    await loginPage.login(invalidUser.username, invalidUser.password);
-
-    await expect(loginPage.errorAlert).toHaveText('Invalid username or password');
-    await expect(page).toHaveURL('/login');
-  });
-
   test('P1-M9-05: checkout validation errors for each required field', async ({ page }) => {
     const checkoutPage = new CheckoutPage(page);
     await loginWithProductInCart(page);
@@ -71,15 +60,5 @@ test.describe('@smoke P1-M9 — Error and Empty States', () => {
 
     await expect(cartPage.emptyHeading).toBeVisible();
     await expect(cartPage.cartLink(0)).toBeVisible();
-  });
-
-  test('P1-M9-07: direct confirmation URL without order redirects away', async ({ page }) => {
-    const orderConfirmationPage = new OrderConfirmationPage(page);
-    const cartPage = new CartPage(page);
-    await loginViaUi(page);
-    await orderConfirmationPage.goto();
-
-    await expect(page).toHaveURL('/cart');
-    await expect(cartPage.emptyHeading).toBeVisible();
   });
 });

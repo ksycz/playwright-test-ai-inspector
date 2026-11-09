@@ -192,7 +192,7 @@ Create the shared application shell, navigation, and routing foundation used by 
 | P1-M2-02 | Navigation links (Home, Products, Cart, Login) are present |
 | P1-M2-03 | Clicking Products navigates to `/products` |
 | P1-M2-04 | Active nav link is indicated on the current page |
-| P1-M2-05 | Unknown route shows 404 with link to Home |
+| P1-M2-05 | ~~Unknown route shows 404 with link to Home~~ (removed: covered by P1-M9-01) |
 | P1-M2-06 | Cart badge displays `0` initially |
 
 ### Accessibility considerations
@@ -366,7 +366,7 @@ Allow visitors to view a single product's full details and add it to the cart fr
 | P1-M4-02 | Detail page displays full description, category, and price |
 | P1-M4-03 | Add to Cart from detail page updates cart badge |
 | P1-M4-04 | Clicking product in catalogue navigates to detail page |
-| P1-M4-05 | Unknown slug shows product-not-found state |
+| P1-M4-05 | ~~Unknown slug shows product-not-found state~~ (removed: covered by P1-M9-02) |
 | P1-M4-06 | Back to products link returns to catalogue |
 
 ### Accessibility considerations
@@ -449,7 +449,7 @@ Implement the full shopping cart with quantity management, totals, persistence, 
 | P1-M5-03 | Decrease quantity to 0 removes the item |
 | P1-M5-04 | Remove item deletes it and recalculates total |
 | P1-M5-05 | Clear cart empties all items |
-| P1-M5-06 | Empty cart shows message and link to Products |
+| P1-M5-06 | ~~Empty cart shows message and link to Products~~ (removed: covered by P1-M9-03) |
 | P1-M5-07 | Cart persists after page reload |
 | P1-M5-08 | Proceed to checkout button is visible |
 
@@ -546,7 +546,7 @@ Implement fake login/logout with session persistence and protect the checkout ro
 | P1-M6-03 | Empty fields show validation errors |
 | P1-M6-04 | Logout clears session and shows Login link |
 | P1-M6-05 | Session persists after page reload |
-| P1-M6-06 | Guest at `/checkout` redirects to `/login` |
+| P1-M6-06 | ~~Guest at `/checkout` redirects to `/login`~~ (removed: covered by P2-M6-03) |
 | P1-M6-07 | Login with redirect returns to intended page |
 | P1-M6-08 | Logged-in user can proceed to checkout |
 
@@ -808,10 +808,10 @@ Consolidate and polish all error, empty, and edge-case states across the applica
 | P1-M9-01 | 404 page for unknown app route |
 | P1-M9-02 | Product not found for invalid slug |
 | P1-M9-03 | Empty cart state with link to Products |
-| P1-M9-04 | Invalid login error message |
+| P1-M9-04 | ~~Invalid login error message~~ (removed: identical to P1-M6-02) |
 | P1-M9-05 | Checkout validation errors for each required field |
 | P1-M9-06 | Corrupt cart Local Storage falls back to empty cart |
-| P1-M9-07 | Direct confirmation URL without order redirects |
+| P1-M9-07 | ~~Direct confirmation URL without order redirects~~ (removed: identical to P1-M7-08) |
 
 ### Accessibility considerations
 
@@ -3483,6 +3483,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-09 | Test audit: six duplicate smoke tests removed (P1-M2-05, P1-M4-05, P1-M5-06, P1-M6-06, P1-M9-04, P1-M9-07); 93 → 87 tests |
 | 2026-11-09 | AI provenance gate skips (not fails) when no mutation report exists, so docs-only PRs pass; the Action treats `warn` as `fail` |
 | 2026-11-09 | `explore:eval` marks runs with model errors as incomplete instead of missed (#51) |
 | 2026-11-09 | AI layer measured: Sonnet 5.5 caught the probe-blind bug `detail-adds-twice`, Haiku 4.5 did not; replay fixed to use role and name, with a wait for evidence (#47–#49) |

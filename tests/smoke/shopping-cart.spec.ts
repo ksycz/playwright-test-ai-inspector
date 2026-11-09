@@ -56,14 +56,6 @@ test.describe('@smoke P1-M5 — Shopping Cart', () => {
     await expect(cartPage.emptyHeading).toBeVisible();
   });
 
-  test('P1-M5-06: empty cart shows message and link to Products', async ({ page }) => {
-    const cartPage = new CartPage(page);
-    await cartPage.goto();
-
-    await expect(cartPage.emptyHeading).toBeVisible();
-    await expect(cartPage.browseProductsLink).toBeVisible();
-  });
-
   test('P1-M5-07: cart persists after page reload', async ({ page }) => {
     const cartPage = new CartPage(page);
     await addProductAndOpenCart(page);

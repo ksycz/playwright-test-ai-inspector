@@ -119,10 +119,11 @@ open ai-reports/run-summary.html
 
 ### 4:00–5:00 — Trace + limitations (credibility)
 
-**Trace (if you have a `trace.zip` from CI or a local retry):**
+**Trace** (`--trace on` records one even for passing tests; don't add `CI=true`, see README "Trace walkthrough"):
 
 ```bash
-npm run trace -- test-results/<folder>/trace.zip
+npm run test:smoke -- tests/smoke/error-empty-states.spec.ts --trace on
+npm run trace -- "$(find test-results -name trace.zip | head -1)"
 ```
 
 **Say one limitation out loud:** demo auth is theatrical (credentials ship in the client bundle); cart totals are client-trusted; no real backend. The value is the **testing system**, not production security.

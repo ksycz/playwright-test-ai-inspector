@@ -364,23 +364,29 @@ Failure artifacts (screenshots, videos, traces) are written to `test-results/`. 
 
 ### Trace walkthrough
 
-Playwright traces are the best “live demo” of debugging quality. This repo captures traces **on first retry** when `CI=true`.
+A trace is a recording of one test: every action, a DOM snapshot before and after it, network calls and console output. You open it in Playwright's Trace Viewer and step through the test like a video.
+
+This repo records traces only **on the first retry** (`trace: 'on-first-retry'`), because recording every test is slow. Locally there are no retries, so a normal run writes no trace. For a demo, ask for one with `--trace on`.
 
 **1. Produce a trace (about 1 minute)**
 
 ```bash
-# Retries enabled → failed-then-retried tests write trace.zip
-CI=true npm run test:smoke -- tests/smoke/error-empty-states.spec.ts
+npm run test:smoke -- tests/smoke/error-empty-states.spec.ts --trace on
 ```
 
-If the targeted tests pass cleanly, force a retry path by running under CI against a temporarily broken assertion, or download `test-results-*` from a failed GitHub Actions job (Artifacts).
+Every test in that file now writes `test-results/<test-folder>/trace.zip`, even when it passes. If `npm run dev` is running, the tests reuse it.
+
+Don't add `CI=true` for this. With `CI` set, the config turns on retries **and** starts its own dev server on port 5173 instead of reusing yours. If `npm run dev` is already running, the run stops with "Port 5173 is already in use" (from `scripts/playwright.sh`).
 
 **2. Open Trace Viewer**
 
+The folder names are long, so this opens the first trace it finds:
+
 ```bash
-# Path is printed in the Playwright output for retried tests
-npm run trace -- test-results/<failed-or-retried-test-folder>/trace.zip
+npm run trace -- "$(find test-results -name trace.zip | head -1)"
 ```
+
+To see a real failure instead, download `test-results-*` from a failed GitHub Actions job (Artifacts) and open its `trace.zip` the same way.
 
 **3. What to look at**
 
@@ -388,7 +394,7 @@ npm run trace -- test-results/<failed-or-retried-test-folder>/trace.zip
 - Network / console as supporting evidence
 - `npm run analyze:report` on the same failure folder adds a classification and next steps
 
-Config reminder: `trace: 'on-first-retry'` in `playwright.config.ts` (screenshots/videos only on failure).
+Config: `trace: 'on-first-retry'` in `playwright.config.ts`; screenshots and videos are kept only on failure.
 
 ### Continuous Integration
 

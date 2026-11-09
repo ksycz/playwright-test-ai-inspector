@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { defineConfig, type Plugin, type Connect } from 'vite';
 import react from '@vitejs/plugin-react';
-import { isApiRequestPath, resolveApiPublicFile } from './apiPublicPath';
+import { isApiRequestPath, resolveApiPublicFile } from './apiPublicPath.ts';
 
 /**
  * `/api/*` contract helpers for the static demo API:
@@ -11,7 +11,7 @@ import { isApiRequestPath, resolveApiPublicFile } from './apiPublicPath';
  * - Paths that escape `public/` (e.g. `/api/../../package.json`) stay JSON 404
  */
 function apiJsonNotFoundPlugin(): Plugin {
-  const publicRoot = path.resolve(__dirname, 'public');
+  const publicRoot = path.resolve(import.meta.dirname, 'public');
 
   const middleware: Connect.NextHandleFunction = (req, res, next) => {
     const urlPath = req.url?.split('?')[0] ?? '';
@@ -55,7 +55,7 @@ export default defineConfig({
   plugins: [react(), apiJsonNotFoundPlugin()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
 });

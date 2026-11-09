@@ -1,6 +1,6 @@
 name: Update visual baselines
 
-# Regenerates the screenshot baselines in the same image the CI visual tests run in, so they match
+# Rewrites every screenshot baseline (--update-snapshots=all; the default only rewrites ones outside the tolerance) in the same image the CI visual tests run in, so they match
 # exactly. Nothing is committed: the PNGs are uploaded as an artifact to download and review.
 #
 # Run it by adding the label `update-visual-baselines` to a pull request.
@@ -60,7 +60,7 @@ jobs:
           npm ci --prefix app
 
       - name: Regenerate baselines
-        run: npm run test:visual -- --update-snapshots
+        run: npm run test:visual -- --update-snapshots=all
         env:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: /ms-playwright

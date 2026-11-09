@@ -63,6 +63,13 @@ export type DroppedFinding = {
   charter: Flow;
   title: string;
   reason: string;
+  /** For model findings: what was claimed and what the replay saw, so a drop can be understood. */
+  detail?: {
+    evidence: string;
+    steps: string[];
+    /** Visible text after replay, shortened. Untrusted page content: escape before showing. */
+    pageText?: string;
+  };
 };
 
 export type CharterSummary = {

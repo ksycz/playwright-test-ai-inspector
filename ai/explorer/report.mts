@@ -61,6 +61,11 @@ export function renderMarkdown(result: ExplorationResult): string {
     lines.push('');
     for (const item of result.dropped) {
       lines.push(`- ${cell(item.id)} (${item.source}): ${cell(item.title)}. ${cell(item.reason)}`);
+      if (item.detail) {
+        lines.push(`  - Claimed evidence: ${cell(item.detail.evidence)}`);
+        lines.push(`  - Steps replayed: ${item.detail.steps.length ? item.detail.steps.map(cell).join(' → ') : 'none'}`);
+        if (item.detail.pageText) lines.push(`  - Page after replay (excerpt): ${cell(item.detail.pageText)}`);
+      }
     }
     lines.push('');
   }

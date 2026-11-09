@@ -154,15 +154,26 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install dependencies
+      # The review runs the base branch's code and conventions, never the PR's: this step has a
+      # secret, and a pull request could otherwise change the reviewer (or its rules) that judges it.
+      - name: Checkout trusted tooling (base branch)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+
+      - name: Install dependencies (base branch)
+        working-directory: trusted
         run: npm ci
 
       - name: Review the test diff
+        working-directory: trusted
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          git diff --unified=3 ${{ github.event.pull_request.base.sha }} HEAD -- tests > /tmp/tests.diff
-          npm run analyze:review -- --diff /tmp/tests.diff --out ai-reports/pr-review.md
+          git -C "$GITHUB_WORKSPACE" diff --unified=3 ${{ github.event.pull_request.base.sha }} HEAD -- tests > /tmp/tests.diff
+          npm run analyze:review -- --diff /tmp/tests.diff --out "$GITHUB_WORKSPACE/ai-reports/pr-review.md"
 
       - name: Upload test review
         uses: actions/upload-artifact@v7

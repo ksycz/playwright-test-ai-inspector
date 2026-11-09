@@ -11,12 +11,14 @@ policy:
   gates:
     # AI-touched logic must keep the same mutation bar as the rest (Phase 11 break threshold).
     # Mutation testing only runs when a PR changes ai/; with no report there is nothing to
-    # measure, so the gate warns instead of failing a docs or app-only PR.
+    # measure, so the gate is skipped instead of failing a docs or app-only PR.
+    # (`warn` would still fail here: the Action treats a missing report as a failure unless
+    # on-missing is `skip`.)
     - id: mutation
       type: mutation-score
       threshold: 47
       scope: ai-files
-      on-missing: warn
+      on-missing: skip
     # No required-label or approvals gate: this is a one-maintainer repo, and the Action does not
     # count the PR author's own approval. Re-running the full test matrix on every label change
     # would also be costly.

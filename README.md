@@ -700,13 +700,15 @@ Each milestone includes:
 
 - [x] Run / PR summaries
 
-- [x] Exploration agent via Playwright MCP (P12-M1)
+- [x] Exploration agent via Playwright MCP, measured on seeded bugs (Phase 12)
+
+- [x] AI provenance audit on every pull request
 
 
 
 ### Future Enhancements
 
-- [ ] Locator change suggestions
+- [x] Locator change suggestions (suggest, never auto-heal)
 
 - [ ] Visual regression insights (beyond `@visual` baselines)
 

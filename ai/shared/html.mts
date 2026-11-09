@@ -4,9 +4,20 @@
  * test titles and error text are untrusted input.
  */
 
+import path from 'node:path';
 import { escapeHtml } from './escapeHtml.mts';
 
 export { escapeHtml };
+
+/**
+ * A path inside the repo is shown relative to it, so a shared report or screenshot doesn't
+ * carry the local home folder (and user name). Paths outside the repo are left as they are.
+ */
+export function displayPath(filePath: string, root = process.cwd()): string {
+  if (!path.isAbsolute(filePath)) return filePath;
+  const relative = path.relative(root, filePath);
+  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative) ? relative : filePath;
+}
 
 /** A table cell: plain text (escaped) or HTML the caller has already built from escaped parts. */
 export type Cell = string | number | { html: string };

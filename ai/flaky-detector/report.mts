@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { escapeHtml, htmlPage, section, statTiles } from '../shared/html.mts';
+import { displayPath, escapeHtml, htmlPage, section, statTiles } from '../shared/html.mts';
 import type { FlakyAnalysis, TestOutcome } from './types.mts';
 
 function formatAttempts(test: TestOutcome): string {
@@ -134,7 +134,7 @@ export function generateFlakyHtmlReport(analysis: FlakyAnalysis): string {
     title: `Flaky Test Analysis — ${path.basename(analysis.sourcePath)}`,
     testId: 'flaky-report',
     heading: 'Flaky Test Analysis',
-    lede: `Tests that failed and then passed on retry, versus tests that failed every attempt. Source ${analysis.sourcePath}, analyzed ${analysis.analyzedAt}.`,
+    lede: `Tests that failed and then passed on retry, versus tests that failed every attempt. Source ${displayPath(analysis.sourcePath)}, analyzed ${analysis.analyzedAt}.`,
     body,
   });
 }

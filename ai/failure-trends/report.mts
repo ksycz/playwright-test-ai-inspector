@@ -1,4 +1,4 @@
-import { code, dataTable, escapeHtml, htmlPage, muted, section, statTiles } from '../shared/html.mts';
+import { code, dataTable, displayPath, escapeHtml, htmlPage, muted, section, statTiles } from '../shared/html.mts';
 import type { TrendSummary } from './types.mts';
 
 function formatCategoryRow(summary: TrendSummary): string {
@@ -214,7 +214,7 @@ npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.js
     title: 'Historical Failure Trends',
     testId: 'trends-report',
     heading: 'Historical Failure Trends',
-    lede: `${summary.runCount} run(s) from ${summary.historyPath}, generated ${summary.generatedAt}.`,
+    lede: `${summary.runCount} run(s) from ${displayPath(summary.historyPath)}, generated ${summary.generatedAt}.`,
     body: parts.join('\n\n    '),
   });
 }

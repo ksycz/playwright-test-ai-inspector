@@ -254,14 +254,22 @@ In CI, the run summary and the convention review appear as one PR comment, and m
 </p>
 
 <p>
-  <img src="docs/samples/screenshots/flaky-report.png" alt="Flaky test analysis showing failed-then-passed retries" width="900" />
+  <img src="docs/samples/screenshots/flaky-report.png" alt="Flaky test analysis HTML report: summary counts and a flaky checkout test that failed on retry 0 and passed on retry 1" width="900" />
+</p>
+
+<p>
+  <img src="docs/samples/screenshots/trends-report.png" alt="Historical failure trends HTML report: totals over five runs, hard failures by cause, and red and orange bars per run" width="900" />
+</p>
+
+<p>
+  <img src="docs/samples/screenshots/run-summary-report.png" alt="Run summary HTML report: overall failed, totals, and one card per suite with its hard failure and flaky test" width="900" />
 </p>
 
 <p>
   <img src="docs/samples/screenshots/pr-summary-comment.png" alt="Preview of sticky GitHub PR run summary comment" width="900" />
 </p>
 
-Sample artifacts: [`docs/samples/`](docs/samples/) (HTML, Markdown, and the screenshots above).
+Sample artifacts: [`docs/samples/`](docs/samples/) (the HTML and Markdown reports behind the screenshots above). Every screenshot except the PR comment is the real page a command writes.
 
 ### Known limitations
 

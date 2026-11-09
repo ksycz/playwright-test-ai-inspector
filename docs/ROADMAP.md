@@ -3429,14 +3429,16 @@ When a test fails because a locator finds nothing (for example a button renamed 
 
 ---
 
-## Out of scope — separate repo: AI provenance gate
+## Separate repo: AI provenance gate (adopted 2026-11-09)
 
-AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a separate, reusable GitHub Action. This repo then consumes it:
+AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a separate, reusable GitHub Action, [`ksycz/ai-provenance-action`](https://github.com/ksycz/ai-provenance-action). This repo consumes `v1.0.0` (pinned by commit SHA) in the **AI provenance** CI job, with the policy in `.github/ai-provenance.yml`. Planned scope, all in place:
 
 - Detect AI-assisted changes from commit trailers (`Co-Authored-By: <AI tool>`, `Assisted-by:`) and PR labels
 - Require stricter gates for AI-tagged PRs (e.g. Phase 11 mutation threshold must run)
 - Emit an audit artifact per PR: AI-tagged files/lines, which gates ran, results
-- Cross-link from README once adopted here
+- Cross-link from README once adopted here ✅
+
+Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as Phase 11), warning when no report exists because mutation testing only runs when `ai/` changes. No label or approval gates: one maintainer, and the Action doesn't count the author's own approval.
 
 ---
 
@@ -3444,6 +3446,7 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 
 | Date | Change |
 |---|---|
+| 2026-11-09 | Adopted `ksycz/ai-provenance-action@v1.0.0`: AI provenance job, mutation gate on AI-touched files |
 | 2026-11-08 | P13-M2 completed — optional, strictly validated model tie-break for close locator suggestions |
 | 2026-11-08 | Phase 13 defined; P13-M1 completed — locator suggestions in failure reports |
 | 2026-11-08 | P12-M4 completed — demo segment and limits table for the exploration agent; Phase 12 complete |

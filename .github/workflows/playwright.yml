@@ -358,3 +358,39 @@ jobs:
           path: reports/mutation/
           if-no-files-found: warn
           retention-days: 14
+
+  ai-provenance:
+    name: AI provenance
+    needs: [changes, mutation]
+    # Every pull request, including ones where mutation testing was skipped (no ai/ change).
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download mutation report
+        if: needs.mutation.result == 'success' || needs.mutation.result == 'failure'
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          name: mutation-report
+          path: reports/mutation
+
+      - name: Find mutation report
+        id: mutation
+        run: |
+          if [ -f reports/mutation/mutation.json ]; then
+            echo "path=reports/mutation/mutation.json" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Pinned to the v1.0.0 commit; Renovate proposes updates.
+      - name: AI provenance audit
+        uses: ksycz/ai-provenance-action@ef4ec03304e53edc512f889ac4a996f93f3c6680 # v1.0.0
+        with:
+          mutation-report: ${{ steps.mutation.outputs.path }}
+          pr-comment: 'true'

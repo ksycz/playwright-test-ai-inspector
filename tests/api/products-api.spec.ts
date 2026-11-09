@@ -80,17 +80,6 @@ test.describe('@api Product catalogue API', () => {
     );
   });
 
-  test('P5-M3-04: missing API resource returns JSON 404', async ({ request }) => {
-    const response = await request.get('/api/missing.json');
-
-    expect(response.status()).toBe(404);
-    expect(response.headers()['content-type'] ?? '').toMatch(/application\/json/);
-
-    const body = (await response.json()) as { error?: string; path?: string };
-    expect(body.error).toBe('Not found');
-    expect(body.path).toBe('/api/missing.json');
-  });
-
   test('P5-M4-01: nested missing API path returns JSON 404 with path', async ({ request }) => {
     const response = await request.get('/api/catalog/missing.json');
 
@@ -107,6 +96,7 @@ test.describe('@api Product catalogue API', () => {
     const text = await response.text();
 
     expect(response.status()).toBe(404);
+    expect(response.headers()['content-type'] ?? '').toMatch(/application\/json/);
     expect(isHtmlBody(text)).toBeFalsy();
     expect(JSON.parse(text)).toEqual({
       error: 'Not found',

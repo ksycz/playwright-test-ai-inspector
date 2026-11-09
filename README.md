@@ -127,7 +127,7 @@ docs/           Specs, testing conventions, roadmap
 
 ## Demo in 5 minutes
 
-Full interview script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute-by-minute talking points + copy/paste commands).
+Full demo script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute by minute, with copy/paste commands).
 
 | Minute | What to show | Command |
 |---|---|---|
@@ -589,7 +589,7 @@ This project follows several engineering principles:
 
 Additional documentation is available in the `docs` directory.
 
-- [`DEMO.md`](docs/DEMO.md) — 5-minute interview demo script
+- [`DEMO.md`](docs/DEMO.md) — 5-minute demo script
 - [`PROJECT.md`](docs/PROJECT.md) — vision and development principles
 - [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architectural decisions (app, tests, AI, CI)
 - [`APP_SPEC.md`](docs/APP_SPEC.md) — demo shop functional specification

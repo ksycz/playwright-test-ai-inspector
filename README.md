@@ -153,18 +153,26 @@ Without `--format html` it prints Markdown in the terminal and saves it to `ai-r
 
 ### Historical trends
 
-Reads several past runs (one JSON line per run, here five sample runs) and shows what keeps going wrong: totals, hard failures grouped by cause (assertion, timeout, locator…), the tests that fail most often, and the flaky "hotspots". One red run is noise; the same test failing in three runs is a pattern. Prints Markdown and saves `ai-reports/trends.md`.
+Reads several past runs (one JSON line per run, here five sample runs) and shows what keeps going wrong: totals, hard failures grouped by cause (assertion, timeout, locator…), the tests that fail most often, and the flaky "hotspots". One red run is noise; the same test failing in three runs is a pattern. The HTML page adds bars for each run and each cause.
 
 ```bash
-npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
+npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl --format html
+```
+
+```bash
+open ai-reports/trends.html
 ```
 
 ### Multi-suite run summary
 
-Merges the JSON reports of several suites into the Markdown that CI posts as one sticky PR comment: an overall status, totals, then per suite its hard failures (with a cause) and flaky tests. Here the smoke fixture has a hard failure and the e2e one a flaky test, so the overall status is `failed`. Saves `ai-reports/run-summary.md`.
+Merges the JSON reports of several suites into the Markdown that CI posts as one sticky PR comment: an overall status, totals, then per suite its hard failures (with a cause) and flaky tests. Here the smoke fixture has a hard failure and the e2e one a flaky test, so the overall status is `failed`. Without `--format html` you get the Markdown that CI posts.
 
 ```bash
-npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json --format html
+```
+
+```bash
+open ai-reports/run-summary.html
 ```
 
 It exits with code 2 when a suite has hard failures, so CI can fail the job. That's expected here: npm then prints an error line after the report.
@@ -507,7 +515,7 @@ npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
 ```
 
 Distinguishes **flaky** (failed then passed on retry) from **hard failures** (failed all attempts).  
-Writes Markdown to `ai-reports/` by default; `--format html` writes a styled page (`--format both` for the two).  
+Writes Markdown to `ai-reports/` by default; `--format html` writes a styled page (`--format both` for the two). The trends and run-summary commands take the same option.  
 Module docs: [`ai/flaky-detector/README.md`](ai/flaky-detector/README.md).
 
 ### Historical Failure Trends

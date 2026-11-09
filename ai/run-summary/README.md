@@ -22,6 +22,7 @@ Writes `ai-reports/run-summary.md` and prints Markdown to stdout.
 ```bash
 npm run test:smoke
 npm run analyze:summary -- --suite smoke test-results/playwright-results.json
+npm run analyze:summary -- --suite smoke test-results/playwright-results.json --format html   # ai-reports/run-summary.html
 
 # Multiple suites (paths from separate CI artifacts / local runs)
 npm run analyze:summary -- \

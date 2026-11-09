@@ -3,6 +3,7 @@ import path from 'node:path';
 import { analyzeFlakyReport } from './analyze.mts';
 import { defaultFlakyReportPath, generateFlakyHtmlReport, generateFlakyMarkdownReport } from './report.mts';
 import { readOptionValue } from '../shared/cliArgs.mts';
+import { FORMAT_ERROR, OUT_WITH_BOTH_ERROR, formatsToWrite, parseReportFormat, type ReportFormat } from '../shared/reportFormat.mts';
 
 const DEFAULT_REPORT = 'test-results/playwright-results.json';
 
@@ -34,7 +35,7 @@ async function main(argv: string[]): Promise<number> {
 
   let sourcePath: string | undefined;
   let outPath: string | undefined;
-  let format: 'md' | 'html' | 'both' = 'md';
+  let format: ReportFormat = 'md';
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -55,11 +56,12 @@ async function main(argv: string[]): Promise<number> {
         console.error(parsed.error);
         return 1;
       }
-      if (parsed.value !== 'md' && parsed.value !== 'html' && parsed.value !== 'both') {
-        console.error(`--format must be md, html or both (got "${parsed.value}").`);
+      const value = parseReportFormat(parsed.value);
+      if (!value) {
+        console.error(FORMAT_ERROR(parsed.value));
         return 1;
       }
-      format = parsed.value;
+      format = value;
       index = parsed.nextIndex;
       continue;
     }
@@ -82,13 +84,13 @@ async function main(argv: string[]): Promise<number> {
   const reportPath = sourcePath ?? DEFAULT_REPORT;
 
   if (format === 'both' && outPath) {
-    console.error('--out cannot be used with --format both: each format gets its default name in ai-reports/.');
+    console.error(OUT_WITH_BOTH_ERROR);
     return 1;
   }
 
   try {
     const analysis = await analyzeFlakyReport(reportPath);
-    const formats: Array<'md' | 'html'> = format === 'both' ? ['md', 'html'] : [format];
+    const formats = formatsToWrite(format);
 
     for (const current of formats) {
       const content = current === 'md' ? generateFlakyMarkdownReport(analysis) : generateFlakyHtmlReport(analysis);

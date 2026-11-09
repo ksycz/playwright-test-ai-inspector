@@ -110,7 +110,9 @@ open ai-reports/flaky-then-pass-flaky.html   # macOS; xdg-open on Linux
 npm run analyze:summary -- \
   --title "Playwright CI summary" \
   --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
-  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json \
+  --format html
+open ai-reports/run-summary.html
 ```
 
 **Say:** same classifier powers sticky PR comments in CI (see screenshot in README). Trends CLI appends JSONL history across runs.

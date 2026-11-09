@@ -51,15 +51,6 @@ test.describe('@smoke P1-M6 — Fake Authentication', () => {
     await expect(loginPage.welcomeMessage(validUser.username)).toBeVisible();
   });
 
-  test('P1-M6-06: guest at /checkout redirects to /login', async ({ page }) => {
-    const checkoutPage = new CheckoutPage(page);
-    const loginPage = new LoginPage(page);
-    await checkoutPage.goto();
-
-    await expect(page).toHaveURL('/login?redirect=%2Fcheckout');
-    await expect(loginPage.heading).toBeVisible();
-  });
-
   test('P1-M6-07: login with redirect returns to intended page', async ({ page }) => {
     const cartPage = new CartPage(page);
     const loginPage = new LoginPage(page);

@@ -3483,6 +3483,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-09 | Visual tests: `maxDiffPixelRatio` is now `VISUAL_MAX_DIFF_RATIO` (default 0.1 locally, 0.02 in CI) so a real change such as a new header colour is caught; baselines regenerated in the CI image; new `Update visual baselines` workflow (PR label `update-visual-baselines`, PNGs as an artifact) |
 | 2026-11-09 | 13 `audit-*` planted bugs for `tests:audit` (login, nav, home, catalogue, 404, API, header); the report lists which tests caught which bug. Found: no test catches the home page showing every product instead of only featured ones |
 | 2026-11-09 | Test audit: two more overlapping tests removed (P1-M1-01, P5-M3-04); 87 → 85 tests |
 | 2026-11-09 | `npm run tests:audit`: runs the suites per planted bug and reports single-test guards, cascades and tests that catch nothing |

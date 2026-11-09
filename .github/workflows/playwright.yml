@@ -114,6 +114,8 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+          # Tight enough that a real visual change (a new header colour) fails; see playwright.config.ts.
+          VISUAL_MAX_DIFF_RATIO: '0.02'
 
       - name: Upload Playwright JSON results
         if: always()

@@ -82,7 +82,7 @@ Native Playwright screenshot assertions (`toHaveScreenshot`) — no external vis
 npm run test:visual
 ```
 
-Runs specs tagged `@visual` (`tests/visual/`). Fixed viewport `1280x720` (viewport shots, not full-page — avoids OS page-height drift), animations disabled, `maxDiffPixelRatio: 0.1` for font AA.
+Runs specs tagged `@visual` (`tests/visual/`). Fixed viewport `1280x720` (viewport shots, not full-page — avoids OS page-height drift), animations disabled, `maxDiffPixelRatio` 0.1 by default (loose, so a local run on another OS with different fonts doesn't fail) and 0.02 in CI (`VISUAL_MAX_DIFF_RATIO`), where the screenshots are rendered in the same image as the baselines. The test audit planted a red header (`audit-header-red`): at 0.1 no visual test noticed it.
 
 Baselines live next to the spec:
 
@@ -97,6 +97,8 @@ npm run test:visual -- --update-snapshots
 ```
 
 Review the PNG diffs in git before committing.
+
+**Without Docker:** add the label `update-visual-baselines` to the pull request. The workflow `Update visual baselines` regenerates the screenshots in the CI image and uploads them as the `visual-baselines` artifact (nothing is committed). Download it, copy the PNGs into `tests/visual/pages.spec.ts-snapshots/`, check the diffs and commit.
 
 **CI note:** Baselines are shared across OS (path omits platform). Prefer regenerating inside the Playwright Docker image that matches CI if Darwin vs Linux antialiasing causes noise:
 

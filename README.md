@@ -117,7 +117,7 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 11 complete — mutation testing on the analyzer logic modules, and a convention review on the sticky comment when a pull request changes tests. The review does not block the merge.
 
-✅ Phase 12 complete — exploration agent through Playwright MCP (probes + optional model layer), scored on seeded bugs (4 of 5, 0 false alarms), findings turned into draft page-object specs.
+✅ Phase 12 complete — exploration agent through Playwright MCP (probes + optional model layer), scored on seeded bugs (probes 4 of 5, 0 false alarms; with Claude Sonnet 5.5 the fifth too), findings turned into draft page-object specs.
 
 ✅ Phase 13 complete — locator change suggestions in failure reports (suggest, never auto-heal), optional model tie-break, measured on planted UI changes: 38 of 43 failures right, 0 confident but wrong.
 
@@ -545,7 +545,7 @@ ANTHROPIC_API_KEY=... npm run explore         # probes + model-driven exploratio
 - **Model layer** runs only with an API key, with a per-charter cap on model turns and browser steps.
 - A finding is kept only if it reproduces from a fresh state; model findings are replayed and must show their evidence again. Everything else is listed as dropped.
 - With two cart bugs planted by hand, the probes reported both with steps and screenshots; on the real shop all 13 pass.
-- `npm run explore:eval` measures it: five known bugs can be switched on in the dev server (`VITE_SEEDED_BUGS`). Probes alone catch 4 of 5 with 0 false alarms; the fifth is placed where no probe looks, on purpose.
+- `npm run explore:eval` measures it: five known bugs can be switched on in the dev server (`VITE_SEEDED_BUGS`). Probes alone catch 4 of 5 with 0 false alarms; the fifth is placed where no probe looks, on purpose. With the model layer on, Claude Sonnet 5.5 caught it (one measured run); Claude Haiku 4.5 did not.
 - `npm run explore:draft -- --finding <id>` turns a finding into a draft `@e2e` spec built on the page objects (`--pr` opens it as a draft PR). A draft fails while the bug exists and passes once it's fixed.
 
 Module docs: [`ai/explorer/README.md`](ai/explorer/README.md).

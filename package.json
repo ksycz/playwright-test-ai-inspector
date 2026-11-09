@@ -28,6 +28,7 @@
     "analyze:summary": "node --experimental-strip-types ai/run-summary/cli.mts",
     "analyze:deps": "node --experimental-strip-types ai/dep-gate/cli.mts",
     "analyze:review": "node --experimental-strip-types ai/pr-review/cli.mts",
+    "tests:audit": "node --experimental-strip-types scripts/tests-audit.mts",
     "locator:eval": "node --experimental-strip-types ai/failure-analyzer/locator-eval-cli.mts",
     "explore": "node --experimental-strip-types ai/explorer/cli.mts",
     "explore:eval": "node --experimental-strip-types ai/explorer/eval-cli.mts",

@@ -73,6 +73,7 @@ This repository is developed incrementally and serves as both a learning journey
 - Playwright MCP (AI-driven exploration and test generation)
 - Exploratory testing agent (`npm run explore`, Playwright MCP, bounded)
 - Locator change suggestions in failure reports (suggest, never auto-heal)
+- AI provenance audit on every PR, via my own [`ai-provenance-action`](https://github.com/ksycz/ai-provenance-action)
 
 ---
 
@@ -548,6 +549,16 @@ ANTHROPIC_API_KEY=... npm run explore         # probes + model-driven exploratio
 - `npm run explore:draft -- --finding <id>` turns a finding into a draft `@e2e` spec built on the page objects (`--pr` opens it as a draft PR). A draft fails while the bug exists and passes once it's fixed.
 
 Module docs: [`ai/explorer/README.md`](ai/explorer/README.md).
+
+### AI provenance audit
+
+Most commits in this repo are written with AI assistants, and each one says so in a `Co-authored-by:` trailer. Every pull request runs [`ksycz/ai-provenance-action`](https://github.com/ksycz/ai-provenance-action), a separate GitHub Action I built for this. It:
+
+- lists which commits, files and lines were declared AI-assisted;
+- applies the policy in [`.github/ai-provenance.yml`](.github/ai-provenance.yml): AI-touched logic must reach the same mutation score as the rest (47), using the Stryker report from the mutation job;
+- posts one PR comment that updates itself, and uploads a JSON audit report as an artifact.
+
+The policy is read from the base branch, so a pull request can't weaken the rules that judge it. It records what was *declared*; it doesn't detect AI-written code.
 
 ### Future AI Modules
 

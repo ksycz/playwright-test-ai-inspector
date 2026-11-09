@@ -171,8 +171,9 @@ npm run test:ai
 |---|---|
 | Sanitized Markdown report | [`docs/samples/failure-investigation-report.md`](samples/failure-investigation-report.md) |
 | HTML report sample | [`docs/samples/sample-failure.html`](samples/sample-failure.html) |
-| Flaky Markdown sample | [`docs/samples/sample-flaky.md`](samples/sample-flaky.md) |
-| Run summary Markdown | [`docs/samples/sample-run-summary.md`](samples/sample-run-summary.md) |
+| Flaky report | [`docs/samples/sample-flaky.html`](samples/sample-flaky.html) and [`.md`](samples/sample-flaky.md) |
+| Trends report | [`docs/samples/sample-trends.html`](samples/sample-trends.html) |
+| Run summary | [`docs/samples/sample-run-summary.html`](samples/sample-run-summary.html) and [`.md`](samples/sample-run-summary.md) |
 | Screenshots for README | [`docs/samples/screenshots/`](samples/screenshots/) |
 
 ---

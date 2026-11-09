@@ -3483,6 +3483,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-09 | README screenshots: real flaky page (replaces the hand-made mock), new trends and run-summary pages; HTML reports show repo-relative paths, so shared pages don't include the local home folder |
 | 2026-11-09 | Trace demo uses `--trace on` (works with `npm run dev` running); `scripts/playwright.sh` explains a busy port 5173 when `CI` is set |
 | 2026-11-09 | `--format html` (or `both`) for `analyze:flaky`, `analyze:trends` and `analyze:summary`: styled local reports sharing `ai/shared/html.mts` (one HTML escaper for all reports); CI output unchanged |
 | 2026-11-09 | Faster CI: Stryker incremental results cached (PRs retest only changed mutants; nightly `--force`), mutation runs only for mutated code, their imports and tests, browser suites skipped for `ai/`-only PRs, `.gitignore`/`LICENSE` count as docs |

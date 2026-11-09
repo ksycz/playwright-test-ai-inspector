@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { dataTable, escapeHtml, htmlPage, statTiles } from './html.mts';
+import path from 'node:path';
+import { dataTable, displayPath, escapeHtml, htmlPage, statTiles } from './html.mts';
 
 describe('shared HTML report helpers', () => {
   it('SH-01: escapeHtml escapes the five HTML-special characters', () => {
@@ -27,5 +28,12 @@ describe('shared HTML report helpers', () => {
     assert.match(tiles, /stat warn/);
     assert.match(tiles, />2</);
     assert.match(tiles, />Flaky</);
+  });
+
+  it('SH-05: displayPath shows paths inside the repo relative to it, others unchanged', () => {
+    const root = '/work/repo';
+    assert.equal(displayPath(path.join(root, 'ai/flaky-detector/fixtures/x.json'), root), 'ai/flaky-detector/fixtures/x.json');
+    assert.equal(displayPath('/tmp/other/x.json', root), '/tmp/other/x.json');
+    assert.equal(displayPath('relative/x.json', root), 'relative/x.json');
   });
 });

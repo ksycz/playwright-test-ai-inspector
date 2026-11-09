@@ -726,6 +726,15 @@ It exits with code 2 when a suite has hard failures (so CI can fail the job), an
 
 MCP is a development aid only: CI runs the committed specs and doesn't need an AI agent or the MCP server.
 
+### Why not Playwright's built-in test agents?
+
+Playwright 1.56 added three [test agents](https://playwright.dev/docs/test-agents) (`npx playwright init-agents`): a **planner** that explores the app and writes a Markdown test plan, a **generator** that turns the plan into tests, and a **healer** that runs failing tests and repairs them. This repo doesn't use them, on purpose:
+
+- **Planner and generator:** the job is done here with Playwright MCP directly (above) and the [exploratory testing agent](#exploratory-testing-agent). Building it made each step visible: what the model sees (accessibility snapshots), how a finding is verified (replay from a fresh shop), and how well it works (measured on planted bugs). Generated tests were then reviewed and rewritten with the page objects; that review caught a wrong assertion and an ambiguous `getByLabel`.
+- **Healer:** the failure report [suggests a new locator and never rewrites the test](docs/TESTING.md#when-a-locator-breaks-suggest-dont-self-heal), because a renamed button can be the bug. A healer that updates the locator and turns the test green can hide that regression. Measured on planted UI changes (`npm run locator:eval`): 38 of 43 failures got the right suggestion and none got a confident wrong one.
+
+The built-in agents are a good fit when the goal is to produce and maintain a suite quickly, with a person reviewing each plan and each healed test. Here the goal was to understand and measure each step.
+
 ### Exploratory testing agent
 
 The next step after exploring by hand: a bounded agent that explores the shop through the same Playwright MCP server and reports findings with steps, a screenshot and the `APP_SPEC.md` requirement they break.

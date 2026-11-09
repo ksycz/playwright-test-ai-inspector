@@ -64,6 +64,8 @@ npm run explore:eval -- --bugs cart-remove-noop,cart-not-saved --no-llm
 
 The command starts its own dev server on port 5174 for each scenario. It runs once on the clean shop and once per bug, with `VITE_SEEDED_BUGS=<bug>`. It writes `ai-reports/explorer-eval/evaluation.md`, one report folder per scenario, and appends one line to `history.jsonl`.
 
+If a model call fails during the run (spend limit reached, bad key, outage), the evaluation is marked **incomplete**: the report shows a warning, the affected bug says `model error`, and the history row says `incomplete` instead of a score. Such a run is not a measurement of the model layer, so fix the cause and run again.
+
 | Seeded bug | What it breaks | Probe that should catch it |
 |---|---|---|
 | `cart-remove-noop` | Remove does nothing | `cart-remove-item` |

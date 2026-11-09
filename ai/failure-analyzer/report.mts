@@ -5,7 +5,7 @@ import { escapeMarkdown } from '../shared/markdown.mts';
 import { redactSecrets } from '../shared/redact.mts';
 import { resolvePathInsideRoot } from '../shared/pathContainment.mts';
 import type { FailureCategory, FailureContext, RootCauseSuggestion } from './types.mts';
-import { escapeHtml } from '../shared/html.mts';
+import { escapeHtml } from '../shared/escapeHtml.mts';
 
 export type ReportFormat = 'md' | 'html' | 'both';
 

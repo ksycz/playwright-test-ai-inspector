@@ -4,14 +4,9 @@
  * test titles and error text are untrusted input.
  */
 
-export function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
+import { escapeHtml } from './escapeHtml.mts';
+
+export { escapeHtml };
 
 /** A table cell: plain text (escaped) or HTML the caller has already built from escaped parts. */
 export type Cell = string | number | { html: string };

@@ -127,33 +127,48 @@ docs/           Specs, testing conventions, roadmap
 
 ## Demo in 5 minutes
 
-Full interview script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute-by-minute talking points + copy/paste commands).
+Full demo script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute by minute, with copy/paste commands).
 
 | Minute | What to show | Command |
 |---|---|---|
 | 0–1 | Install + open the shop | `npm run setup` then `npm run dev` → http://localhost:5173 |
 | 1–2 | Smoke suite (POM + tags) | `npm run test:smoke` |
-| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` |
+| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` then `open ai-reports/sample-failure.html` (macOS; `xdg-open` on Linux) |
 | 3–4 | Flaky + trends + PR-style summary | Commands below |
 | 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
 
+Flaky detector (fixture, no Playwright run needed):
+
 ```bash
-# Flaky detector (fixture — no Playwright run needed)
 npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+```
 
-# Historical trends (fixture history)
+Historical trends (fixture history):
+
+```bash
 npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
+```
 
-# Multi-suite run summary (PR-comment style Markdown)
-npm run analyze:summary -- \
-  --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
-  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+Multi-suite run summary (PR-comment style Markdown):
 
-# Mutation score on the logic modules (about a minute). CI fails below 47.
+```bash
+npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+```
+
+Mutation score on the logic modules (about a minute; CI fails below 47):
+
+```bash
 npm run test:mutation
+```
 
-# Convention review of a saved test diff. Findings do not fail the command.
-npm run analyze:review -- --diff path/to/tests.diff --no-llm
+Convention review of a test diff (findings do not fail the command). First save the diff of your test changes, then review it:
+
+```bash
+git diff main -- tests > tests.diff
+```
+
+```bash
+npm run analyze:review -- --diff tests.diff --no-llm
 ```
 
 CI runs mutation when a pull request changes `ai/` (and once a night). It appends the convention review to the sticky comment when a pull request changes `tests/`. The gate list is in [`docs/TESTING.md`](docs/TESTING.md).
@@ -335,11 +350,11 @@ If the targeted tests pass cleanly, force a retry path by running under CI again
 npm run trace -- test-results/<failed-or-retried-test-folder>/trace.zip
 ```
 
-**3. What to narrate in an interview**
+**3. What to look at**
 
 - Action timeline + DOM snapshots before/after the failure
 - Network / console as supporting evidence
-- How this pairs with `npm run analyze:report` (classification + next steps) on the same failure folder
+- `npm run analyze:report` on the same failure folder adds a classification and next steps
 
 Config reminder: `trace: 'on-first-retry'` in `playwright.config.ts` (screenshots/videos only on failure).
 
@@ -589,7 +604,7 @@ This project follows several engineering principles:
 
 Additional documentation is available in the `docs` directory.
 
-- [`DEMO.md`](docs/DEMO.md) — 5-minute interview demo script
+- [`DEMO.md`](docs/DEMO.md) — 5-minute demo script
 - [`PROJECT.md`](docs/PROJECT.md) — vision and development principles
 - [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architectural decisions (app, tests, AI, CI)
 - [`APP_SPEC.md`](docs/APP_SPEC.md) — demo shop functional specification

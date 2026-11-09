@@ -129,13 +129,55 @@ docs/           Specs, testing conventions, roadmap
 
 Full demo script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute by minute, with copy/paste commands).
 
-| Minute | What to show | Command |
+| Minute | What to show | Section |
 |---|---|---|
-| 0–1 | Install + open the shop | `npm run setup` then `npm run dev` → http://localhost:5173 |
-| 1–2 | Smoke suite (POM + tags) | `npm run test:smoke` |
-| 2–3 | AI failure report (fixture) | `npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html` then `open ai-reports/sample-failure.html` (macOS; `xdg-open` on Linux) |
-| 3–4 | Flaky + trends + PR-style summary | Commands below |
-| 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
+| 0–1 | Install and open the shop | [Shop and smoke tests](#shop-and-smoke-tests) |
+| 1–2 | Smoke suite (page objects, tags) | [Shop and smoke tests](#shop-and-smoke-tests) |
+| 2–3 | AI failure report | [Failure report](#failure-report) |
+| 3–4 | Flaky, trends, PR-style summary | [Flaky detector](#flaky-detector) and the next two |
+| 4–5 | Trace walkthrough | [Trace walkthrough](#trace-walkthrough) |
+
+From the failure report on, the commands need no Playwright run: they read sample data (fixtures) in the repo. Every report is written to `ai-reports/`, which git ignores. Markdown reports open best as a preview: `code <file>` then **Cmd+Shift+V** in VS Code. `open` is macOS; on Linux use `xdg-open`.
+
+### Shop and smoke tests
+
+Install everything once (dependencies and the Chromium browser):
+
+```bash
+npm run setup
+```
+
+Start the shop and open http://localhost:5173. Leave it running in its own terminal.
+
+```bash
+npm run dev
+```
+
+In a second terminal, run the smoke suite: the fast checks that every page works. One line per test, then a total.
+
+```bash
+npm run test:smoke
+```
+
+Open Playwright's HTML report of that run. It starts a small server (usually http://localhost:9323) and opens the browser; keep the terminal open while you look, and press Ctrl+C to stop it.
+
+```bash
+npm run report
+```
+
+### Failure report
+
+Reads the folder Playwright leaves behind when a test fails (error, screenshot, trace, page snapshot), classifies the failure without any AI (here: an assertion, 88% confidence), and writes a report with the screenshot, the error and suggested next steps. The sample is a checkout failure: the test expected `/order-confirmation` and stayed on `/checkout`.
+
+```bash
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+```
+
+```bash
+open ai-reports/sample-failure.html
+```
+
+The command also prints the HTML in the terminal; ignore that and open the file.
 
 ### Flaky detector
 
@@ -201,9 +243,9 @@ git diff main -- tests > tests.diff
 npm run analyze:review -- --diff tests.diff --no-llm
 ```
 
-With no test changes on your branch the diff is empty and it reports no findings.
+With no test changes on your branch the diff is empty and it reports no findings. The result prints in the terminal; there is no file to open.
 
-CI runs mutation when a pull request changes `ai/` (and once a night). It appends the convention review to the sticky comment when a pull request changes `tests/`. The gate list is in [`docs/TESTING.md`](docs/TESTING.md).
+In CI, the run summary and the convention review appear as one PR comment, and mutation testing runs when mutated code or tests change. Which job runs when: [`docs/TESTING.md`](docs/TESTING.md#which-jobs-run).
 
 ### Portfolio screenshots
 
@@ -314,53 +356,116 @@ If a previous install appears stuck, press **Ctrl+C** and run `npm run playwrigh
 
 ### Application
 
+Start the shop in development mode (reloads when you edit the code), at http://localhost:5173:
+
 ```bash
 npm run dev
 ```
 
-Open http://localhost:5173
+Build the production version into `app/dist/`:
 
 ```bash
 npm run build
+```
+
+Serve that build locally to check it (Vite prints the address, usually http://localhost:4173):
+
+```bash
 npm run preview
 ```
 
 ### Playwright
 
+Each suite has a tag, and each command runs one tag. The tests start the shop on port 5173 themselves, or reuse it if `npm run dev` is already running.
+
+All suites (about 85 tests):
+
 ```bash
-nvm use
 npm test
-npm run test:smoke
-npm run test:e2e
-npm run test:api
-npm run test:visual
-npm run test:ui
-npm run test:headed
-npm run report
 ```
 
-Console output is one line per test: a status mark, the test name, and the duration. A failure also prints the file and the first line of the error. The HTML report and JSON results are unchanged.
+**Smoke:** every page loads and its main feature works. Fast; run it first.
+
+```bash
+npm run test:smoke
+```
+
+**End-to-end:** whole user journeys, such as log in, add to cart, check out.
+
+```bash
+npm run test:e2e
+```
+
+**API:** the shop's JSON endpoints (`/api/products.json`, `/api/featured-products.json`) through Playwright's request client, without a browser page.
+
+```bash
+npm run test:api
+```
+
+**Visual:** screenshots of seven pages compared with the saved baselines in `tests/visual/`. Locally the comparison is loose because your fonts differ from CI's; see [`docs/TESTING.md`](docs/TESTING.md).
+
+```bash
+npm run test:visual
+```
+
+**UI mode:** Playwright's app to pick tests, run them, and step through each action with the page next to it. Good for writing and debugging tests.
+
+```bash
+npm run test:ui
+```
+
+**Headed:** runs the tests in a visible Chromium window so you can watch them. Works with any suite, for example `npm run test:smoke -- --headed`.
+
+```bash
+npm run test:headed
+```
+
+Console output is one line per test: a status mark, the test name, and the duration. A failure also prints the file and the first line of the error.
 
 ```text
-  ✓  P1-M1-01: app dev server serves the root page (779ms)
-  ✓  P1-M1-02: page has document title and main landmark (787ms)
+  ✓  P1-M2-01: app loads at / with layout visible (779ms)
+  ✓  P1-M2-02: navigation links are present (787ms)
 
 2 passed (1.9s)
 ```
 
-Add `--headed` to watch Chromium, for example `npm run test:smoke -- --headed`.
-
-**Debugging failed tests:**
+**Open the HTML report** of the last run: every test, its steps, and for failures the error, screenshot and video. It runs a small server (usually http://localhost:9323) until you press Ctrl+C. If the page is empty, run a suite first.
 
 ```bash
-# Open HTML report from the latest run
 npm run report
-
-# Open a trace file captured on retry (path printed in test output)
-npm run trace -- test-results/<test-folder>/trace.zip
 ```
 
-Failure artifacts (screenshots, videos, traces) are written to `test-results/`. See `docs/TESTING.md` for the full debugging workflow.
+Failure artifacts (screenshots, videos, traces) are written to `test-results/`. For a failed test, the [failure report](#failure-report) turns that folder into a readable page:
+
+```bash
+npm run analyze:report -- test-results/<failed-test-folder> --format html
+```
+
+```bash
+open ai-reports/<failed-test-folder>.html
+```
+
+**Test audit:** checks that the tests catch real bugs. It runs the suites once on the clean shop, then once per planted bug, and lists which tests caught which bug, bugs only one test catches, and bugs nothing catches. Takes several minutes and starts its own server, so stop `npm run dev` first. Narrow it with `--grep @smoke` or `--bugs <name>`.
+
+```bash
+npm run tests:audit
+```
+
+```bash
+code ai-reports/test-audit/audit.md
+```
+
+**Locator suggestion check:** renames buttons and labels in the shop on purpose, runs the suites, and scores whether the failure report suggests the right new locator for each failed test. Also starts its own server.
+
+```bash
+npm run locator:eval
+```
+
+```bash
+code ai-reports/locator-eval/evaluation.md
+```
+
+Full debugging workflow: [`docs/TESTING.md`](docs/TESTING.md).
 
 ### Trace walkthrough
 
@@ -411,7 +516,7 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Audit:** `npm audit --audit-level=high` for the root and app lockfiles
 - **Docs-only pull requests:** a change that only touches `docs/` or Markdown skips the test jobs. Suite jobs use the Playwright container image that matches the installed `@playwright/test` version, and they run with 2 workers. The gates and the Renovate versus Dependabot split are in [`docs/TESTING.md`](docs/TESTING.md).
 
-Local runs use `CI=true` to match CI behaviour (fresh dev server, retries, traces on first retry).
+To run locally the way CI does (2 retries, a fresh dev server, a trace on each first retry), prefix a command with `CI=true`, for example `CI=true npm run test:smoke`. Stop `npm run dev` first: with `CI` set, the tests start their own server on port 5173.
 
 ### Dependency gate
 
@@ -472,83 +577,111 @@ npm run playwright:install
 
 ### AI Failure Analyzer
 
-The first AI module assists with failed Playwright test investigations.
+Turns the folder Playwright writes for a failed test (`test-results/<test>/`: error, `error-context.md`, screenshots, video, trace) into an investigation report. It classifies the failure with rules (assertion, timeout, locator, network, auth), embeds the screenshot, and suggests next steps. For a locator failure it also reads the saved page snapshot and suggests the element that is there now.
 
-**One-command flow** (after a local or CI failure):
+On a real failure, after a local or CI run:
 
 ```bash
 npm run analyze:report -- test-results/<failed-test-folder> --format both
 ```
 
-That collects artifacts, classifies the failure, and writes Markdown + HTML reports under `ai-reports/`.
-
 ```bash
-# Golden fixture (no Playwright run required)
-npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
-
-# JSON-only collection
-npm run analyze:failure -- test-results/<failed-test-folder>
-
-# Analyzer unit tests
-npm run test:ai
+open ai-reports/<failed-test-folder>.html
 ```
 
-It collects information such as:
+`--format both` writes `ai-reports/<failed-test-folder>.md` and `.html`; the default is Markdown only. For a CI failure, download the `test-results-*` artifact, unzip it, and point the command at the failed folder.
 
-- stack traces / error context (`error-context.md`)
-- Playwright traces
-- screenshots
-- videos
+On the sample failure, no Playwright run needed:
 
-Then classifies the failure and writes a structured report with suggested next steps (Markdown by default; HTML via `--format html`).
+```bash
+npm run analyze:report -- ai/failure-analyzer/fixtures/sample-failure --format html
+```
 
-Optional LLM root-cause suggestions run when `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` is set (`--llm` / `--no-llm` override). Without keys, everything stays offline.
+```bash
+open ai-reports/sample-failure.html
+```
 
-Sanitized sample report: [`docs/samples/failure-investigation-report.md`](docs/samples/failure-investigation-report.md).  
-Module docs: [`ai/failure-analyzer/README.md`](ai/failure-analyzer/README.md).
+Only the collected data, as JSON in the terminal (what the report is built from):
 
-On CI failure, download the `test-results-*` artifact, unzip, and point `analyze:report` at the failed folder — see Testing docs for the full workflow.
+```bash
+npm run analyze:failure -- test-results/<failed-test-folder>
+```
 
-The goal is not to replace engineers, but to reduce investigation time and improve debugging efficiency.
+**Optional AI suggestion:** with `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` set, the report adds a root-cause suggestion from a model, labelled unverified. Secrets are redacted before anything is sent. `--no-llm` keeps it offline even with a key; without a key everything is offline.
+
+Sample report: [`docs/samples/failure-investigation-report.md`](docs/samples/failure-investigation-report.md). Module docs: [`ai/failure-analyzer/README.md`](ai/failure-analyzer/README.md).
+
+The goal is not to replace engineers, but to reduce investigation time.
 
 ### Flaky Test Detector
 
-After a suite run (especially with CI retries), analyze the Playwright JSON report:
+Reads Playwright's JSON results and separates **flaky** tests (failed, then passed on a retry) from **hard failures** (failed every attempt). Retries happen in CI, or locally with `CI=true`.
+
+After a run (reads `test-results/playwright-results.json`):
 
 ```bash
-npm run analyze:flaky
-npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:flaky -- --format html
 ```
 
-Distinguishes **flaky** (failed then passed on retry) from **hard failures** (failed all attempts).  
-Writes Markdown to `ai-reports/` by default; `--format html` writes a styled page (`--format both` for the two). The trends and run-summary commands take the same option.  
-Module docs: [`ai/flaky-detector/README.md`](ai/flaky-detector/README.md).
+```bash
+open ai-reports/playwright-results-flaky.html
+```
+
+On the sample data:
+
+```bash
+npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html
+```
+
+```bash
+open ai-reports/flaky-then-pass-flaky.html
+```
+
+Without `--format` it prints Markdown and saves `ai-reports/<name>-flaky.md`; `--format both` writes both files. Module docs: [`ai/flaky-detector/README.md`](ai/flaky-detector/README.md).
 
 ### Historical Failure Trends
 
-Append suite summaries to JSONL history, then render a Markdown trend report:
+One run tells you little; trends show which tests keep failing. First **record** runs: each call adds one line (totals, failures and their cause, flaky tests) to `ai-reports/history/runs.jsonl`.
 
 ```bash
-npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
-npm run analyze:trends -- --record
-npm run analyze:trends
+npm run analyze:trends -- --record --suite smoke
 ```
 
-Shows top failing tests, flaky hotspots, and light failure-category totals over time.  
+Then build the report from all recorded runs: hard failures by cause, each run with bars, the tests that fail most often, and flaky hotspots.
+
+```bash
+npm run analyze:trends -- --format html
+```
+
+```bash
+open ai-reports/trends.html
+```
+
+On five sample runs instead of your own:
+
+```bash
+npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl --format html
+```
+
+```bash
+open ai-reports/trends.html
+```
+
 Module docs: [`ai/failure-trends/README.md`](ai/failure-trends/README.md).
 
 ### AI Run / PR Summaries
 
-Build a PR-comment-friendly Markdown summary from one or more Playwright JSON reports:
+Merges the JSON results of several suites into one summary: overall status, totals, and per suite its hard failures (with cause and error) and flaky tests. In CI this Markdown is the sticky PR comment, updated on every push; when the PR changes tests, the convention review is added to it.
 
 ```bash
-npm run analyze:summary -- \
-  --suite smoke ai/flaky-detector/fixtures/hard-fail.json \
-  --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
+npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json --format html
 ```
 
-On pull requests, CI posts (and updates) a sticky summary comment after the matrix suites finish. When the pull request also changes tests, the same comment includes the convention review.  
-Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md) and [`ai/pr-review/README.md`](ai/pr-review/README.md).
+```bash
+open ai-reports/run-summary.html
+```
+
+It exits with code 2 when a suite has hard failures (so CI can fail the job), and npm prints an error line after it; that's expected with this sample. Without `--format` you get the Markdown CI posts, in `ai-reports/run-summary.md`. Module docs: [`ai/run-summary/README.md`](ai/run-summary/README.md) and [`ai/pr-review/README.md`](ai/pr-review/README.md).
 
 ### AI-assisted test generation with Playwright MCP
 
@@ -589,18 +722,45 @@ MCP is a development aid only: CI runs the committed specs and doesn't need an A
 
 The next step after exploring by hand: a bounded agent that explores the shop through the same Playwright MCP server and reports findings with steps, a screenshot and the `APP_SPEC.md` requirement they break.
 
+It needs the shop running:
+
 ```bash
-npm run dev                                   # shop on localhost:5173
-npm run explore -- --no-llm                   # probes only, about a minute
-ANTHROPIC_API_KEY=... npm run explore         # probes + model-driven exploration
+npm run dev
 ```
 
-- **Probes** always run: 13 checks over three charters (cart, checkout, auth) built from `APP_SPEC.md`.
-- **Model layer** runs only with an API key, with a per-charter cap on model turns and browser steps.
-- A finding is kept only if it reproduces from a fresh state; model findings are replayed and must show their evidence again. Everything else is listed as dropped.
-- With two cart bugs planted by hand, the probes reported both with steps and screenshots; on the real shop all 13 pass.
-- `npm run explore:eval` measures it: five known bugs can be switched on in the dev server (`VITE_SEEDED_BUGS`). Probes alone catch 4 of 5 with 0 false alarms; the fifth is placed where no probe looks, on purpose. With the model layer on, Claude Sonnet 5.5 caught it (one measured run); Claude Haiku 4.5 did not.
-- `npm run explore:draft -- --finding <id>` turns a finding into a draft `@e2e` spec built on the page objects (`--pr` opens it as a draft PR). A draft fails while the bug exists and passes once it's fixed.
+**Probes only** (no API key, about a minute): 13 scripted checks over three areas (cart, checkout, auth) built from `APP_SPEC.md`. On the real shop all 13 pass.
+
+```bash
+npm run explore -- --no-llm
+```
+
+**Probes plus model-driven exploration:** a model (Claude) then explores each area on its own, with a cap on model turns and browser steps. A model finding is kept only if it reproduces from a fresh shop and shows its evidence again; the rest is listed as dropped. Costs API credits.
+
+```bash
+ANTHROPIC_API_KEY=... npm run explore
+```
+
+Both write `ai-reports/explorer/report.md` (findings with steps and screenshots, plus dropped ones) and `findings.jsonl`:
+
+```bash
+code ai-reports/explorer/report.md
+```
+
+**Measure it:** five known bugs can be switched on in the shop (`VITE_SEEDED_BUGS`). This runs the explorer once per bug, each on its own server (stop `npm run dev` first), and scores what it caught. Probes alone catch 4 of 5 with 0 false alarms; the fifth sits where no probe looks, on purpose. With the model layer on, Claude Sonnet 5.5 caught it (one measured run); Claude Haiku 4.5 did not.
+
+```bash
+npm run explore:eval
+```
+
+```bash
+code ai-reports/explorer-eval/evaluation.md
+```
+
+**Turn a finding into a test:** writes a draft `@e2e` spec under `tests/e2e/explored/`, built on the page objects. It fails while the bug exists and passes once it's fixed. Take the id from the report; `--pr` also opens it as a draft pull request.
+
+```bash
+npm run explore:draft -- --finding <id>
+```
 
 Module docs: [`ai/explorer/README.md`](ai/explorer/README.md).
 

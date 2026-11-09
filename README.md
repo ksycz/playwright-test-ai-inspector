@@ -137,7 +137,9 @@ Full demo script: **[`docs/DEMO.md`](docs/DEMO.md)** (minute by minute, with cop
 | 3–4 | Flaky + trends + PR-style summary | Commands below |
 | 4–5 | Trace walkthrough | See [Trace walkthrough](#trace-walkthrough) |
 
-Flaky detector (fixture, no Playwright run needed), as a styled HTML page:
+### Flaky detector
+
+Reads a Playwright JSON report and sorts tests into **flaky** (failed, then passed on a retry) and **hard failures** (failed every attempt). The fixture holds one checkout test that failed once and passed on retry, so you need no Playwright run. The report lists each attempt with its status, duration and error.
 
 ```bash
 npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --format html
@@ -147,25 +149,41 @@ npm run analyze:flaky -- ai/flaky-detector/fixtures/flaky-then-pass.json --forma
 open ai-reports/flaky-then-pass-flaky.html
 ```
 
-Historical trends (fixture history):
+Without `--format html` it prints Markdown in the terminal and saves it to `ai-reports/flaky-then-pass-flaky.md`.
+
+### Historical trends
+
+Reads several past runs (one JSON line per run, here five sample runs) and shows what keeps going wrong: totals, hard failures grouped by cause (assertion, timeout, locator…), the tests that fail most often, and the flaky "hotspots". One red run is noise; the same test failing in three runs is a pattern. Prints Markdown and saves `ai-reports/trends.md`.
 
 ```bash
 npm run analyze:trends -- --history ai/failure-trends/fixtures/sample-history.jsonl
 ```
 
-Multi-suite run summary (PR-comment style Markdown):
+### Multi-suite run summary
+
+Merges the JSON reports of several suites into the Markdown that CI posts as one sticky PR comment: an overall status, totals, then per suite its hard failures (with a cause) and flaky tests. Here the smoke fixture has a hard failure and the e2e one a flaky test, so the overall status is `failed`. Saves `ai-reports/run-summary.md`.
 
 ```bash
 npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json
 ```
 
-Mutation score on the logic modules (about a minute; CI fails below 47):
+It exits with code 2 when a suite has hard failures, so CI can fail the job. That's expected here: npm then prints an error line after the report.
+
+### Mutation score
+
+Stryker plants small bugs ("mutants") in the AI and CI logic modules, for example `>` becomes `>=`, and runs the unit tests against each one. A mutant the tests catch is *killed*; one they miss *survived* and points to a weak test. The score is the share killed; CI fails below 47. Takes about a minute; the HTML report is `reports/mutation/index.html`.
 
 ```bash
 npm run test:mutation
 ```
 
-Convention review of a test diff (findings do not fail the command). First save the diff of your test changes, then review it:
+```bash
+open reports/mutation/index.html
+```
+
+### Convention review
+
+Checks the test files changed in a diff against this repo's rules: no fixed `waitForTimeout`, no `test.only`, prefer `getByRole` over CSS/XPath, a suite tag on every `describe`, and the login fixture instead of logging in by hand. `--no-llm` runs only these rules; with `OPENAI_API_KEY` set and without the flag, a model adds suggestions. Findings are advice and never fail the command. First save the diff of your test changes, then review it:
 
 ```bash
 git diff main -- tests > tests.diff
@@ -174,6 +192,8 @@ git diff main -- tests > tests.diff
 ```bash
 npm run analyze:review -- --diff tests.diff --no-llm
 ```
+
+With no test changes on your branch the diff is empty and it reports no findings.
 
 CI runs mutation when a pull request changes `ai/` (and once a night). It appends the convention review to the sticky comment when a pull request changes `tests/`. The gate list is in [`docs/TESTING.md`](docs/TESTING.md).
 

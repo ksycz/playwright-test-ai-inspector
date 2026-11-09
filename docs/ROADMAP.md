@@ -3483,6 +3483,9 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-09 | AI provenance gate skips (not fails) when no mutation report exists, so docs-only PRs pass; the Action treats `warn` as `fail` |
+| 2026-11-09 | `explore:eval` marks runs with model errors as incomplete instead of missed (#51) |
+| 2026-11-09 | AI layer measured: Sonnet 5.5 caught the probe-blind bug `detail-adds-twice`, Haiku 4.5 did not; replay fixed to use role and name, with a wait for evidence (#47–#49) |
 | 2026-11-09 | Adopted `ksycz/ai-provenance-action@v1.0.0`: AI provenance job, mutation gate on AI-touched files |
 | 2026-11-09 | P13-M3 completed — planted label drift, `npm run locator:eval`: 38/43 right, 0 confident-wrong; Phase 13 complete |
 | 2026-11-08 | P13-M2 completed — optional, strictly validated model tie-break for close locator suggestions |

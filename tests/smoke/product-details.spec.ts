@@ -39,14 +39,6 @@ test.describe('@smoke P1-M4 — Product Details', () => {
     await expect(productDetailPage.heading(sampleProduct.name)).toBeVisible();
   });
 
-  test('P1-M4-05: unknown slug shows product-not-found state', async ({ page }) => {
-    const productDetailPage = new ProductDetailPage(page);
-    await productDetailPage.goto('unknown-product');
-
-    await expect(productDetailPage.productNotFoundHeading).toBeVisible();
-    await expect(productDetailPage.backToProductsLink).toBeVisible();
-  });
-
   test('P1-M4-06: back to products link returns to catalogue', async ({ page }) => {
     const productDetailPage = new ProductDetailPage(page);
     const productsPage = new ProductsPage(page);

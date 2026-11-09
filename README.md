@@ -121,7 +121,7 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 13 complete — locator change suggestions in failure reports (suggest, never auto-heal), optional model tie-break, measured on planted UI changes: 38 of 43 failures right, 0 confident but wrong.
 
-**Test suites:** 93 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
+**Test suites:** 87 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
 
 ---
 

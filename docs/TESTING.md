@@ -186,6 +186,18 @@ CI matrix includes the `api` and `visual` suites alongside smoke and e2e.
 - `npm run analyze:summary -- --suite <name> <json> [...]` - multi-suite PR/run Markdown summary
 - `npm run test:ai` - unit tests for AI modules, the dependency gate, and the docs-only CI rule
 - `npm run analyze:deps -- --base <git-ref>` - check newly added npm packages against the registry
+- `npm run tests:audit -- [--grep "@smoke|@e2e"] [--bugs a,b]` - run the suites once on the clean shop and once per planted bug, and list which tests catch which (see below)
+
+### Test audit: are all these tests useful?
+
+`npm run tests:audit` is a way to look at the suite, not a CI gate. It starts the shop with each planted bug from `app/src/seededBugs.ts` switched on (one at a time, plus one clean run), runs the tests, and writes `ai-reports/test-audit/audit.md`:
+
+- **Bugs guarded by a single test:** if that test is removed or breaks, nothing else notices the bug.
+- **Bugs that fail many tests at once:** one root cause, many red tests (for example, a cart that isn't saved). Those are not that many independent guards.
+- **Tests that failed for none of the planted bugs:** a place to look for redundant tests. It is not a verdict; a test can guard behaviour no planted bug touches. Read the test before removing it.
+- **Clean-shop failures:** if any test fails with no bug planted, the results are not trustworthy until it is fixed (the command exits with code 2).
+
+Defaults to every test and every behaviour bug, about a minute per run. `--grep` limits the suites, `--bugs` picks bugs (add `drift-*` names to include label changes). It needs the Playwright browsers installed, so it is run locally, not in CI.
 
 ## Continuous Integration
 

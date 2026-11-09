@@ -48,6 +48,8 @@ export type BugScore = {
   /** Other findings in the same run (often knock-on effects of the bug). */
   otherFindings: string[];
   stepsUsed: number;
+  /** The model layer hit an error (spend limit, bad key…) in this run, so a miss proves nothing. */
+  modelFailed: boolean;
 };
 
 export type Evaluation = {
@@ -58,7 +60,14 @@ export type Evaluation = {
   /** Findings on the clean shop: every one is a false alarm. */
   falsePositives: string[];
   bugs: BugScore[];
+  /** Runs where a model call failed ("baseline" or a bug id). Their misses are not real misses. */
+  incomplete: string[];
 };
+
+/** True when any charter stopped because a model call failed. */
+export function hadModelError(result: ExplorationResult): boolean {
+  return result.charters.some((charter) => charter.stoppedEarly?.startsWith('model error') === true);
+}
 
 export function catches(finding: Finding, bug: SeededBugSpec): boolean {
   return bug.requirements.includes(finding.specRef);
@@ -79,8 +88,13 @@ export function scoreEvaluation(options: {
       caughtBy,
       otherFindings: result.findings.filter((finding) => !catches(finding, bug)).map((finding) => finding.id),
       stepsUsed: result.stepsUsed,
+      modelFailed: hadModelError(result),
     };
   });
+  const incomplete = [
+    ...(hadModelError(options.baseline) ? ['baseline'] : []),
+    ...bugs.filter((bug) => bug.modelFailed).map((bug) => bug.id),
+  ];
   return {
     date: options.date,
     layer: options.layer,
@@ -88,6 +102,7 @@ export function scoreEvaluation(options: {
     total: bugs.length,
     falsePositives: options.baseline.findings.map((finding) => finding.id),
     bugs,
+    incomplete,
   };
 }
 
@@ -99,7 +114,8 @@ export function toHistoryLine(evaluation: Evaluation): string {
     detected: evaluation.detected,
     total: evaluation.total,
     falsePositives: evaluation.falsePositives.length,
-    missed: evaluation.bugs.filter((bug) => !bug.detected).map((bug) => bug.id),
+    missed: evaluation.bugs.filter((bug) => !bug.detected && !bug.modelFailed).map((bug) => bug.id),
+    ...(evaluation.incomplete.length > 0 ? { incomplete: true } : {}),
   })}\n`;
 }
 
@@ -110,6 +126,8 @@ export type HistoryEntry = {
   total: number;
   falsePositives: number;
   missed: string[];
+  /** The run had model errors, so it is not a measurement of the model layer. */
+  incomplete?: boolean;
 };
 
 /** Reads history lines; malformed lines are skipped, not fatal. */
@@ -125,7 +143,8 @@ export function parseHistory(text: string): HistoryEntry[] {
         Number.isInteger(value.detected) &&
         Number.isInteger(value.total) &&
         Number.isInteger(value.falsePositives) &&
-        Array.isArray(value.missed)
+        Array.isArray(value.missed) &&
+        (value.incomplete === undefined || typeof value.incomplete === 'boolean')
       ) {
         entries.push(value as HistoryEntry);
       }
@@ -146,6 +165,11 @@ export function renderEvaluation(evaluation: Evaluation, history: HistoryEntry[]
   lines.push('');
   lines.push(`- Date: ${evaluation.date}`);
   lines.push(`- Layer: ${escapeMarkdown(evaluation.layer)}`);
+  if (evaluation.incomplete.length > 0) {
+    lines.push(
+      `- ⚠️ **Incomplete run:** a model call failed in ${evaluation.incomplete.map(escapeMarkdown).join(', ')}. The numbers below do not measure the model layer; fix the cause (see the report) and run again.`,
+    );
+  }
   lines.push(
     `- Detection rate: **${evaluation.detected} of ${evaluation.total}** (${percent(evaluation.detected, evaluation.total)})`,
   );
@@ -159,7 +183,7 @@ export function renderEvaluation(evaluation: Evaluation, history: HistoryEntry[]
   lines.push('|---|---|---|---|---|---|');
   for (const bug of evaluation.bugs) {
     lines.push(
-      `| \`${bug.id}\` | ${escapeMarkdown(bug.description)} | ${bug.detected ? '✅' : '❌ missed'} | ${
+      `| \`${bug.id}\` | ${escapeMarkdown(bug.description)} | ${bug.detected ? '✅' : bug.modelFailed ? '⚠️ model error' : '❌ missed'} | ${
         bug.caughtBy.map(escapeMarkdown).join(', ') || '—'
       } | ${bug.otherFindings.map(escapeMarkdown).join(', ') || '—'} | ${bug.stepsUsed} |`,
     );
@@ -176,7 +200,7 @@ export function renderEvaluation(evaluation: Evaluation, history: HistoryEntry[]
     lines.push('|---|---|---|---|---|');
     for (const entry of history.slice(-10)) {
       lines.push(
-        `| ${escapeMarkdown(entry.date)} | ${escapeMarkdown(entry.layer)} | ${entry.detected}/${entry.total} | ${entry.falsePositives} | ${
+        `| ${escapeMarkdown(entry.date)} | ${escapeMarkdown(entry.layer)} | ${entry.incomplete ? '⚠️ incomplete' : `${entry.detected}/${entry.total}`} | ${entry.falsePositives} | ${
           entry.missed.map(escapeMarkdown).join(', ') || '—'
         } |`,
       );

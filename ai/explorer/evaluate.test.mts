@@ -71,6 +71,7 @@ test('P12-M2-05: a bug counts as caught only by a finding that cites its require
     caughtBy: ['cart-remove-item'],
     otherFindings: ['side'],
     stepsUsed: 240,
+    modelFailed: false,
   });
   assert.equal(evaluation.bugs[1].detected, false);
   assert.deepEqual(evaluation.bugs[1].otherFindings, ['unrelated']);
@@ -118,7 +119,34 @@ test('P12-M2-07: the report shows rate, misses and history, with model text esca
   assert.match(markdown, /❌ missed/);
   assert.match(markdown, /## History/);
   assert.doesNotMatch(markdown, /<img|!\[x\]\(/);
-  assert.match(renderEvaluation({ ...evaluation, total: 0, detected: 0, bugs: [] }, []), /\(n\/a\)/);
+  assert.match(renderEvaluation({ ...evaluation, total: 0, detected: 0, bugs: [], incomplete: [] }, []), /\(n\/a\)/);
+});
+
+test('P12-M2-09: a run where the model failed is marked incomplete, not scored as a miss', () => {
+  const failed: ExplorationResult = {
+    ...result([]),
+    charters: [{ charter: 'cart', checksRun: 7, checksPassed: 7, findings: 0, dropped: 0, stoppedEarly: 'model error: Anthropic request failed (400): limit' }],
+  };
+  const evaluation = scoreEvaluation({
+    date: '2026-11-09',
+    layer: 'probes + anthropic:x',
+    baseline: result([]),
+    runs: [{ bug: removeBug, result: failed }, { bug: totalBug, result: result([]) }],
+  });
+  assert.deepEqual(evaluation.incomplete, [removeBug.id]);
+  const line = JSON.parse(toHistoryLine(evaluation));
+  assert.equal(line.incomplete, true);
+  assert.deepEqual(line.missed, [totalBug.id], 'only the run that really ran can be a miss');
+  const markdown = renderEvaluation(evaluation, parseHistory(toHistoryLine(evaluation)));
+  assert.match(markdown, /Incomplete run/);
+  assert.match(markdown, /⚠️ model error/);
+  assert.match(markdown, /⚠️ incomplete/);
+  assert.equal(parseHistory(JSON.stringify({ ...line, incomplete: 'yes' })).length, 0);
+
+  const clean = scoreEvaluation({ date: 'd', layer: 'probes', baseline: result([]), runs: [{ bug: removeBug, result: result([]) }] });
+  assert.deepEqual(clean.incomplete, []);
+  assert.equal('incomplete' in JSON.parse(toHistoryLine(clean)), false);
+  assert.doesNotMatch(renderEvaluation(clean, []), /Incomplete run/);
 });
 
 test('P12-M2-08: eval options validate bugs and port', () => {

@@ -217,7 +217,7 @@ Thresholds below are the ones enforced today. The convention review comments and
 
 The mutation gate covers `redact.mts`, `markdown.mts`, `pathContainment.mts`, `cliArgs.mts`, `gate.mts`, `classify.mts`, `suggest.mts`, and `analyze.mts`. It uses the TAP runner so a mutant runs the test file that covers it. Report templates and CLI entrypoints are outside this gate. Locally: `npm run test:mutation`.
 
-The convention review is appended to the sticky run-summary comment. A model note is added only when `OPENAI_API_KEY` is set, and that note is labeled unverified. Locally: `npm run analyze:review -- --diff <tests.diff> --no-llm`.
+The convention review is appended to the sticky run-summary comment. A model note is added only when `OPENAI_API_KEY` is set, and that note is labeled unverified. Locally: `npm run analyze:review -- --diff <tests.diff> --no-llm`. In CI the reviewer runs from the base branch's code and rules (a second checkout), not the pull request's, because that step holds the API key. A PR that changes the reviewer is judged by the old one until it merges.
 
 The new-dependency gate names the package and the rule in the log. See the README section **Dependency gate** for a local pass and a local failure.
 

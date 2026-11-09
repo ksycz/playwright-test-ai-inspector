@@ -109,7 +109,17 @@ export async function explore(options: ExploreOptions): Promise<ExplorationResul
 
       if (model) {
         log(`[${charter.id}] model exploration (${model.name})`);
-        const result = await model.explore(session, charter);
+        let result;
+        try {
+          result = await model.explore(session, charter);
+        } catch (error) {
+          if (error instanceof BudgetExceededError) throw error;
+          // A failed model call costs this charter its model pass, not the whole run.
+          const message = error instanceof Error ? error.message : String(error);
+          summary.stoppedEarly = `model error: ${message}`;
+          log(`[${charter.id}] model error: ${message}; continuing with the next charter`);
+          continue;
+        }
         summary.checksRun += result.reported;
         summary.findings += result.findings.length;
         summary.dropped += result.dropped.length;

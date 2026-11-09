@@ -5,6 +5,7 @@ import type { CheckoutFormData, CheckoutFormErrors } from '@/types/order';
 import { generateOrderId, validateCheckoutForm } from '@/utils/checkout';
 import { saveOrderToStorage } from '@/utils/orderStorage';
 import { formatPrice } from '@/utils/products';
+import { isSeeded } from '@/seededBugs';
 
 const initialFormData: CheckoutFormData = {
   name: '',
@@ -196,7 +197,7 @@ export default function CheckoutPage() {
           </div>
 
           <button type="submit" disabled={isSubmitting} className="btn-primary disabled:cursor-not-allowed disabled:opacity-60">
-            Place order
+            {isSeeded('drift-place-order') ? 'Complete purchase' : 'Place order'}
           </button>
         </form>
 

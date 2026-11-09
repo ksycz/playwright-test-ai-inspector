@@ -16,7 +16,11 @@ describe('seeded bugs (P12-M2)', () => {
       [...parseSeededBugs(' cart-not-saved , nope,detail-adds-twice ')].sort(),
       ['cart-not-saved', 'detail-adds-twice'],
     );
-    assert.equal(parseSeededBugs('all').size, SEEDED_BUGS.length);
+    assert.equal(parseSeededBugs('all').size, 5, 'all = the five behaviour bugs');
+    assert.ok([...parseSeededBugs('all')].every((bug) => !bug.startsWith('drift-')));
+    assert.equal(parseSeededBugs('drift-all').size, 6, 'drift-all = the six label drifts');
+    assert.equal(parseSeededBugs('all,drift-all').size, SEEDED_BUGS.length);
+    assert.deepEqual([...parseSeededBugs('drift-all,cart-not-saved')].filter((bug) => !bug.startsWith('drift-')), ['cart-not-saved']);
     assert.equal(parseSeededBugs('').size, 0);
   });
 });

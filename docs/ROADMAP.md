@@ -2,7 +2,7 @@
 
 This document is the **single source of truth** for the implementation plan and technical progress log.
 
-**Current focus:** Phase 13 — Locator Change Suggestions (P13-M2 complete; waiting for approval before P13-M3)
+**Current focus:** Phases 1–13 complete; waiting for the next phase to be defined
 
 ---
 
@@ -54,7 +54,7 @@ After every completed milestone, update:
 | **10** | LLM Guardrails | ✅ Completed | OWASP LLM Top 10: prompt injection, output handling, input redaction |
 | **11** | Quality Gates for AI-Written Code | ✅ Completed | Mutation testing, convention-aware PR review, gate list |
 | **12** | Agentic Exploratory Testing | ✅ Completed | Spec-driven exploration agent via Playwright MCP |
-| **13** | Locator Change Suggestions | 🚧 In progress | Suggest the renamed element when a locator finds nothing; never auto-heal |
+| **13** | Locator Change Suggestions | ✅ Completed | Suggest the renamed element when a locator finds nothing; never auto-heal |
 
 ---
 
@@ -3336,9 +3336,9 @@ Use the existing Playwright MCP setup to run a spec-driven exploration agent aga
 
 # Phase 13 — Locator Change Suggestions
 
-**Status:** 🚧 In progress  
-**Completed:** —  
-**Current focus:** P13-M3 — Planted renames + docs (waiting for approval)
+**Status:** ✅ Completed  
+**Completed:** 2026-11-09  
+**Current focus:** —
 
 ### Goal
 
@@ -3410,14 +3410,51 @@ When a test fails because a locator finds nothing (for example a button renamed 
 
 ## P13-M3 — Planted renames + docs
 
+**Status:** ✅ Completed  
+**Completed:** 2026-11-09
+
 - A seeded "label drift" set (renamed buttons, headings, labels; one removed element; one role change) run through the suggester; metric: correct top suggestion / no false confident suggestions.
 - README, `docs/DEMO.md` segment, `docs/TESTING.md` note on "suggest, don't self-heal".
+
+### What was implemented
+
+- Six dev-only drift switches in the app (`VITE_SEEDED_BUGS=drift-all`, or one by name): "Clear cart" → "Empty cart", "Place order" → "Complete purchase", heading "Log in" → "Sign in", label "Username" → "User name", "Browse products" link → button, "Proceed to checkout" removed. `all` still means the five behaviour bugs only.
+- `npm run locator:eval`: runs `@smoke|@e2e` with every drift on, then re-runs any drift that broke no test on its own (an earlier drift can stop the tests first), and scores the suggestion for each failure against the expected answer.
+- Locator parser accepts other role options (`level: 1`, `checked`, …); found because the login page object uses `level: 1`.
+
+### Measured (2026-11-09, deterministic, no model)
+
+| Drift | Failed tests | Right |
+|---|---|---|
+| Username → User name (label) | 23 | 23 |
+| Proceed to checkout removed (expect no suggestion) | 12 | 12 |
+| Browse products: link → button | 2 | 2 |
+| Clear cart → Empty cart | 1 | 1 |
+| Place order → Complete purchase | 4 | 0 (no suggestion) |
+| Log in → Sign in (heading) | 1 | 0 (no suggestion) |
+
+38 of 43 drift-caused failures (88%) right, **0 confident but wrong**, 0 unrelated failures. The two misses share no words with the original, and the suggester stays silent instead of guessing.
+
+### Deviations
+
+- First run measured "Place order" as breaking 0 tests: every checkout test failed earlier on the renamed login label. Added the second, per-drift pass for masked drifts.
+- Not in CI: about 3–4 minutes of browser time.
+
+### Test cases
+
+| ID | Scenario |
+|---|---|
+| P13-M3-01 | Drift list matches the app's switches |
+| P13-M3-02 | Failures matched to drifts by kind, role, name |
+| P13-M3-03 | Right, wrong, confident-wrong, removed element, labels, unrelated |
+| P13-M3-04 | Totals and rendering (escaped) |
+| P13-M3-05 | CLI options |
 
 ### Acceptance criteria
 
 - [x] Failure report suggests replacements for renamed elements (P13-M1)
 - [x] Optional model tie-break (P13-M2)
-- [ ] Planted-rename score measured and documented (P13-M3)
+- [x] Planted-rename score measured and documented (P13-M3)
 
 ## Phase 13 — Progress Summary
 
@@ -3425,7 +3462,7 @@ When a test fails because a locator finds nothing (for example a button renamed 
 |---|---|---|
 | P13-M1 — Locator suggestions in the failure report | ✅ Completed | 2026-11-08 |
 | P13-M2 — Optional model tie-break | ✅ Completed | 2026-11-08 |
-| P13-M3 — Planted renames + docs | ⏳ Planned | — |
+| P13-M3 — Planted renames + docs | ✅ Completed | 2026-11-09 |
 
 ---
 
@@ -3447,6 +3484,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 | Date | Change |
 |---|---|
 | 2026-11-09 | Adopted `ksycz/ai-provenance-action@v1.0.0`: AI provenance job, mutation gate on AI-touched files |
+| 2026-11-09 | P13-M3 completed — planted label drift, `npm run locator:eval`: 38/43 right, 0 confident-wrong; Phase 13 complete |
 | 2026-11-08 | P13-M2 completed — optional, strictly validated model tie-break for close locator suggestions |
 | 2026-11-08 | Phase 13 defined; P13-M1 completed — locator suggestions in failure reports |
 | 2026-11-08 | P12-M4 completed — demo segment and limits table for the exploration agent; Phase 12 complete |

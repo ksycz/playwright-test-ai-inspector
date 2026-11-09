@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { sanitizeRedirectPath } from '@/utils/auth';
+import { isSeeded } from '@/seededBugs';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <h1 className="page-heading">Log in</h1>
+      <h1 className="page-heading">{isSeeded('drift-login-heading') ? 'Sign in' : 'Log in'}</h1>
       <p className="page-intro">Sign in to continue to checkout.</p>
 
       <form
@@ -66,7 +67,7 @@ export default function LoginPage() {
 
         <div>
           <label htmlFor={usernameId} className="block text-sm font-medium text-brand-900">
-            Username
+            {isSeeded('drift-username-label') ? 'User name' : 'Username'}
           </label>
           <input
             id={usernameId}

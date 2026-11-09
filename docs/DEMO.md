@@ -90,6 +90,16 @@ npm run explore:draft -- --finding cart-increase-quantity \
 
 **Say one limitation out loud:** "The probes only catch what I thought of. The AI layer looks further, but it costs money per run, gives different results each time, and its findings still need a person. That's why it reports and drafts, and never merges."
 
+### Optional — Broken locator (about 1 minute)
+
+Use it when someone asks about self-healing tests.
+
+```bash
+npm run analyze:report -- ai/failure-analyzer/fixtures/locator-click-renamed-button --no-llm
+```
+
+**Say:** "The test waited for 'Add Wireless Mouse to basket'. The report reads the page snapshot Playwright saved and suggests the button that's there now, 'Add Wireless Mouse to cart'. It suggests and never rewrites the test, because a renamed button can be the bug. On six planted UI changes, 38 of 43 failures got the right suggestion. The two misses got *no* suggestion rather than a wrong one, and that's the safe way to fail."
+
 ### 3:00–4:00 — Flaky vs hard fail + PR summary
 
 ```bash
@@ -140,6 +150,10 @@ npm run explore -- --no-llm --charters cart
 npm run explore:eval -- --no-llm             # about 6 minutes, own server on :5174
 npm run explore:draft -- --finding cart-increase-quantity \
   --findings ai/explorer/fixtures/finding-cart-increase-quantity.jsonl
+
+# Locator suggestions
+npm run analyze:report -- ai/failure-analyzer/fixtures/locator-click-renamed-button --no-llm
+npm run locator:eval            # about 3–4 minutes; stop npm run dev first
 
 # Unit tests for AI modules
 npm run test:ai

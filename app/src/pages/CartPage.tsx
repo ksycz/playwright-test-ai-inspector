@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/utils/products';
+import { isSeeded } from '@/seededBugs';
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -20,9 +21,15 @@ export default function CartPage() {
         <h2 className="mt-6 text-xl font-medium text-brand-900">Your cart is empty</h2>
         <p className="mt-2 text-slate-600">Add products from the catalogue to get started.</p>
         <p className="mt-6">
-          <Link to="/products" className="text-link px-3 py-2 text-sm">
-            Browse products
-          </Link>
+          {isSeeded('drift-browse-role') ? (
+            <button type="button" onClick={() => navigate('/products')} className="text-link px-3 py-2 text-sm">
+              Browse products
+            </button>
+          ) : (
+            <Link to="/products" className="text-link px-3 py-2 text-sm">
+              Browse products
+            </Link>
+          )}
         </p>
       </section>
     );
@@ -33,7 +40,7 @@ export default function CartPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="page-heading">Shopping cart</h1>
         <button type="button" onClick={clearCart} className="btn-secondary">
-          Clear cart
+          {isSeeded('drift-clear-cart') ? 'Empty cart' : 'Clear cart'}
         </button>
       </div>
 
@@ -113,9 +120,11 @@ export default function CartPage() {
         <p className="text-lg font-semibold text-brand-950">
           Total: <span data-testid="cart-total">{formatPrice(total)}</span>
         </p>
-        <button type="button" onClick={() => navigate('/checkout')} className="btn-primary">
-          Proceed to checkout
-        </button>
+        {!isSeeded('drift-proceed-removed') && (
+          <button type="button" onClick={() => navigate('/checkout')} className="btn-primary">
+            Proceed to checkout
+          </button>
+        )}
       </div>
     </>
   );

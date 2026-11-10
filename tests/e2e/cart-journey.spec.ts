@@ -23,7 +23,7 @@ test.describe('@e2e Cart journey', () => {
     await expect(cartPage.cartLink(1)).toBeVisible();
   });
 
-  test('cart management updates quantities and removes items', async ({ page }) => {
+  test('P2-M6-05: cart management updates quantities and removes items', async ({ page }) => {
     const productsPage = new ProductsPage(page);
     const cartPage = new CartPage(page);
     const secondProduct = catalogue[1];

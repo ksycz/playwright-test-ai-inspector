@@ -1359,6 +1359,9 @@ Add dedicated end-to-end journey specs that exercise full user flows across mult
 | P2-M6-02 | Full purchase journey on mobile viewport |
 | P2-M6-03 | Guest redirected to login when accessing checkout |
 | P2-M6-04 | Cart persistence across navigation |
+| P2-M6-05 | Cart management updates quantities and removes items |
+| P2-M6-06 | Logged-in customer completes checkout without auth redirect |
+| P2-M6-07–14 | Journeys found with Playwright MCP (`mcp-explored-journeys.spec.ts`): two-product total, cart kept after logout, order number after reload, empty cart after order, login retry, redirect safety, whitespace-only name, quantity and line subtotal |
 
 ### Acceptance criteria
 
@@ -2260,6 +2263,7 @@ Polish docs, expand negative/contract edge cases, and mark Phase 5 complete.
 | P5-M4-03 | POST to products API returns JSON 405 |
 | P5-M4-04 | Products page shows alert when catalogue fetch fails |
 | P5-M4-05 | Try again reloads catalogue after a failed fetch |
+| P5-M4-06 | Bare `/api` returns JSON 404 |
 
 ### Accessibility requirements
 
@@ -3505,6 +3509,7 @@ No new phase: a review of what the first thirteen phases left open, guided by th
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | Test IDs: ten tests without an ID now have `P2-M6-05`…`P2-M6-14` and the second `P5-M4-04` became `P5-M4-06`; the three fixture tests in `fixtures.spec.ts` had no suite tag, so no CI suite ran them, and are now `@smoke` |
 | 2026-11-10 | `AGENTS.md` at the repo root (plus a `CLAUDE.md` that imports it): test conventions, spec-as-ground-truth, AI-code rules, dependency gate, PR format. `.cursor/rules/project.mdc` now points to it, so Claude Code, Codex and Cursor read the same rules |
 | 2026-11-10 | "CI result" job: one aggregate check (every job passed or was skipped on purpose) for `main` to require, so failing gates block merges; until now no check was required |
 | 2026-11-10 | Locator suggestions in the sticky PR comment: the test job writes `locator-hints.json` (`npm run analyze:locators`), the summary lists the top suggestion under each locator failure, marked "review, not applied" |

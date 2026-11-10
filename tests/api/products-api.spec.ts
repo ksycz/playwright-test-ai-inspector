@@ -123,7 +123,7 @@ test.describe('@api Product catalogue API', () => {
     expect(body.method).toBe('POST');
   });
 
-  test('P5-M4-04: bare /api returns JSON 404', async ({ request }) => {
+  test('P5-M4-06: bare /api returns JSON 404', async ({ request }) => {
     const response = await request.get('/api');
 
     expect(response.status()).toBe(404);

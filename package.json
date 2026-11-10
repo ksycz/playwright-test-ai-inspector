@@ -19,8 +19,9 @@
     "test:visual": "sh scripts/playwright.sh test --grep @visual",
     "test:ui": "sh scripts/playwright.sh test --ui",
     "test:headed": "sh scripts/playwright.sh test --headed",
-    "test:ai": "node --experimental-strip-types --test ai/**/*.test.mts app/**/*.test.mts tests/reporters/**/*.test.mts scripts/**/*.test.mts scripts/mutation-spike/survivor.check.mts",
+    "test:ai": "node --experimental-strip-types --test 'ai/**/*.test.mts' 'app/**/*.test.mts' 'tests/reporters/**/*.test.mts' 'scripts/**/*.test.mts' scripts/mutation-spike/survivor.check.mts",
     "test:mutation": "stryker run",
+    "lint:tests": "eslint tests",
     "analyze:failure": "node --experimental-strip-types ai/failure-analyzer/cli.mts",
     "analyze:report": "node --experimental-strip-types ai/failure-analyzer/report-cli.mts",
     "analyze:flaky": "node --experimental-strip-types ai/flaky-detector/cli.mts",
@@ -43,6 +44,10 @@
     "@playwright/test": "^1.57.0",
     "@stryker-mutator/core": "^10.1.1",
     "@stryker-mutator/tap-runner": "^10.1.1",
-    "@types/node": "^26.0.0"
+    "@types/node": "^26.0.0",
+    "eslint": "^10.14.0",
+    "eslint-plugin-playwright": "^2.12.2",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.72.2"
   }
 }

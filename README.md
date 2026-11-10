@@ -453,6 +453,12 @@ npm run analyze:report -- test-results/<failed-test-folder> --format html
 open ai-reports/<failed-test-folder>.html
 ```
 
+**Lint the tests:** fails on Playwright tests that can pass without checking anything: a test with no assertion, a web-first assertion without `await` (its failure can be lost when the test ends), an assertion inside an `if`, plus `test.only` and fixed `waitForTimeout` sleeps. CI runs it on every pull request. Helpers named `expectSomething(...)` count as assertions.
+
+```bash
+npm run lint:tests
+```
+
 **Test audit:** checks that the tests catch real bugs. It runs the suites once on the clean shop, then once per planted bug, and lists which tests caught which bug, bugs only one test catches, and bugs nothing catches. Takes several minutes and starts its own server, so stop `npm run dev` first. Narrow it with `--grep @smoke` or `--bugs <name>`.
 
 ```bash

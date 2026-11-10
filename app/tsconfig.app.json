@@ -18,10 +18,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Unit tests run under Node (npm run test:ai); tsconfig.node.json checks them with Node types.
+  "exclude": ["src/**/*.test.mts"]
 }

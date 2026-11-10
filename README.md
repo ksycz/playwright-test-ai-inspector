@@ -567,7 +567,9 @@ package.json: not-a-real-package-xyz: package was not found on the npm registry
 node --experimental-strip-types --test ai/dep-gate/gate.test.mts
 ```
 
-On a pull request, the **New dependency gate** job runs the same command against the PR base commit. Pushes to `main` still run the audit, and they do not run the new-package check.
+On a pull request, the **New dependency gate** job runs the same command against the PR base commit. It installs nothing first: the gate needs only Node, so a new package is judged before anything downloads it. Pushes to `main` still run the audit, and they do not run the new-package check.
+
+**Install scripts are off everywhere.** A malicious package usually acts through a `preinstall`/`postinstall` script, which runs during `npm install`. No dependency in this repo needs one, so every CI job runs `npm ci --ignore-scripts`, and `.npmrc` (root and `app/`) sets `ignore-scripts=true` for local installs too. This matters because the test jobs install dependencies at the same time as the gate runs: without it, a bad package's script would run in those jobs before the gate failed the PR. `npm run <script>` still works; only package install scripts and pre/post hooks are skipped.
 
 If tests fail with a missing browser error, run:
 

@@ -1,0 +1,88 @@
+{
+  "stats": {
+    "expected": 1,
+    "unexpected": 1,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "title": "smoke/shopping-cart.spec.ts",
+      "file": "smoke/shopping-cart.spec.ts",
+      "specs": [],
+      "suites": [
+        {
+          "title": "@smoke Shopping cart",
+          "file": "smoke/shopping-cart.spec.ts",
+          "specs": [
+            {
+              "title": "P1-M5-01: add a product to the cart",
+              "file": "smoke/shopping-cart.spec.ts",
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "retry": 0,
+                      "status": "failed",
+                      "duration": 5100,
+                      "error": {
+                        "message": "TimeoutError: locator.click: Timeout 5000ms exceeded."
+                      },
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "ai/failure-analyzer/fixtures/locator-click-renamed-button/error-context.md"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "P1-M5-02: cart badge counts items",
+              "file": "smoke/shopping-cart.spec.ts",
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "status": "unexpected",
+                  "results": [
+                    {
+                      "retry": 0,
+                      "status": "failed",
+                      "duration": 300,
+                      "error": {
+                        "message": "Error: expect(received).toBe(expected)"
+                      },
+                      "attachments": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "P1-M5-03: passes",
+              "file": "smoke/shopping-cart.spec.ts",
+              "tests": [
+                {
+                  "projectName": "chromium",
+                  "status": "expected",
+                  "results": [
+                    {
+                      "retry": 0,
+                      "status": "passed",
+                      "duration": 200
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

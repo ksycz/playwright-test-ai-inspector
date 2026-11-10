@@ -39,6 +39,7 @@ interface JsonResultLike {
   duration?: number;
   error?: { message?: string };
   errors?: Array<{ message?: string }>;
+  attachments?: Array<{ name?: string; path?: string }>;
 }
 
 function walkSuites(suites: JsonSuiteLike[] | undefined, ancestors: string[] = []): TestOutcome[] {
@@ -113,6 +114,7 @@ function toOutcome(
       status: result.status ?? 'unknown',
       durationMs: result.duration ?? 0,
       errorMessage: errorMessage ? errorMessage.split('\n')[0]!.slice(0, 240) : null,
+      errorContextPath: result.attachments?.find((attachment) => attachment.name === 'error-context')?.path ?? null,
     };
   });
 

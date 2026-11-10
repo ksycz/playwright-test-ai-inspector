@@ -5,6 +5,8 @@ export interface AttemptSummary {
   status: string;
   durationMs: number;
   errorMessage: string | null;
+  /** Path of the error-context.md Playwright attached to this attempt (page snapshot + error). */
+  errorContextPath?: string | null;
 }
 
 export interface TestOutcome {

@@ -681,7 +681,13 @@ Module docs: [`ai/failure-trends/README.md`](ai/failure-trends/README.md).
 
 ### AI Run / PR Summaries
 
-Merges the JSON results of several suites into one summary: overall status, totals, and per suite its hard failures (with cause and error) and flaky tests. In CI this Markdown is the sticky PR comment, updated on every push; when the PR changes tests, the convention review is added to it.
+Merges the JSON results of several suites into one summary: overall status, totals, and per suite its hard failures (with cause and error) and flaky tests. In CI this Markdown is the sticky PR comment, updated on every push; when the PR changes tests, the convention review is added to it. When a test failed because a locator found nothing, the comment also shows the closest element on the page, for example `getByRole('button', { name: 'Empty cart' })` instead of `getByRole('button', { name: 'Clear cart' })`, marked "review, not applied": a renamed button can be the bug.
+
+To get those suggestions locally after a failed run (it reads the failed tests' folders in `test-results/` and writes `test-results/locator-hints.json`, which `analyze:summary` picks up):
+
+```bash
+npm run analyze:locators
+```
 
 ```bash
 npm run analyze:summary -- --suite smoke ai/flaky-detector/fixtures/hard-fail.json --suite e2e ai/flaky-detector/fixtures/flaky-then-pass.json --format html

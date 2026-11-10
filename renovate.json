@@ -19,6 +19,12 @@
       "groupName": "Vite"
     },
     {
+      "description": "Root typescript is only the parser for the test lint (typescript-eslint), which supports TypeScript below 6.1. The app's own TypeScript (app/package.json) is not limited. Raise this when typescript-eslint supports a newer version.",
+      "matchFileNames": ["package.json"],
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1"
+    },
+    {
       "description": "Automerge Playwright patch and minor updates after required CI checks pass.",
       "matchPackageNames": ["@playwright/test", "playwright", "playwright-core"],
       "matchUpdateTypes": ["minor", "patch"],

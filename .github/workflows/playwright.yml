@@ -454,3 +454,34 @@ jobs:
         with:
           mutation-report: ${{ steps.mutation.outputs.path }}
           pr-comment: 'true'
+
+  # The one check `main` requires before a merge (ruleset "main protection"). It passes when every
+  # job above succeeded or was skipped on purpose, and fails if any failed or was cancelled.
+  ci-result:
+    name: CI result
+    if: always()
+    needs:
+      - changes
+      - playwright-version
+      - test
+      - test-review
+      - run-summary
+      - ai-unit
+      - dep-gate
+      - renovate-config
+      - mutation
+      - ai-provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/ci-result.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Every job passed or was skipped
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: node scripts/ci-result.mjs

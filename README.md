@@ -546,6 +546,7 @@ GitHub Actions runs Playwright on every push to `main` and on pull requests:
 - **Pull requests:** sticky AI run summary comment after the matrix finishes, plus the new-dependency gate against the PR base (see below)
 - **Install:** `npm ci` (root, and `app/` where the job needs it), not `npm install`
 - **Audit:** `npm audit --audit-level=high` for the root and app lockfiles
+- **One required check:** the last job, **CI result**, passes only if every other job succeeded or was skipped on purpose, and `main` requires it. A failing suite, gate or provenance audit blocks the merge.
 - **Only what a change can affect:** a docs-only pull request skips the test jobs; one that only changes `ai/` tooling skips the browser suites; mutation testing runs only when mutated code or tests change, and reuses earlier results (cached Stryker incremental file). The table is in [`docs/TESTING.md`](docs/TESTING.md#which-jobs-run). Suite jobs use the Playwright container image that matches the installed `@playwright/test` version, and they run with 2 workers. The gates and the Renovate versus Dependabot split are in [`docs/TESTING.md`](docs/TESTING.md).
 
 To run locally the way CI does (2 retries, a fresh dev server, a trace on each first retry), prefix a command with `CI=true`, for example `CI=true npm run test:smoke`. Stop `npm run dev` first: with `CI` set, the tests start their own server on port 5173.

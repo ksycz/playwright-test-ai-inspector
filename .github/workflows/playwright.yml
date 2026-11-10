@@ -113,8 +113,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci
-          npm ci --prefix app
+          npm ci --ignore-scripts
+          npm ci --ignore-scripts --prefix app
 
       - name: Run ${{ matrix.suite }} tests
         run: npm run test:${{ matrix.suite }}
@@ -178,7 +178,7 @@ jobs:
 
       - name: Install dependencies (base branch)
         working-directory: trusted
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Review the test diff
         working-directory: trusted
@@ -216,7 +216,7 @@ jobs:
           cache: npm
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Download suite JSON artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
@@ -298,8 +298,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci
-          npm ci --prefix app
+          npm ci --ignore-scripts
+          npm ci --ignore-scripts --prefix app
 
       - name: Audit dependencies
         run: |
@@ -331,11 +331,9 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version-file: .nvmrc
-          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
+      # No npm ci here: the gate uses only Node built-ins, so nothing from the PR's
+      # dependency list is downloaded before the gate has judged it.
       - name: Check new dependencies
         run: npm run analyze:deps -- --base ${{ github.event.pull_request.base.sha }}
 
@@ -374,7 +372,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       # Stryker's incremental file remembers each mutant's result, so only mutants in changed
       # code or tests run again. A pull request starts from its own last run, else from main's.

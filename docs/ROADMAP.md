@@ -3497,6 +3497,7 @@ No new phase: a review of what the first thirteen phases left open, guided by th
 | Build | Fixed for TypeScript 7; `npm run build` in CI | #71 |
 | False-green tests | `npm run lint:tests` (ESLint + `eslint-plugin-playwright`); `test:ai` ran only 28 of 38 test files (unquoted `**`), now all | #72 |
 | Locator hints | Top locator suggestion under each locator failure in the PR comment, "review, not applied" | #73 |
+| Merge gate | One required check, "CI result": until now no check blocked a merge (the AI provenance failure on #73 didn't) | this PR |
 
 ---
 
@@ -3504,6 +3505,7 @@ No new phase: a review of what the first thirteen phases left open, guided by th
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | "CI result" job: one aggregate check (every job passed or was skipped on purpose) for `main` to require, so failing gates block merges; until now no check was required |
 | 2026-11-10 | Locator suggestions in the sticky PR comment: the test job writes `locator-hints.json` (`npm run analyze:locators`), the summary lists the top suggestion under each locator failure, marked "review, not applied" |
 | 2026-11-10 | Test lint gate (`npm run lint:tests`, ESLint + `eslint-plugin-playwright`): no test without an assertion, no un-awaited web-first assertion, no conditional assertion. Fixed `test:ai`, which skipped 10 of 38 test files because the shell expanded its `**` patterns one level deep (162 → 202 tests) |
 | 2026-11-10 | Build fixed for TypeScript 7 (`baseUrl` removed; app unit tests type-checked with Node types) and `npm run build` added to CI, so a broken build can't go unnoticed again |

@@ -227,6 +227,8 @@ GitHub Actions workflow: `.github/workflows/playwright.yml`
 
 ### CI gates
 
+**What blocks a merge:** one required check, **CI result** (ruleset "main protection" on `main`). It runs last, waits for every other job, and passes only if each one succeeded or was skipped on purpose (`scripts/ci-result.mjs`). So any failing gate below blocks the merge, while docs-only pull requests, where most jobs are skipped, still merge. Requiring each job separately doesn't work: a matrix job that is skipped as a whole reports under its unexpanded name, so a required "Playwright (smoke)" would stay pending forever.
+
 Thresholds below are the ones enforced today. The convention review comments and does not fail the job.
 
 | Gate | When it runs | Threshold | How to fix a failure |

@@ -4,7 +4,7 @@ import { loginWithProductInCart } from '../fixtures';
 import { CheckoutPage, LoginPage, OrderConfirmationPage } from '../pages';
 
 test.describe('@e2e Returning customer checkout', () => {
-  test('logged-in customer completes checkout without auth redirect', async ({ page }) => {
+  test('P2-M6-06: logged-in customer completes checkout without auth redirect', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const checkoutPage = new CheckoutPage(page);
     const orderConfirmationPage = new OrderConfirmationPage(page);

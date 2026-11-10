@@ -2,7 +2,7 @@ import { sampleProduct, validUser } from '../data';
 import { CartPage, CheckoutPage, LoginPage, ProductsPage } from '../pages';
 import { expect, test } from './index';
 
-test.describe('P2-M4 — Auth and Cart Fixtures', () => {
+test.describe('@smoke P2-M4 — Auth and Cart Fixtures', () => {
   test('P2-M4-01: auth fixture provides logged-in session', async ({ loggedInPage }) => {
     const loginPage = new LoginPage(loggedInPage);
 

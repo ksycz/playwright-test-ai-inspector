@@ -43,7 +43,7 @@ async function placeTwoProductOrder(page: Page) {
 }
 
 test.describe('@e2e MCP-explored journeys', () => {
-  test('two-product total stays the same from cart through confirmation', async ({ page }) => {
+  test('P2-M6-07: two-product total stays the same from cart through confirmation', async ({ page }) => {
     const cartPage = new CartPage(page);
     const loginPage = new LoginPage(page);
     const checkoutPage = new CheckoutPage(page);
@@ -69,7 +69,7 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(orderDetails.getByText(expectedTotal)).toBeVisible();
   });
 
-  test('cart is kept after logging out', async ({ page }) => {
+  test('P2-M6-08: cart is kept after logging out', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const cartPage = new CartPage(page);
 
@@ -88,7 +88,7 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(cartPage.cartTotal).toHaveText(expectedTotalAmount);
   });
 
-  test('order confirmation keeps the same order number after reload', async ({ page }) => {
+  test('P2-M6-09: order confirmation keeps the same order number after reload', async ({ page }) => {
     const orderConfirmationPage = new OrderConfirmationPage(page);
 
     await placeTwoProductOrder(page);
@@ -102,7 +102,7 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(orderConfirmationPage.orderNumber).toHaveText(orderNumber!);
   });
 
-  test('checkout redirects to the empty cart after an order is placed', async ({ page }) => {
+  test('P2-M6-10: checkout redirects to the empty cart after an order is placed', async ({ page }) => {
     const checkoutPage = new CheckoutPage(page);
     const cartPage = new CartPage(page);
 
@@ -114,7 +114,7 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(cartPage.cartLink(0)).toBeVisible();
   });
 
-  test('failed login still returns to checkout after a successful retry', async ({ page }) => {
+  test('P2-M6-11: failed login still returns to checkout after a successful retry', async ({ page }) => {
     const cartPage = new CartPage(page);
     const loginPage = new LoginPage(page);
     const checkoutPage = new CheckoutPage(page);
@@ -132,7 +132,7 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(checkoutPage.heading).toBeVisible();
   });
 
-  test('login ignores a redirect to another site', async ({ page }) => {
+  test('P2-M6-12: login ignores a redirect to another site', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await page.goto('/login?redirect=//example.invalid/phish');
@@ -142,7 +142,7 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(loginPage.welcomeMessage(validUser.username)).toBeVisible();
   });
 
-  test('checkout rejects a name containing only spaces', async ({ page }) => {
+  test('P2-M6-13: checkout rejects a name containing only spaces', async ({ page }) => {
     const checkoutPage = new CheckoutPage(page);
 
     await loginWithProductInCart(page);
@@ -154,7 +154,7 @@ test.describe('@e2e MCP-explored journeys', () => {
     await expect(page).toHaveURL('/checkout');
   });
 
-  test('checkout and confirmation show quantity and line subtotal', async ({ page }) => {
+  test('P2-M6-14: checkout and confirmation show quantity and line subtotal', async ({ page }) => {
     const productsPage = new ProductsPage(page);
     const checkoutPage = new CheckoutPage(page);
     // Fixed on purpose: 2 x $29.99.

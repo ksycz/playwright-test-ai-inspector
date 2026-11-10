@@ -3483,6 +3483,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | Test lint gate (`npm run lint:tests`, ESLint + `eslint-plugin-playwright`): no test without an assertion, no un-awaited web-first assertion, no conditional assertion. Fixed `test:ai`, which skipped 10 of 38 test files because the shell expanded its `**` patterns one level deep (162 → 202 tests) |
 | 2026-11-10 | Supply chain: dependency gate runs before any install (its job no longer runs `npm ci`); `npm ci --ignore-scripts` in every job and `ignore-scripts=true` in `.npmrc`, so a new package's install script can't run in the test jobs that install in parallel |
 | 2026-11-09 | README: why the repo doesn't use Playwright's built-in planner, generator and healer agents |
 | 2026-11-09 | README screenshots: real flaky page (replaces the hand-made mock), new trends and run-summary pages; HTML reports show repo-relative paths, so shared pages don't include the local home folder |

@@ -232,6 +232,7 @@ Thresholds below are the ones enforced today. The convention review comments and
 | Gate | When it runs | Threshold | How to fix a failure |
 |---|---|---|---|
 | `npm ci` | Every job that installs dependencies | `package-lock.json` matches `package.json` for the root and for `app/` | Run `npm install` in the directory you changed and commit the lockfile |
+| `npm run build` | `ai-unit` | The app type-checks (`tsc -b`, including its Node unit tests) and Vite builds it | Run `npm run build` locally and fix the TypeScript error it names |
 | `npm audit --audit-level=high` | `ai-unit` | No high-severity advisory in the root or app lockfile | Upgrade the affected package, or run `npm audit fix` when the fix stays inside the existing version range |
 | New dependency gate | Pull requests | A **new** package name must exist on npm, be at least 7 days old, and have at least 1000 weekly downloads | Depend on a package that already clears those bars. A version bump of a package already in the base is not checked here |
 | Renovate config | Pull requests and pushes that change `renovate.json` | `renovate.json` passes `renovate-config-validator` | Fix the JSON. Locally: `npx --yes --package renovate@44.221.5 renovate-config-validator` |

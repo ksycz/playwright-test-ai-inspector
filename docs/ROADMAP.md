@@ -3483,6 +3483,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | Build fixed for TypeScript 7 (`baseUrl` removed; app unit tests type-checked with Node types) and `npm run build` added to CI, so a broken build can't go unnoticed again |
 | 2026-11-09 | README: why the repo doesn't use Playwright's built-in planner, generator and healer agents |
 | 2026-11-09 | README screenshots: real flaky page (replaces the hand-made mock), new trends and run-summary pages; HTML reports show repo-relative paths, so shared pages don't include the local home folder |
 | 2026-11-09 | Trace demo uses `--trace on` (works with `npm run dev` running); `scripts/playwright.sh` explains a busy port 5173 when `CI` is set |

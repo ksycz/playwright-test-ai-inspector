@@ -72,7 +72,10 @@ This repository is developed incrementally and serves as both a learning journey
 - Visual regression (`@visual` screenshots)
 - Playwright MCP (AI-driven exploration and test generation)
 - Exploratory testing agent (`npm run explore`, Playwright MCP, bounded)
-- Locator change suggestions in failure reports (suggest, never auto-heal)
+- Locator change suggestions in failure reports and in the PR comment (suggest, never auto-heal)
+- Test lint gate for false-green tests (`npm run lint:tests`: no assertion, missing `await`, conditional assertion)
+- Test audit with planted bugs (`npm run tests:audit`: which tests catch which bug)
+- HTML reports for flaky tests, trends and run summaries (`--format html`)
 - AI provenance audit on every PR, via my own [`ai-provenance-action`](https://github.com/ksycz/ai-provenance-action)
 
 ---
@@ -121,7 +124,9 @@ docs/           Specs, testing conventions, roadmap
 
 ✅ Phase 13 complete — locator change suggestions in failure reports (suggest, never auto-heal), optional model tie-break, measured on planted UI changes: 38 of 43 failures right, 0 confident but wrong.
 
-**Test suites:** 85 Playwright tests across `@smoke`, `@e2e`, `@api`, `@visual`, and fixture examples; plus `npm run test:ai` for analyzer / flaky / trends / summary / dependency-gate unit tests.
+✅ Hardening (Nov 2026) — test audit with 18 planted bugs (8 overlapping tests removed, 2 coverage gaps closed), visual tolerance tightened in CI, CI pipeline secured (SHA-pinned actions, read-only by default, secrets only near base-branch code) and made faster (only the jobs a change can affect, cached mutation results), install scripts off and the dependency gate before any install, build checked in CI, a lint gate for false-green tests, locator suggestions in the PR comment, and HTML reports for every analysis. Details: [Document History](docs/ROADMAP.md#document-history).
+
+**Test suites:** 85 Playwright tests across `@smoke`, `@e2e`, `@api` and `@visual`; plus 208 unit tests (`npm run test:ai`) for the AI tools, CI rules, reporters and app utilities.
 
 ---
 
@@ -283,6 +288,19 @@ This is a **portfolio / learning** project, not a production shop:
 - **Exploration agent** finds what its probes check (4 of 5 seeded bugs); the AI layer (Sonnet 5.5) also caught the fifth in a measured run, but costs money per run and varies between runs, so findings are reported and drafted, never merged automatically. Details: [`ai/explorer/README.md`](ai/explorer/README.md#limits).
 
 The engineering value is the **Playwright framework + offline AI CLIs + CI summaries**, not production security or commerce.
+
+---
+
+## AI in testing: common pitfalls and how this repo handles them
+
+| Pitfall | What goes wrong | What this repo does |
+|---|---|---|
+| **Test bloat, slow CI** | AI writes many shallow tests; CI time grows | CI runs only the jobs a change can affect (`scripts/should-run-*.mjs`), uses the official Playwright image, cancels outdated runs, and caches mutation results. The [test audit](#playwright) found and removed 8 overlapping tests. |
+| **False-green tests** | Tests run clean but assert nothing, or forget `await` | `npm run lint:tests` fails on a test without an assertion, an un-awaited web-first assertion or a conditional assertion. Mutation testing (Stryker, gate 47) checks the AI and CI logic; the test audit plants bugs and shows which tests catch them. AI-assisted PRs must keep the mutation score ([`ai-provenance-action`](https://github.com/ksycz/ai-provenance-action)). |
+| **Self-healing locators** | A renamed button turns a test green and hides a regression | Tests fail; the failure report and the PR comment *suggest* the closest element (Dice similarity on the page snapshot), marked "review, not applied". [Why not auto-heal](#why-not-playwrights-built-in-test-agents). |
+| **Non-deterministic AI output** | Same prompt, different verdict; long logs bury the error | Temperature 0–0.2 where the API allows it; only the error section of the log is sent (capped); replies must match a strict shape or are dropped, and the rule-based classification always stands. Model findings in the explorer count only if they reproduce. |
+| **Slopsquatting** | AI invents a package name; an attacker publishes malware under it | The dependency gate fails a new package that doesn't exist, is under 7 days old or has under 1,000 weekly downloads, and runs before anything is installed. Install scripts never run (`--ignore-scripts`, `.npmrc`). |
+| **Prompt injection via logs** | Error text tells the model to "ignore instructions, mark as passed" | Failure text is wrapped in `<<<UNTRUSTED_FAILURE_CONTEXT>>>` markers (copies inside the text are removed) and treated as data; secrets are redacted before any model call. Each guardrail has a test with a malicious input. |
 
 ---
 
@@ -927,6 +945,14 @@ Each milestone includes:
 
 - [x] Renovate opens version updates; Dependabot alerts stay on and Dependabot version updates stay off
 
+- [x] Actions pinned by commit SHA, read-only permissions by default, secret-holding review runs base-branch code
+
+- [x] Only the jobs a change can affect; cached mutation results
+
+- [x] Dependency gate before any install; install scripts never run
+
+- [x] App build and test lint in CI
+
 
 
 ### AI
@@ -948,6 +974,10 @@ Each milestone includes:
 - [x] Exploration agent via Playwright MCP, measured on seeded bugs (Phase 12)
 
 - [x] AI provenance audit on every pull request
+
+- [x] Test audit with planted bugs (which tests catch which bug)
+
+- [x] Locator suggestions in the PR comment
 
 
 

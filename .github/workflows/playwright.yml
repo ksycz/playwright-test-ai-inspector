@@ -314,6 +314,11 @@ jobs:
       - name: Run analyzer unit tests
         run: npm run test:ai
 
+      # Type-checks the app (and its Node unit tests) and builds it. The browser suites run the
+      # dev server, which doesn't type-check, so without this a broken build went unnoticed.
+      - name: Build the app
+        run: npm run build
+
   dep-gate:
     name: New dependency gate
     needs: changes

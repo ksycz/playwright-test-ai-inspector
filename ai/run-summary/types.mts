@@ -3,11 +3,24 @@ export interface SuiteSummaryInput {
   reportPath: string;
 }
 
+export interface LocatorHint {
+  fullTitle: string;
+  file: string;
+  /** The locator the test waited for, as Playwright printed it. */
+  failed: string;
+  /** The closest element in the page snapshot, as a locator. */
+  suggested: string;
+  score: number;
+  confidence: 'high' | 'medium' | 'low';
+}
+
 export interface SummarizedFailure {
   fullTitle: string;
   file: string;
   lastError: string | null;
   category: string;
+  /** Top locator suggestion, when the test job wrote locator-hints.json. Never applied automatically. */
+  locator?: LocatorHint;
 }
 
 export interface SuiteRunSummary {

@@ -55,6 +55,7 @@ After every completed milestone, update:
 | **11** | Quality Gates for AI-Written Code | ✅ Completed | Mutation testing, convention-aware PR review, gate list |
 | **12** | Agentic Exploratory Testing | ✅ Completed | Spec-driven exploration agent via Playwright MCP |
 | **13** | Locator Change Suggestions | ✅ Completed | Suggest the renamed element when a locator finds nothing; never auto-heal |
+| — | Hardening (Nov 2026) | ✅ Completed | Test audit, CI security and speed, supply chain, build and test lint in CI, locator hints in the PR comment, HTML reports. See [Hardening after Phase 13](#hardening-after-phase-13-nov-2026) |
 
 ---
 
@@ -3475,7 +3476,27 @@ AI governance and traceability (ISO/IEC 42001, ISO 27001 audit trail) lives in a
 - Emit an audit artifact per PR: AI-tagged files/lines, which gates ran, results
 - Cross-link from README once adopted here ✅
 
-Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as Phase 11), warning when no report exists because mutation testing only runs when `ai/` changes. No label or approval gates: one maintainer, and the Action doesn't count the author's own approval.
+Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as Phase 11), skipped when no report exists, because mutation testing only runs when mutated code or tests change (`on-missing: skip`; the Action treats `warn` like `fail`). No label or approval gates: one maintainer, and the Action doesn't count the author's own approval.
+
+---
+
+# Hardening after Phase 13 (Nov 2026)
+
+No new phase: a review of what the first thirteen phases left open, guided by the usual pitfalls of AI in testing (README section "AI in testing: common pitfalls"). Each item was one pull request.
+
+| Area | What changed | PR |
+|---|---|---|
+| Evaluation | Model errors make a run "incomplete" instead of counting as missed bugs; Sonnet 5.5 vs Haiku 4.5 on the blind-spot bug; readable model errors; replay by role and name | #47–#53 |
+| CI security | Actions pinned by SHA (Renovate keeps them current); `permissions: contents: read` by default; the LLM-holding test review runs base-branch code with the PR as data | #54, #55 |
+| Test quality | `npm run tests:audit`: suites run once per planted bug (18 bugs). Removed 8 overlapping tests (93 → 85), closed the "home shows every product" gap | #56–#58, #60–#62 |
+| Visual tests | `VISUAL_MAX_DIFF_RATIO`: 0.1 locally, 0.02 in CI (a red header was missed at 0.1); baselines regenerated in the CI image; label-triggered baseline workflow | #63 |
+| Reports | `--format html` for flaky, trends and run summary; one shared HTML escaper (mutation-tested); repo-relative paths in shared pages; real screenshots in the README | #67, #68 |
+| CI speed | Only the jobs a change can affect; cached Stryker incremental results with a nightly `--force` run | #66 |
+| Docs | Every README command explained with how to open its report; why not Playwright's built-in test agents | #64, #67, #69 |
+| Supply chain | Dependency gate runs before any install; `npm ci --ignore-scripts` everywhere, `ignore-scripts=true` in `.npmrc` | #70 |
+| Build | Fixed for TypeScript 7; `npm run build` in CI | #71 |
+| False-green tests | `npm run lint:tests` (ESLint + `eslint-plugin-playwright`); `test:ai` ran only 28 of 38 test files (unquoted `**`), now all | #72 |
+| Locator hints | Top locator suggestion under each locator failure in the PR comment, "review, not applied" | #73 |
 
 ---
 
@@ -3483,6 +3504,7 @@ Policy choices: one gate, mutation score ≥ 47 on AI-touched files (same bar as
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | Locator suggestions in the sticky PR comment: the test job writes `locator-hints.json` (`npm run analyze:locators`), the summary lists the top suggestion under each locator failure, marked "review, not applied" |
 | 2026-11-10 | Test lint gate (`npm run lint:tests`, ESLint + `eslint-plugin-playwright`): no test without an assertion, no un-awaited web-first assertion, no conditional assertion. Fixed `test:ai`, which skipped 10 of 38 test files because the shell expanded its `**` patterns one level deep (162 → 202 tests) |
 | 2026-11-10 | Build fixed for TypeScript 7 (`baseUrl` removed; app unit tests type-checked with Node types) and `npm run build` added to CI, so a broken build can't go unnoticed again |
 | 2026-11-10 | Supply chain: dependency gate runs before any install (its job no longer runs `npm ci`); `npm ci --ignore-scripts` in every job and `ignore-scripts=true` in `.npmrc`, so a new package's install script can't run in the test jobs that install in parallel |

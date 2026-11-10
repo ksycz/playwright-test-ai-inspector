@@ -2,6 +2,19 @@ import { escapeMarkdown } from '../shared/markdown.mts';
 import { code, dataTable, escapeHtml, htmlPage, muted, section, statTiles } from '../shared/html.mts';
 import type { RunSummaryReport, SuiteRunSummary } from './types.mts';
 
+/**
+ * Inline code for text from the page (untrusted): one line, at most 200 characters, and a fence
+ * longer than any backtick run inside, so it can't close the code span early.
+ */
+function inlineCode(raw: string): string {
+  const flat = raw.replace(/\s+/g, ' ').trim();
+  const value = flat.length > 200 ? `${flat.slice(0, 199)}…` : flat;
+  const longest = Math.max(0, ...(value.match(/`+/g) ?? []).map((run) => run.length));
+  const fence = '`'.repeat(longest + 1);
+  const pad = value.startsWith('`') || value.endsWith('`') ? ' ' : '';
+  return `${fence}${pad}${value}${pad}${fence}`;
+}
+
 function statusEmoji(status: SuiteRunSummary['status'] | RunSummaryReport['overallStatus']): string {
   switch (status) {
     case 'passed':
@@ -36,6 +49,13 @@ function formatSuiteSection(suite: SuiteRunSummary): string {
       const error = failure.lastError ? ` — \`${escapeMarkdown(failure.lastError)}\`` : '';
       lines.push(`- **${escapeMarkdown(failure.category)}:** ${escapeMarkdown(failure.fullTitle)}${error}`);
       lines.push(`  - file: \`${escapeMarkdown(failure.file)}\``);
+      if (failure.locator) {
+        const hint = failure.locator;
+        lines.push(
+          `  - suggested locator (similarity ${hint.score.toFixed(2)}, ${hint.confidence}; review, not applied): ` +
+            `${inlineCode(hint.suggested)} instead of ${inlineCode(hint.failed)}`,
+        );
+      }
     }
     lines.push('');
   }
@@ -116,7 +136,13 @@ function htmlSuite(suite: SuiteRunSummary): string {
         ['Cause', 'Test', 'Error'],
         suite.hardFailures.map((failure) => [
           { html: `<span class="badge">${escapeHtml(failure.category)}</span>` },
-          { html: `${escapeHtml(failure.fullTitle)}<br />${code(failure.file)}` },
+          {
+            html:
+              `${escapeHtml(failure.fullTitle)}<br />${code(failure.file)}` +
+              (failure.locator
+                ? `<br /><span class="muted">Suggested locator (similarity ${failure.locator.score.toFixed(2)}, ${escapeHtml(failure.locator.confidence)}; review, not applied):</span> ${code(failure.locator.suggested)} <span class="muted">instead of</span> ${code(failure.locator.failed)}`
+                : ''),
+          },
           { html: failure.lastError ? code(failure.lastError) : '' },
         ]),
       )}`;

@@ -27,6 +27,7 @@
     "analyze:flaky": "node --experimental-strip-types ai/flaky-detector/cli.mts",
     "analyze:trends": "node --experimental-strip-types ai/failure-trends/cli.mts",
     "analyze:summary": "node --experimental-strip-types ai/run-summary/cli.mts",
+    "analyze:locators": "node --experimental-strip-types ai/run-summary/locators-cli.mts",
     "analyze:deps": "node --experimental-strip-types ai/dep-gate/cli.mts",
     "analyze:review": "node --experimental-strip-types ai/pr-review/cli.mts",
     "tests:audit": "node --experimental-strip-types scripts/tests-audit.mts",

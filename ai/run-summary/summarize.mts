@@ -1,5 +1,6 @@
 import { analyzeFlakyReport } from '../flaky-detector/analyze.mts';
 import { classifyFailure } from '../failure-analyzer/classify.mts';
+import { hintKey, readLocatorHints } from './locators.mts';
 import type {
   RunSummaryReport,
   SuiteRunSummary,
@@ -52,13 +53,16 @@ function deriveSuiteStatus(summary: {
 
 export async function summarizeSuite(input: SuiteSummaryInput): Promise<SuiteRunSummary> {
   const analysis = await analyzeFlakyReport(input.reportPath);
+  const hints = await readLocatorHints(analysis.sourcePath);
   const hardFailures: SummarizedFailure[] = analysis.unexpectedTests.map((test) => {
     const lastError = lastErrorMessage(test.attempts);
+    const locator = hints.get(hintKey(test));
     return {
       fullTitle: test.fullTitle,
       file: test.file,
       lastError,
       category: classifyError(lastError),
+      ...(locator ? { locator } : {}),
     };
   });
 

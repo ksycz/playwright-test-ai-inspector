@@ -20,7 +20,7 @@ Playwright framework conventions for this repository (Phases 2–9).
 
 ### When a locator breaks: suggest, don't self-heal
 
-If a test fails because a locator finds nothing, the failure report (`npm run analyze:report`) has a **Locator suggestions** section with the closest elements from the page snapshot. Treat it as a lead, not a fix:
+If a test fails because a locator finds nothing, the failure report (`npm run analyze:report`) has a **Locator suggestions** section with the closest elements from the page snapshot. On a pull request you see the top one without downloading anything: the sticky PR comment lists it under the failure, with its similarity and "review, not applied". (The test job runs `npm run analyze:locators` right after a failed run, while the failed tests' folders still exist, and passes `locator-hints.json` to the summary job.) Treat it as a lead, not a fix:
 
 - Check whether the UI change was intended. A renamed or removed button can be the bug.
 - If it was intended, update the page object (not the spec), and keep role + accessible name locators.

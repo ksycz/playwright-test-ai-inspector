@@ -857,6 +857,7 @@ Additional documentation is available in the `docs` directory.
 - [`PROJECT.md`](docs/PROJECT.md) — vision and development principles
 - [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) — architectural decisions (app, tests, AI, CI)
 - [`APP_SPEC.md`](docs/APP_SPEC.md) — demo shop functional specification
+- [`AGENTS.md`](AGENTS.md) — rules every coding agent follows here (`CLAUDE.md` imports it; Cursor points to it)
 - [`AI_GUIDELINES.md`](docs/AI_GUIDELINES.md) — AI-assisted development guidelines
 - [`TESTING.md`](docs/TESTING.md) — Playwright conventions, suites, AI CLIs, CI
 - [`ROADMAP.md`](docs/ROADMAP.md) — milestone plan and progress log

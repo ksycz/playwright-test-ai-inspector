@@ -3505,6 +3505,7 @@ No new phase: a review of what the first thirteen phases left open, guided by th
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | `AGENTS.md` at the repo root (plus a `CLAUDE.md` that imports it): test conventions, spec-as-ground-truth, AI-code rules, dependency gate, PR format. `.cursor/rules/project.mdc` now points to it, so Claude Code, Codex and Cursor read the same rules |
 | 2026-11-10 | "CI result" job: one aggregate check (every job passed or was skipped on purpose) for `main` to require, so failing gates block merges; until now no check was required |
 | 2026-11-10 | Locator suggestions in the sticky PR comment: the test job writes `locator-hints.json` (`npm run analyze:locators`), the summary lists the top suggestion under each locator failure, marked "review, not applied" |
 | 2026-11-10 | Test lint gate (`npm run lint:tests`, ESLint + `eslint-plugin-playwright`): no test without an assertion, no un-awaited web-first assertion, no conditional assertion. Fixed `test:ai`, which skipped 10 of 38 test files because the shell expanded its `**` patterns one level deep (162 → 202 tests) |

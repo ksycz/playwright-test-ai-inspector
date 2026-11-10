@@ -15,13 +15,13 @@ const header = "import { test, expect } from '@playwright/test';\n";
 
 describe('LINT: Playwright test lint gate', () => {
   it('LINT-01: a test without any assertion fails', async () => {
-    const rules = await rulesFor(`${header}test('x', async ({ page }) => { await page.goto('/'); });`);
+    const rules = await rulesFor(`${header}test('P0-M0-01: x', async ({ page }) => { await page.goto('/'); });`);
     assert.ok(rules.includes('playwright/expect-expect'), rules.join(', '));
   });
 
   it('LINT-02: a web-first assertion without await fails', async () => {
     const rules = await rulesFor(
-      `${header}test('x', async ({ page }) => { expect(page.getByRole('button')).toBeVisible(); });`,
+      `${header}test('P0-M0-01: x', async ({ page }) => { expect(page.getByRole('button')).toBeVisible(); });`,
     );
     assert.ok(rules.includes('playwright/missing-playwright-await'), rules.join(', '));
   });
@@ -36,21 +36,27 @@ describe('LINT: Playwright test lint gate', () => {
 
   it('LINT-04: an assertion inside an if fails', async () => {
     const rules = await rulesFor(
-      `${header}test('x', async ({ page }) => { if (await page.title()) { await expect(page).toHaveURL('/'); } });`,
+      `${header}test('P0-M0-01: x', async ({ page }) => { if (await page.title()) { await expect(page).toHaveURL('/'); } });`,
     );
     assert.ok(rules.includes('playwright/no-conditional-expect'), rules.join(', '));
   });
 
   it('LINT-05: a helper named expectSomething counts as an assertion', async () => {
     const rules = await rulesFor(
-      `${header}async function expectHome(p: any) { await expect(p).toHaveURL('/'); }\ntest('x', async ({ page }) => { await expectHome(page); });`,
+      `${header}async function expectHome(p: any) { await expect(p).toHaveURL('/'); }\ntest('P0-M0-01: x', async ({ page }) => { await expectHome(page); });`,
     );
     assert.deepEqual(rules, []);
   });
 
+  it('LINT-07: a test title without an ID fails, one with an ID passes', async () => {
+    const body = "async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading')).toBeVisible(); }";
+    assert.deepEqual(await rulesFor(`${header}test('no id here', ${body});`), ['playwright/valid-title']);
+    assert.deepEqual(await rulesFor(`${header}test('P2-M6-05: has an id', ${body});`), []);
+  });
+
   it('LINT-06: a well-formed test passes', async () => {
     const rules = await rulesFor(
-      `${header}test('x', async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading')).toBeVisible(); });`,
+      `${header}test('P0-M0-01: x', async ({ page }) => { await page.goto('/'); await expect(page.getByRole('heading')).toBeVisible(); });`,
     );
     assert.deepEqual(rules, []);
   });

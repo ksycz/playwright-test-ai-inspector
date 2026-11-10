@@ -3509,6 +3509,7 @@ No new phase: a review of what the first thirteen phases left open, guided by th
 
 | Date | Change |
 |---|---|
+| 2026-11-10 | Lint rule: `playwright/valid-title` fails a test whose title doesn't start with an ID (`P2-M6-05: …`); `LINT-07` covers it |
 | 2026-11-10 | Test IDs: ten tests without an ID now have `P2-M6-05`…`P2-M6-14` and the second `P5-M4-04` became `P5-M4-06`; the three fixture tests in `fixtures.spec.ts` had no suite tag, so no CI suite ran them, and are now `@smoke` |
 | 2026-11-10 | `AGENTS.md` at the repo root (plus a `CLAUDE.md` that imports it): test conventions, spec-as-ground-truth, AI-code rules, dependency gate, PR format. `.cursor/rules/project.mdc` now points to it, so Claude Code, Codex and Cursor read the same rules |
 | 2026-11-10 | "CI result" job: one aggregate check (every job passed or was skipped on purpose) for `main` to require, so failing gates block merges; until now no check was required |

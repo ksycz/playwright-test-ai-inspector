@@ -12,6 +12,7 @@ A generated spec asserts the **correct** behaviour from `docs/APP_SPEC.md`: it f
 
 - the steps still make sense as a user journey (the generator maps them to `tests/pages` objects and `loginViaUi` where it can),
 - the assertions test what the spec says, not what the explorer happened to see,
+- the title starts with an ID (`P12-M3-NN: …`), which `lint:tests` requires and the generator doesn't add,
 - it doesn't duplicate an existing test. Probe findings often match tests that already exist; the drafts worth keeping cover something the suite doesn't.
 
 Specs marked `test.fixme` are incomplete: a step or the assertion couldn't be generated (common for model findings) and has to be written by hand.

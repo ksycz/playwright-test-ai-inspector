@@ -28,6 +28,9 @@ export default [
       'playwright/no-focused-test': 'error',
       // Fixed sleeps make tests slow and flaky; wait for a locator or a response instead.
       'playwright/no-wait-for-timeout': 'error',
+      // Every test title starts with its ID (P2-M6-05: ...); the run summary and failure trends
+      // group by it, and a title without one can't be found in the roadmap tables.
+      'playwright/valid-title': ['error', { mustMatch: { test: '^P\\d+-M\\d+-\\d+: ' } }],
       // Retrying web-first assertions instead of reading a value once and comparing it.
       'playwright/prefer-web-first-assertions': 'error',
     },

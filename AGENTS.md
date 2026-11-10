@@ -15,7 +15,7 @@ Before building a feature, write down the user scenarios, the future Playwright 
 - Put page interactions in `tests/pages` and setup in `tests/fixtures`. Specs read as scenarios.
 - Put every `await expect(...)` assertion in the test or in a helper named `expectSomething`. The lint gate counts only those as assertions.
 - Tag each test `@smoke`, `@e2e`, `@api` or `@visual`; CI selects suites by tag.
-- Start each test title with its ID, as in `test('P1-M6-01: login with valid credentials succeeds', …)`; the run summary and failure trends group by it.
+- Start each test title with its ID, as in `test('P1-M6-01: login with valid credentials succeeds', …)`; the run summary and failure trends group by it, and `lint:tests` fails a title without one. Take the next free ID and add it to the roadmap table.
 - Assert with retrying `await expect(locator)…` and check one behaviour per test.
 - Give every test its own state; Playwright starts each with an empty cart and storage, so tests never depend on each other.
 - Take data from `tests/data` and reach pages by relative path; `baseURL` is set in the config.

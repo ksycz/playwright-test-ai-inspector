@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@playwright/mcp": "0.0.84",
+    "@playwright/mcp": "0.0.85",
     "@playwright/test": "^1.57.0",
     "@stryker-mutator/core": "^10.1.1",
     "@stryker-mutator/tap-runner": "^10.1.1",
